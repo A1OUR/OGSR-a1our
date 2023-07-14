@@ -846,21 +846,21 @@ void demo_record_set_direct_input(bool f)
 
 #include "string_table.h"
 #include "MainMenu.h"
-bool valid_file_name(LPCSTR file_name)
-{
-    LPCSTR I = file_name;
-    LPCSTR E = file_name + xr_strlen(file_name);
-    for (; I != E; ++I)
-    {
-        if (!strchr("/\\:*?\"<>|", *I))
-            continue;
-
-        return (false);
-    };
-
-    return (true);
-}
-
+//bool valid_file_name(LPCSTR file_name)
+//{
+//    LPCSTR I = file_name;
+//    LPCSTR E = file_name + xr_strlen(file_name);
+//    for (; I != E; ++I)
+//    {
+//        if (!strchr("/\\:*?\"<>|", *I))
+//            continue;
+//
+//        return (false);
+//    };
+//
+//    return (true);
+//}
+//
 void make_story_save(LPCSTR args)
 {
     if (!g_actor || !Actor()->g_Alive())
@@ -873,11 +873,11 @@ void make_story_save(LPCSTR args)
     //.		sscanf					(args ,"%s",S);
     strcpy_s(S, args);
 
-    if (!valid_file_name(S))
+    /*if (!valid_file_name(S))
     {
         Msg("invalid file name");
         return;
-    }
+    }*/
 
     NET_Packet net_packet;
     net_packet.w_begin(M_SAVE_GAME);
@@ -926,7 +926,8 @@ void CLevel::script_register(lua_State* L)
 
         module(L, "level")[
             // obsolete\deprecated
-            def("object_by_id", &get_object_by_id), def("create_story_save", &make_story_save), def("is_removing_objects", &is_removing_objects_script),
+            def("object_by_id", &get_object_by_id), def("is_removing_objects", &is_removing_objects_script),
+            def("create_story_save", &make_story_save),
 #ifdef DEBUG
             def("debug_object", &get_object_by_name), def("debug_actor", &tpfGetActor), def("check_object", &check_object),
 #endif
