@@ -24,7 +24,7 @@ public:
     virtual void OnH_B_Independent(bool just_before_destroy) override;
 
     virtual void shedule_Update(u32 dt) override;
-
+    virtual bool checkforenemies();
     virtual void feel_touch_new(CObject* O) override;
     virtual void feel_touch_delete(CObject* O) override;
     virtual BOOL feel_touch_contact(CObject* O) override;
@@ -47,7 +47,6 @@ public:
     virtual void load(IReader& input_packet) override;
 
     virtual LPCSTR Name() override;
-
 private:
     void UpdateActiveContacts();
 

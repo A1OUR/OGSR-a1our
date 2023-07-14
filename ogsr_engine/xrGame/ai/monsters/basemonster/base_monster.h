@@ -326,7 +326,7 @@ public:
     // Special Services (refactoring needed)
 
     void on_kill_enemy(const CEntity* obj);
-    void Hit_Psy(CObject* object, float value);
+    void Hit_Psy(const CEntityAlive* object, float value);
     void Hit_Wound(CObject* object, float value, const Fvector& dir, float impulse);
     CParticlesObject* PlayParticles(const shared_str& name, const Fvector& position, const Fvector& dir, BOOL auto_remove = TRUE, BOOL xformed = TRUE);
     void load_effector(LPCSTR section, LPCSTR line, SAttackEffector& effector);

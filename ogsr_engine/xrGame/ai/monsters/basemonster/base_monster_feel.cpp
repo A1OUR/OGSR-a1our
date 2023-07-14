@@ -295,7 +295,7 @@ void CBaseMonster::SetAttackEffector()
     }
 }
 
-void CBaseMonster::Hit_Psy(CObject* object, float value)
+void CBaseMonster::Hit_Psy(const CEntityAlive* object, float value)
 {
     NET_Packet P;
     SHit HS;

@@ -4,7 +4,6 @@
 #include "../../../Actor.h"
 #include "../../../inventory.h"
 #include "../../../../xr_3da/CameraBase.h"
-
 #include "../../../HUDManager.h"
 
 #define TEMPLATE_SPECIALIZATION template <typename _Object>
@@ -13,6 +12,8 @@
 
 //#define VAMPIRE_MIN_DIST		0.5f
 //#define VAMPIRE_MAX_DIST		1.f
+
+extern bool g_bDisableAllInput;
 
 TEMPLATE_SPECIALIZATION
 void CStateBloodsuckerVampireExecuteAbstract::initialize()
@@ -35,7 +36,7 @@ void CStateBloodsuckerVampireExecuteAbstract::initialize()
 
     Actor()->inventory().SetSlotsBlocked(INV_STATE_BLOCK_ALL, true);
 
-    // Actor()->set_inventory_disabled	(true);
+    g_bDisableAllInput = true;
 
     m_effector_activated = false;
     m_health_loss_activated = false;
@@ -113,7 +114,7 @@ void CStateBloodsuckerVampireExecuteAbstract::show_hud()
 TEMPLATE_SPECIALIZATION
 void CStateBloodsuckerVampireExecuteAbstract::cleanup()
 {
-    // Actor()->set_inventory_disabled	(false);
+    g_bDisableAllInput = false;
 
     if (object->com_man().ta_is_active())
         object->com_man().ta_deactivate();
@@ -155,37 +156,55 @@ bool CStateBloodsuckerVampireExecuteAbstract::check_start_conditions()
     // 	float dist		= object->MeleeChecker.distance_to_enemy	(enemy);
     // 	if ((dist > VAMPIRE_MAX_DIST) || (dist < VAMPIRE_MIN_DIST))	return false;
 
-    if (!object->done_enough_hits_before_vampire())
-        return false;
+    //if (!object->done_enough_hits_before_vampire())
+    //{
+    //    Msg("not enough hits");
+    //    return false;
+    //}
 
     u32 const vertex_id = ai().level_graph().check_position_in_direction(object->ai_location().level_vertex_id(), object->Position(), enemy->Position());
     if (!ai().level_graph().valid_vertex_id(vertex_id))
+    {
+        Msg("ai bad");
         return false;
-
+    }
     if (!object->MeleeChecker.can_start_melee(enemy))
+    {
+        Msg("cant melee");
         return false;
-
+    }
     // проверить направление на врага
     if (!object->control().direction().is_face_target(enemy, PI_DIV_2))
+    {
+        Msg("bad direction");
         return false;
-
+    }
     if (!object->WantVampire())
+    {
+        Msg("dont want wamp execute");
         return false;
-
+    }
     // является ли враг актером
     if (!smart_cast<CActor const*>(enemy))
+    {
+        Msg("nme not actor");
         return false;
-
+    }
     if (object->CControlledActor::is_controlling())
+    {
+        Msg("actor already controlled execute");
         return false;
-
+    }
     const CActor* actor = smart_cast<const CActor*>(enemy);
 
     VERIFY(actor);
 
     if (actor->input_external_handler_installed())
+    {
+        Msg("nepoymi cho execute");
         return false;
-
+    }
+    Msg("execute gut");
     return true;
 }
 

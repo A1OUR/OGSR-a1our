@@ -252,22 +252,40 @@ BOOL CController::net_Spawn(CSE_Abstract* DC)
     return (TRUE);
 }
 
+//void CController::UpdateControlled()
+//{
+//    // если есть враг, проверить может ли быть враг взят под контроль
+//    if (EnemyMan.get_enemy())
+//    {
+//        CControlledEntityBase* entity = smart_cast<CControlledEntityBase*>(const_cast<CEntityAlive*>(EnemyMan.get_enemy()));
+//        if (entity)
+//        {
+//            if (!entity->is_under_control() && (m_controlled_objects.size() < m_max_controlled_number))
+//            {
+//                // взять под контроль
+//                Msg("vziat");
+//                entity->set_under_control(this);
+//                entity->set_task_follow(this);
+//                m_controlled_objects.push_back(const_cast<CEntityAlive*>(EnemyMan.get_enemy()));
+//            }
+//        }
+//    }
+//}
+
 void CController::UpdateControlled()
 {
     // если есть враг, проверить может ли быть враг взят под контроль
     if (EnemyMan.get_enemy())
     {
-        CControlledEntityBase* entity = smart_cast<CControlledEntityBase*>(const_cast<CEntityAlive*>(EnemyMan.get_enemy()));
-        if (entity)
+        CActor* pA = const_cast<CActor*>(smart_cast<const CActor*>(EnemyMan.get_enemy()));
+        if (pA)
         {
-            if (!entity->is_under_control() && (m_controlled_objects.size() < m_max_controlled_number))
-            {
-                // взять под контроль
-                entity->set_under_control(this);
-                entity->set_task_follow(this);
-                m_controlled_objects.push_back(const_cast<CEntityAlive*>(EnemyMan.get_enemy()));
-            }
+            return;
         }
+        Msg("havai");
+        Fvector pos = EnemyMan.get_enemy()->Position();
+        CEntityAlive* enemy = const_cast<CEntityAlive*>(EnemyMan.get_enemy());
+        HitEntity(enemy, 0.2f, 0.0f, pos, ALife::EHitType::eHitTypeTelepatic, 0);
     }
 }
 
@@ -357,7 +375,6 @@ void CController::reinit()
 void CController::control_hit()
 {
     Hit_Psy(const_cast<CEntityAlive*>(EnemyMan.get_enemy()), 30.f);
-
     // start postprocess
     CActor* pA = const_cast<CActor*>(smart_cast<const CActor*>(EnemyMan.get_enemy()));
 
@@ -430,7 +447,7 @@ void CController::shedule_Update(u32 dt)
 
     if (g_Alive())
     {
-        UpdateControlled();
+        //UpdateControlled();
         if (can_tube_fire())
             tube_fire();
     }
@@ -546,7 +563,11 @@ void CController::set_psy_fire_delay_default() { m_psy_fire_delay = _pmt_psy_att
 // TUBE
 //////////////////////////////////////////////////////////////////////////
 
-void CController::tube_fire() { control().activate(ControlCom::eComCustom1); }
+void CController::tube_fire() 
+{ 
+    Msg("firing");
+    control().activate(ControlCom::eComCustom1); 
+}
 
 bool CController::can_tube_fire()
 {
@@ -558,22 +579,34 @@ bool CController::can_tube_fire()
         {
             return true;
         }
-
+        Msg("tube at anus");
         return false;
     }
 
     if (!EnemyMan.get_enemy())
+    {
+        Msg("ememy");
         return false;
-
+        Msg("ememy");
+    }
     if (EnemyMan.see_enemy_duration() < m_tube_condition_see_duration)
+    {
+        Msg("not enough time see");
         return false;
-
+        Msg("not enough time see");
+    }
     if (!m_psy_hit->check_start_conditions())
+    {
+        Msg("bad cond");
         return false;
-
+        Msg("bad cond");
+    }
     if (EnemyMan.get_enemy()->Position().distance_to(Position()) < m_tube_condition_min_distance)
+    {
+        Msg("distans");
         return false;
-
+        Msg("distans");
+    }
     return true;
 }
 

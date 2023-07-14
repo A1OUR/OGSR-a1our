@@ -324,7 +324,10 @@ void CScriptGameObject::RestoreDefaultStartDialog()
         return;
     pDialogManager->RestoreDefaultStartDialog();
 }
-
+void CScriptGameObject::SetActorSafety(bool cansav)
+{
+    Actor()->SavabilityActor = cansav;
+}
 void CScriptGameObject::SetActorPosition(Fvector pos)
 {
     CActor* actor = smart_cast<CActor*>(&object());

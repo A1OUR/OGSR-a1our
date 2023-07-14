@@ -1689,6 +1689,7 @@ void CActor::spawn_supplies()
     CInventoryOwner::spawn_supplies();
 }
 
+
 void CActor::AnimTorsoPlayCallBack(CBlend* B)
 {
     CActor* actor = (CActor*)B->CallbackParam;

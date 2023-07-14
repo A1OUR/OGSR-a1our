@@ -53,22 +53,46 @@ bool CControllerPsyHit::tube_ready() const
 bool CControllerPsyHit::check_start_conditions()
 {
     if (is_active())
+    {
+        Msg("neactiv");
         return false;
+        Msg("neactiv");
+    }
 
     if (m_man->is_captured_pure())
+    {
+        Msg("capturpur");
         return false;
+        Msg("capturpur");
+    }
 
     if (Actor()->Cameras().GetCamEffector(eCEControllerPsyHit))
+    {
+        Msg("effector");
         return false;
+        Msg("effector");
+    }
 
     if (!see_enemy())
+    {
+        Msg("not see mne");
         return false;
+        Msg("not see mne");
+    }
 
-    if (!tube_ready())
+    /*if (!tube_ready())
+    {
+        Msg("tub not redy");
         return false;
+        Msg("tub not redy");
+    }*/
 
     if (m_object->Position().distance_to(Actor()->Position()) < m_min_tube_dist)
+    {
+        Msg("distans1");
         return false;
+        Msg("distans1");
+    }
 
     return true;
 }
@@ -86,7 +110,7 @@ void CControllerPsyHit::activate()
     SControlDirectionData* ctrl_dir = (SControlDirectionData*)m_man->data(this, ControlCom::eControlDir);
     VERIFY(ctrl_dir);
     ctrl_dir->heading.target_speed = 3.f;
-    ctrl_dir->heading.target_angle = m_man->direction().angle_to_target(Actor()->Position());
+    ctrl_dir->heading.target_angle = m_man->direction().angle_to_target(m_object->EnemyMan.get_enemy()->Position());
 
     //////////////////////////////////////////////////////////////////////////
     m_current_index = 0;
@@ -161,33 +185,57 @@ bool check_actor_visibility(const Fvector trace_from, const Fvector trace_to, CO
 
 } // namespace detail
 
-bool CControllerPsyHit::see_enemy() { return m_object->EnemyMan.see_enemy_now(Actor()); }
+bool CControllerPsyHit::see_enemy() { return m_object->EnemyMan.see_enemy_now(m_object->EnemyMan.get_enemy()); }
+
 
 bool CControllerPsyHit::check_conditions_final()
 {
     if (!m_object->g_Alive())
+    {
         return false;
+        Msg("nonaliv");
+    }
 
-    if (!g_actor)
-        return false;
+    //if (!g_actor)
+    //{
+    //    return false;
+    //    Msg("neactorv");
+    //}
 
-    if (!m_object->EnemyMan.is_enemy(Actor()))
-        return false;
+    //if (!m_object->EnemyMan.is_enemy(Actor()))
+    //{
+    //    return false;
+    //    Msg("neactorv2");
+    //}
 
-    if (!Actor()->g_Alive())
-        return false;
+    //if (!Actor()->g_Alive())
+    //{
+    //    return false;
+    //    Msg("neactorv3");
+    //}
 
-    if (m_object->Position().distance_to_xz(Actor()->Position()) < m_min_tube_dist - 2)
+    if (m_object->Position().distance_to_xz((m_object->EnemyMan.get_enemy())->Position()) < m_min_tube_dist - 2)
+    {
         return false;
+        Msg("neactorv4");
+    }
+
+    Msg("ok");
 
     return see_enemy();
 }
 
 void CControllerPsyHit::death_glide_start()
 {
+    if (!(m_object->EnemyMan.get_enemy() == Actor()))
+    {
+        return;
+        Msg("neactorv2");
+    }
     if (!check_conditions_final())
     {
         m_man->deactivate(this);
+        Msg("cant");
         return;
     }
 
@@ -261,13 +309,22 @@ void CControllerPsyHit::death_glide_start()
 void CControllerPsyHit::death_glide_end()
 {
     CController* monster = smart_cast<CController*>(m_object);
-    monster->draw_fire_particles();
+    if ((m_object->EnemyMan.get_enemy())->g_Alive())
+    {
+        if (m_object->EnemyMan.get_enemy() == Actor())
+        {
+            monster->draw_fire_particles();
 
-    monster->m_sound_tube_hit_left.play_at_pos(Actor(), Fvector().set(-1.f, 0.f, 1.f), sm_2D);
-    monster->m_sound_tube_hit_right.play_at_pos(Actor(), Fvector().set(1.f, 0.f, 1.f), sm_2D);
-
-    m_object->Hit_Psy(Actor(), monster->m_tube_damage);
-
+            monster->m_sound_tube_hit_left.play_at_pos(Actor(), Fvector().set(-1.f, 0.f, 1.f), sm_2D);
+            monster->m_sound_tube_hit_right.play_at_pos(Actor(), Fvector().set(1.f, 0.f, 1.f), sm_2D);
+            m_object->Hit_Psy(m_object->EnemyMan.get_enemy(), monster->m_tube_damage);
+        }
+        else
+        {
+            Fvector pos = m_object->EnemyMan.get_enemy()->Position();
+            m_object->HitEntity(m_object->EnemyMan.get_enemy(), monster->m_tube_damage, 0.0f, pos, ALife::EHitType::eHitTypeWound, 0);
+        }
+    }
     m_time_last_tube = Device.dwTimeGlobal;
     stop();
 }
@@ -288,15 +345,20 @@ void CControllerPsyHit::set_sound_state(ESoundState state)
     CController* monster = smart_cast<CController*>(m_object);
     if (state == ePrepare)
     {
-        monster->m_sound_tube_prepare.play_at_pos(Actor(), Fvector().set(0.f, 0.f, 0.f), sm_2D);
+        if (m_object->EnemyMan.get_enemy() == Actor())
+        {
+            monster->m_sound_tube_prepare.play_at_pos(Actor(), Fvector().set(0.f, 0.f, 0.f), sm_2D);
+        }
     }
     else if (state == eStart)
     {
         if (monster->m_sound_tube_prepare._feedback())
             monster->m_sound_tube_prepare.stop();
-
-        monster->m_sound_tube_start.play_at_pos(Actor(), Fvector().set(0.f, 0.f, 0.f), sm_2D);
-        monster->m_sound_tube_pull.play_at_pos(Actor(), Fvector().set(0.f, 0.f, 0.f), sm_2D);
+        if (m_object->EnemyMan.get_enemy() == Actor())
+        {
+            monster->m_sound_tube_start.play_at_pos(Actor(), Fvector().set(0.f, 0.f, 0.f), sm_2D);
+            monster->m_sound_tube_pull.play_at_pos(Actor(), Fvector().set(0.f, 0.f, 0.f), sm_2D);
+        }
     }
     else if (state == eHit)
     {

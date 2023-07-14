@@ -67,6 +67,11 @@ void CSE_ALifeObject::spawn_supplies(LPCSTR ini_string)
                     CSE_ALifeItemWeapon* W = smart_cast<CSE_ALifeItemWeapon*>(E);
                     if (W)
                     {
+                        if (f_cond == 1.0f)
+                        {
+                            f_cond = 0.1f;
+                        }
+                        f_cond = f_cond + ::Random.randF(0.2f);
                         if (W->m_scope_status == CSE_ALifeItemWeapon::eAddonAttachable)
                             W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonScope, bScope);
                         if (W->m_silencer_status == CSE_ALifeItemWeapon::eAddonAttachable)
@@ -76,7 +81,9 @@ void CSE_ALifeObject::spawn_supplies(LPCSTR ini_string)
                     }
                     CSE_ALifeInventoryItem* IItem = smart_cast<CSE_ALifeInventoryItem*>(E);
                     if (IItem)
+                    {
                         IItem->m_fCondition = f_cond;
+                    }
                 }
             }
         }

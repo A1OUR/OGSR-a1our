@@ -844,6 +844,59 @@ void demo_record_set_direct_input(bool f)
     demo->m_b_redirect_input_to_level = f;
 }
 
+#include "string_table.h"
+#include "MainMenu.h"
+bool valid_file_name(LPCSTR file_name)
+{
+    LPCSTR I = file_name;
+    LPCSTR E = file_name + xr_strlen(file_name);
+    for (; I != E; ++I)
+    {
+        if (!strchr("/\\:*?\"<>|", *I))
+            continue;
+
+        return (false);
+    };
+
+    return (true);
+}
+
+void make_story_save(LPCSTR args)
+{
+    if (!g_actor || !Actor()->g_Alive())
+    {
+        Msg("cannot make saved game because actor is dead :(");
+        return;
+    }
+    string_path S, S1;
+    S[0] = 0;
+    //.		sscanf					(args ,"%s",S);
+    strcpy_s(S, args);
+
+    if (!valid_file_name(S))
+    {
+        Msg("invalid file name");
+        return;
+    }
+
+    NET_Packet net_packet;
+    net_packet.w_begin(M_SAVE_GAME);
+    net_packet.w_stringZ(S);
+    net_packet.w_u8(1);
+    Level().Send(net_packet, net_flags(TRUE));
+
+    SDrawStaticStruct* _s = HUD().GetUI()->UIGame()->AddCustomStatic("game_saved", true);
+    _s->m_endTime = Device.fTimeGlobal + 3.0f; // 3sec
+    string_path save_name;
+    strconcat(sizeof(save_name), save_name, *CStringTable().translate("st_game_saved"), ": ", S);
+    _s->wnd()->SetText(save_name);
+
+    strcat_s(S, ".dds");
+    FS.update_path(S1, "$game_saves$", S);
+
+    MainMenu()->Screenshot(IRender_interface::SM_FOR_GAMESAVE, S1);
+}
+
 CEffectorBobbing* get_effector_bobbing() { return Actor()->GetEffectorBobbing(); }
 
 #pragma optimize("s", on)
@@ -873,7 +926,7 @@ void CLevel::script_register(lua_State* L)
 
         module(L, "level")[
             // obsolete\deprecated
-            def("object_by_id", &get_object_by_id), def("is_removing_objects", &is_removing_objects_script),
+            def("object_by_id", &get_object_by_id), def("create_story_save", &make_story_save), def("is_removing_objects", &is_removing_objects_script),
 #ifdef DEBUG
             def("debug_object", &get_object_by_name), def("debug_actor", &tpfGetActor), def("check_object", &check_object),
 #endif

@@ -261,6 +261,7 @@ class_<CScriptGameObject> script_register_game_object1(class_<CScriptGameObject>
         .def("head_orientation", &CScriptGameObject::head_orientation)
 
         .def("set_actor_position", &CScriptGameObject::SetActorPosition)
+        .def("set_actor_safety", &CScriptGameObject::SetActorSafety)
         .def("set_actor_direction", &CScriptGameObject::SetActorDirection)
 
         .def("set_npc_position", &CScriptGameObject::SetNpcPosition)

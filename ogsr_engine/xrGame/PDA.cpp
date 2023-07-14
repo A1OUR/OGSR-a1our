@@ -534,3 +534,23 @@ CPda::~CPda()
     HUD_SOUND::DestroySound(sndBtnPress);
     HUD_SOUND::DestroySound(sndBtnRelease);
 }
+
+bool CPda::checkforenemies()
+{
+    auto it = feel_touch.begin();
+    for (; it != feel_touch.end(); ++it)
+    {
+        CEntityAlive* pEA = smart_cast<CEntityAlive*>(*it);
+        if (!!pEA->g_Alive())
+            return true;
+    }
+    return false;
+    //auto it = feel_touch.begin();
+    //for (; it != feel_touch.end(); ++it)
+    //{
+    //    CEntityAlive* pEA = smart_cast<CEntityAlive*>(*it);
+    //    if (!!pEA->g_Alive())
+    //        return true;
+    //}
+    //return false;
+}

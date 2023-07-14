@@ -34,6 +34,9 @@
 #include "level_graph.h"
 #include "cameralook.h"
 #include "ai_object_location.h"
+#include "ActorCondition.h"
+
+
 
 #ifdef DEBUG
 #include "PHDebug.h"
@@ -415,17 +418,46 @@ bool valid_file_name(LPCSTR file_name)
 
 #include "UIGameCustom.h"
 #include "HUDManager.h"
+#include "level_script.cpp"
+
 
 class CCC_ALifeSave : public IConsole_Command
 {
 public:
     CCC_ALifeSave(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
     virtual void Execute(LPCSTR args)
-    {
-        if (!g_actor || !Actor()->g_Alive())
-        {
-            Msg("cannot make saved game because actor is dead :(");
-            return;
+    {   
+        
+        if (!GodMode())
+        {   
+            int i;
+            for (i=0; i < 65534; i++)
+            {
+                if (get_object_by_id(i))
+                {
+                    if (((get_object_by_id(i))->GetHealth())>0 and (get_object_by_id(i)->Position().distance_to(get_object_by_id(0)->Position())) < 100 and (get_object_by_id(i)->IsRelationEnemy(get_object_by_id(0))))
+                    {
+                        Msg(get_object_by_id(i)->Name());
+                        HUD().GetUI()->AddInfoMessage("game_not_saved");
+                        return;
+                    }
+                }
+            }
+            if (!g_actor || !Actor()->g_Alive())
+            {
+                Msg("cannot make saved game because actor is dead :(");
+                return;
+            }
+            //if (Actor()->SavabilityActor == 0)
+            //{
+            //    /*Msg("cannot make saved game because actor cant save rn :(");*/
+            //    HUD().GetUI()->AddInfoMessage("game_not_saved");
+            //    //string_path save_name;
+            //    //HUD().GetUI()->AddInfoMessage("gun_jammed");
+            //    //strconcat(sizeof(save_name), save_name, *CStringTable().translate("st_game_not_saved"), ": ", S);
+            //    //_s->wnd()->SetText(save_name);
+            //    return;
+            //}
         }
 
         string_path S, S1;
