@@ -639,6 +639,7 @@ public:
     float GetTotalWeight() const;
     float Weight() const;
     /*************************************************** added by Ray Twitty (aka Shadows) END ***************************************************/
+    void 				SetCharacterIcon(pcstr iconName); // NEW_FUNCTION
 
     /*************************************************** added by Cribbledirge START ***************************************************/
 

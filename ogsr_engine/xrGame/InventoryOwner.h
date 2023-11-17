@@ -60,6 +60,10 @@ public:
 
     // инвентарь
     CInventory* m_inventory;
+    virtual void SetIcon(const shared_str& iconName) // NEW_FUNCTION
+    {
+        CharacterInfo().m_SpecificCharacter.data()->m_icon_name = iconName;
+    }
 
     ////////////////////////////////////
     //торговля и общение с персонажем

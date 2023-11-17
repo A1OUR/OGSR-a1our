@@ -1294,3 +1294,15 @@ void CScriptGameObject::IterateRuck(const luabind::functor<void>& functor, const
         if (!it->object().getDestroy())
             functor(object, it->object().lua_game_object());
 }
+
+void CScriptGameObject::SetCharacterIcon(pcstr iconName) // NEW_FUNCTION
+{
+    CInventoryOwner* pInventoryOwner = smart_cast<CInventoryOwner*>(&object());
+
+    if (!pInventoryOwner)
+    {
+        //GEnv.ScriptEngine->script_log(LuaMessageType::Error, "SetCharacterIcon available only for InventoryOwner");
+        return;
+    }
+    return pInventoryOwner->SetIcon(iconName);
+}

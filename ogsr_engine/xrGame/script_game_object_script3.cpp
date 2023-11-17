@@ -270,7 +270,7 @@ class_<CScriptGameObject> script_register_game_object2(class_<CScriptGameObject>
         .def("get_total_weight", &CScriptGameObject::GetTotalWeight)
         .def("weight", &CScriptGameObject::Weight)
         /*************************************************** added by Ray Twitty (aka Shadows) END ***************************************************/
-
+        .def("set_character_icon", &CScriptGameObject::SetCharacterIcon) // NEW_FUNCTION
         /*************************************************** added by Cribbledirge START ***************************************************/
 
         .def("is_actor_outdoors", &CScriptGameObject::IsActorOutdoors)
