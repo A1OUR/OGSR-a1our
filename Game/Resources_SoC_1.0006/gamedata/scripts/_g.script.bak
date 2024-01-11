@@ -216,12 +216,6 @@ function printf(fmt,...)
 	log(string.format(fmt,...))
 end
 
-function dbglog(fmt,...)
-	local msg = string.format(fmt, ...)
-	local msg_no_ws = string.gsub(msg, "%s", "_")
-	get_console():execute("dbg:" .. msg_no_ws)
-end
-
 ----------------------------------------------------------------------
 if nil == time_global then
 	time_global = function () return device():time_global() end
@@ -1104,7 +1098,6 @@ end
 function is_object_monster(obj)
 	local otype = get_clsid(obj)
 	if(otype == clsid.crow			or
-		otype == clsid.cat			or
 		otype == clsid.zombie		or
 		otype == clsid.flesh		or
 		otype == clsid.controller	or
@@ -1280,22 +1273,6 @@ end
 function IsStalker (object, class_id)
     local id = class_id or get_clsid (object)
     if id == clsid.actor or id == clsid.script_stalker then
-       return true
-    end
-    return false
-end
--------------------------------------------------------------------------------------------
-function IsHelicopter (object, class_id)
-    local id = class_id or get_clsid (object)
-    if id == clsid.script_heli then
-       return true
-    end
-    return false
-end
--------------------------------------------------------------------------------------------
-function IsCar (object, class_id)
-    local id = class_id or get_clsid (object)
-    if id == clsid.car_s then
        return true
     end
     return false
@@ -1490,34 +1467,7 @@ quest_section["bad_psy_helmet"]		= true
 quest_section["decoder"]			= true
 quest_section["dynamite"]			= true
 quest_section["quest_case_01"]		= true
-quest_section["quest_case_03"]		= true
 quest_section["hunters_toz"]		= true
 quest_section["bar_ecolog_flash"]	= true
 quest_section["bar_tiran_pda"]		= true
 quest_section["bar_lucky_pda"]		= true
-quest_section["agr_deserter_pda"]	= true
-quest_section["borov_flash"]		= true
-quest_section["val_key_to_underground"]		= true
-quest_section["dolg_arhive_documents"]		= true
-quest_section["bar_decoding_documents"]		= true
-quest_section["dolg_pda"]			= true
-quest_section["crazy_flash"]		= true
-quest_section["mil_svoboda_leader_pda"]		= true
-quest_section["svoboda_pda"]		= true
-quest_section["bar_sniper_pda"]		= true
-quest_section["bar_key_to_val_underground"]	= true
-quest_section["pri_lom_ak74"]		= true
-quest_section["rad_jaw_zam_pda"]	= true
-quest_section["detector_advances_tutorial"]	= true
-quest_section["wpn_deserteagle_coll"]		= true
-quest_section["wpn_vintorez_coll"]	= true
--- quest_section["outfit_monolith_m1"]	= true			--Убрать (Р.М.А.)
-quest_section["cit_doctors_key"]	= true
-quest_section["war_final_door_key1"]	= true
-quest_section["war_final_door_key2"]	= true
-quest_section["war_final_door_key3"]	= true
-quest_section["war_final_door_notebook"]	= true
-quest_section["cit_leader_killer_pda"]	= true
-quest_section["cit_killers_documents"]	= true
-quest_section["cit_deadcity_maps"]	= true
-quest_section["cit_vp_pda"]			= true

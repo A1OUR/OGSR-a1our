@@ -158,17 +158,7 @@ function main_menu:OnButton_options_clicked()
 	self:GetHolder():start_stop_menu(self.opt_dlg, true)
 	self:Show(false)
 end
-function main_menu:OnButton_cheats_clicked()
--- если еще ни разу не вызывали, то обозначим наш новый скрипт
-	if self.spawner_dlg == nil then
-		self.spawner_dlg = ui_spawner.spawner()
-		self.spawner_dlg.owner = self
-	end
--- останавливаем родительский элемент, запускаем свой, но родителя показываем.
-	self:GetHolder():start_stop_menu(self.spawner_dlg, true)
-	self:GetHolder():start_stop_menu(self, true)
-	self:Show(true)
-end
+
 function main_menu:OnKeyboard(dik, keyboard_action)
 	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
 
@@ -177,8 +167,6 @@ function main_menu:OnKeyboard(dik, keyboard_action)
 			if level.present() and db.actor_proxy.online and db.actor:alive() then
 				self:close_and_delete_menu()
 			end
-		elseif 	dik == DIK_keys.DIK_F1 then
-			self:OnButton_cheats_clicked()
 		elseif dik == DIK_keys.DIK_N then --personal_test
 			xpcall(function() dofile(getFS():update_path("$game_scripts$", "personal_test.lua")) end, log1)
 		end
