@@ -12,6 +12,7 @@
 #include "alife_space.h"
 #include "xrDebug.h"
 #include "xrServer.h"
+
 class CHUDManager;
 class CParticlesObject;
 class xrServer;
@@ -25,6 +26,7 @@ class CGameObject;
 class CPHCommander;
 class CLevelDebug;
 class CLevelSoundManager;
+
 class CDebugRenderer;
 
 extern float g_fov;
@@ -364,4 +366,3 @@ IC CPHCommander& CLevel::ph_commander_scripts()
 class CPHWorld;
 extern CPHWorld* ph_world;
 extern BOOL g_bDebugEvents;
-

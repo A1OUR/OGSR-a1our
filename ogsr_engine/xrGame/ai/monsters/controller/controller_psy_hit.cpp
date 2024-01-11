@@ -54,30 +54,22 @@ bool CControllerPsyHit::check_start_conditions()
 {
     if (is_active())
     {
-        Msg("neactiv");
         return false;
-        Msg("neactiv");
     }
 
     if (m_man->is_captured_pure())
     {
-        Msg("capturpur");
-        return false;
-        Msg("capturpur");
+        return false;;
     }
 
     if (Actor()->Cameras().GetCamEffector(eCEControllerPsyHit))
     {
-        Msg("effector");
         return false;
-        Msg("effector");
     }
 
     if (!see_enemy())
     {
-        Msg("not see mne");
         return false;
-        Msg("not see mne");
     }
 
     /*if (!tube_ready())
@@ -89,9 +81,7 @@ bool CControllerPsyHit::check_start_conditions()
 
     if (m_object->Position().distance_to(Actor()->Position()) < m_min_tube_dist)
     {
-        Msg("distans1");
         return false;
-        Msg("distans1");
     }
 
     return true;
@@ -193,7 +183,6 @@ bool CControllerPsyHit::check_conditions_final()
     if (!m_object->g_Alive())
     {
         return false;
-        Msg("nonaliv");
     }
 
     //if (!g_actor)
@@ -217,10 +206,8 @@ bool CControllerPsyHit::check_conditions_final()
     if (m_object->Position().distance_to_xz((m_object->EnemyMan.get_enemy())->Position()) < m_min_tube_dist - 2)
     {
         return false;
-        Msg("neactorv4");
     }
 
-    Msg("ok");
 
     return see_enemy();
 }
@@ -230,12 +217,10 @@ void CControllerPsyHit::death_glide_start()
     if (!(m_object->EnemyMan.get_enemy() == Actor()))
     {
         return;
-        Msg("neactorv2");
     }
     if (!check_conditions_final())
     {
         m_man->deactivate(this);
-        Msg("cant");
         return;
     }
 

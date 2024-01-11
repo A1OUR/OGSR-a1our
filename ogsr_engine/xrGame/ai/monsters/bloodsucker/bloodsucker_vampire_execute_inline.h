@@ -165,34 +165,28 @@ bool CStateBloodsuckerVampireExecuteAbstract::check_start_conditions()
     u32 const vertex_id = ai().level_graph().check_position_in_direction(object->ai_location().level_vertex_id(), object->Position(), enemy->Position());
     if (!ai().level_graph().valid_vertex_id(vertex_id))
     {
-        Msg("ai bad");
         return false;
     }
     if (!object->MeleeChecker.can_start_melee(enemy))
     {
-        Msg("cant melee");
         return false;
     }
     // проверить направление на врага
     if (!object->control().direction().is_face_target(enemy, PI_DIV_2))
     {
-        Msg("bad direction");
         return false;
     }
     if (!object->WantVampire())
     {
-        Msg("dont want wamp execute");
         return false;
     }
     // является ли враг актером
     if (!smart_cast<CActor const*>(enemy))
     {
-        Msg("nme not actor");
         return false;
     }
     if (object->CControlledActor::is_controlling())
     {
-        Msg("actor already controlled execute");
         return false;
     }
     const CActor* actor = smart_cast<const CActor*>(enemy);
@@ -201,10 +195,8 @@ bool CStateBloodsuckerVampireExecuteAbstract::check_start_conditions()
 
     if (actor->input_external_handler_installed())
     {
-        Msg("nepoymi cho execute");
         return false;
     }
-    Msg("execute gut");
     return true;
 }
 

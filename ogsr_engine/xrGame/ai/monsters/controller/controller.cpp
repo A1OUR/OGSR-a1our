@@ -282,7 +282,6 @@ void CController::UpdateControlled()
         {
             return;
         }
-        Msg("havai");
         Fvector pos = EnemyMan.get_enemy()->Position();
         CEntityAlive* enemy = const_cast<CEntityAlive*>(EnemyMan.get_enemy());
         HitEntity(enemy, 0.2f, 0.0f, pos, ALife::EHitType::eHitTypeTelepatic, 0);
@@ -564,8 +563,7 @@ void CController::set_psy_fire_delay_default() { m_psy_fire_delay = _pmt_psy_att
 //////////////////////////////////////////////////////////////////////////
 
 void CController::tube_fire() 
-{ 
-    Msg("firing");
+{
     control().activate(ControlCom::eComCustom1); 
 }
 
@@ -579,33 +577,24 @@ bool CController::can_tube_fire()
         {
             return true;
         }
-        Msg("tube at anus");
         return false;
     }
 
     if (!EnemyMan.get_enemy())
     {
-        Msg("ememy");
         return false;
-        Msg("ememy");
     }
     if (EnemyMan.see_enemy_duration() < m_tube_condition_see_duration)
     {
-        Msg("not enough time see");
         return false;
-        Msg("not enough time see");
     }
     if (!m_psy_hit->check_start_conditions())
     {
-        Msg("bad cond");
         return false;
-        Msg("bad cond");
     }
     if (EnemyMan.get_enemy()->Position().distance_to(Position()) < m_tube_condition_min_distance)
     {
-        Msg("distans");
         return false;
-        Msg("distans");
     }
     return true;
 }

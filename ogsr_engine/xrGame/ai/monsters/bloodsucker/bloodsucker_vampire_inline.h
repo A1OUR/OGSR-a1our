@@ -99,44 +99,36 @@ bool CStateBloodsuckerVampireAbstract::check_start_conditions()
 {
     if (!object->WantVampire())
     {
-        Msg("dont want vampire");
         return false;
     }
     if (object->berserk_always)
     {
-        Msg("berserk");
         return false;
     }
     // является ли враг актером
     const CEntityAlive* enemy = object->EnemyMan.get_enemy();
     if (!smart_cast<CActor const*>(enemy))
     {
-        Msg("no idea");
         return false;
     }
     if (!object->EnemyMan.see_enemy_now())
     {
-        Msg("see nme now");
         return false;
     }
     if (object->CControlledActor::is_controlling())
     {
-        Msg("actor already controlled");
         return false;
     }
     const CActor* actor = smart_cast<const CActor*>(enemy);
     VERIFY(actor);
     if (actor->input_external_handler_installed())
     {
-        Msg("nepoymi cho");
         return false;
     }
     if (CAI_Bloodsucker::m_time_last_vampire + object->m_vampire_min_delay > Device.dwTimeGlobal)
     {
-        Msg("not enough time passed");
         return false;
     }
-    Msg("1 gut");
     return true;
 }
 
