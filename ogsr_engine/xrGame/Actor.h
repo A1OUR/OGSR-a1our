@@ -118,7 +118,7 @@ public:
     virtual void UpdateCL();
 
     virtual void OnEvent(NET_Packet& P, u16 type);
-
+    virtual bool AreEnemiesNearby();
     // Render
     virtual void renderable_Render();
     virtual BOOL renderable_ShadowGenerate();
@@ -131,7 +131,8 @@ public:
 
     // Имеется ли воздействие пси-ауры на ГГ (тряска рук)
     bool PsyAuraAffect{};
-    bool SavabilityActor{};
+    bool SavingDisabled{};
+    bool HardcoreSaves{};
     /////////////////////////////////////////////////////////////////
     // Inventory Owner
 
@@ -410,6 +411,7 @@ protected:
     bool m_bPickupMode;
     //расстояние подсветки предметов
     float m_fPickupInfoRadius;
+    float m_SafeRadius;
 
     void PickupInfoDraw(CObject* object);
 

@@ -440,8 +440,6 @@ bool valid_file_name(LPCSTR file_name)
 
 #include "UIGameCustom.h"
 #include "HUDManager.h"
-#include "level_script.cpp"
-
 
 class CCC_ALifeSave : public IConsole_Command
 {
@@ -449,20 +447,19 @@ public:
     CCC_ALifeSave(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
     virtual void Execute(LPCSTR args)
     {   
-        
         if (!GodMode())
         {   
-            int i;
-            for (i=0; i < 65534; i++)
+            if (Actor()->SavingDisabled == 1)
             {
-                if (get_object_by_id(i))
+                HUD().GetUI()->AddInfoMessage("game_not_saved_story");
+                return;
+            }
+            if (Actor()->HardcoreSaves == 1)
+            {
+                if (Actor()->AreEnemiesNearby())
                 {
-                    if (((get_object_by_id(i))->GetHealth())>0 and (get_object_by_id(i)->Position().distance_to(get_object_by_id(0)->Position())) < 100 and (get_object_by_id(i)->IsRelationEnemy(get_object_by_id(0))))
-                    {
-                        Msg(get_object_by_id(i)->Name());
-                        HUD().GetUI()->AddInfoMessage("game_not_saved");
-                        return;
-                    }
+                    HUD().GetUI()->AddInfoMessage("game_not_saved_hs");
+                    return;
                 }
             }
             if (!g_actor || !Actor()->g_Alive())

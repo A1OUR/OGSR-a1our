@@ -328,7 +328,12 @@ void CScriptGameObject::RestoreDefaultStartDialog()
 
 void CScriptGameObject::SetActorSafety(bool cansav)
 {
-    Actor()->SavabilityActor = cansav;
+    Actor()->SavingDisabled = cansav;
+}
+
+void CScriptGameObject::SetHardcoreSaves(bool cansav)
+{
+    Actor()->HardcoreSaves = cansav;
 }
 
 void CScriptGameObject::SetActorPosition(Fvector pos, bool skipCollisionCorrect)

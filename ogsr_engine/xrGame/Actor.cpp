@@ -440,6 +440,7 @@ void CActor::Load(LPCSTR section)
     CurrentHeight = CameraHeight();
 
     m_news_to_show = READ_IF_EXISTS(pSettings, r_u32, section, "news_to_show", NEWS_TO_SHOW);
+    m_SafeRadius = pSettings->r_float(section, "safe_radius");
 }
 
 void CActor::PHHit(SHit& H) { m_pPhysics_support->in_Hit(H, !g_Alive()); }
@@ -1938,5 +1939,23 @@ bool CActor::IsDetectorActive() const
     if (auto det = smart_cast<CCustomDetector*>(inventory().ItemFromSlot(DETECTOR_SLOT)))
         return det->IsWorking();
 
+    return false;
+}
+
+bool CActor::AreEnemiesNearby()
+{
+    feel_touch_update(Position(), m_SafeRadius);
+
+    for (xr_vector<CObject*>::iterator it = feel_touch.begin(); it != feel_touch.end(); it++)
+    {
+        CEntityAlive* pEA = smart_cast<CEntityAlive*>(*it);
+        if (pEA)
+        {
+            if (inherited::is_relation_enemy(pEA))
+            {
+                return true;
+            }
+        }
+    }
     return false;
 }

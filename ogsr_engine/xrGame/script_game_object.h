@@ -231,6 +231,7 @@ public:
     void SetActorPosition(Fvector pos, bool skipCollisionCorrect);
     void SetActorDirection(float dir);
     void SetActorSafety(bool cansav);
+    void SetHardcoreSaves(bool cansav);
     // CCustomMonster
     bool CheckObjectVisibility(const CScriptGameObject* tpLuaGameObject);
     bool CheckObjectVisibilityNow(const CScriptGameObject* tpLuaGameObject);
