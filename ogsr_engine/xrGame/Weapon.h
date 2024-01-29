@@ -685,4 +685,5 @@ public:
 
     void UpdateVisualBullets();
     void HUD_VisualBulletUpdate(bool force = false, int force_idx = -1);
+    void ChangeFP(float fp);
 };

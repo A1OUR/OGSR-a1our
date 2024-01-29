@@ -257,6 +257,7 @@ void CWeapon::Load(LPCSTR section)
 #endif
 
     // load ammo classes
+    Msg("reload ammo types");
     m_ammoTypes.clear();
     LPCSTR S = pSettings->r_string(section, "ammo_class");
     if (S && S[0])
@@ -2232,3 +2233,20 @@ void CWeapon::HUD_VisualBulletUpdate(bool force, int force_idx)
 }
 
 void CWeapon::ParseCurrentItem(CGameFont* F) { F->OutNext("WEAPON IN STRAPPED MODE: [%d]", m_strapped_mode); }
+
+void CWeapon::ChangeFP(float fp)
+{
+    Msg("reload ammo types 2");
+    m_ammoTypes.clear();
+    LPCSTR S = "ammo_12x70_buck";
+    if (S && S[0])
+    {
+        string128 _ammoItem;
+        int count = _GetItemCount(S);
+        for (int it = 0; it < count; ++it)
+        {
+            _GetItem(S, it, _ammoItem);
+            m_ammoTypes.push_back(_ammoItem);
+        }
+    }
+}

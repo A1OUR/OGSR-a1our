@@ -289,6 +289,18 @@ void CScriptGameObject::UnloadMagazine(bool spawn_ammo, bool unload_gl)
     }
 }
 
+void CScriptGameObject::ChangeFirePower(float fp)
+{
+    auto weapon = smart_cast<CWeapon*>(&object());
+    if (!weapon)
+    {
+        ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError, "CScriptGameObject::UnloadMagazine non-CWeaponMagazined object !!!");
+        return;
+    }
+
+    weapon->ChangeFP(fp);
+}
+
 void CScriptGameObject::DropItem(CScriptGameObject* pItem)
 {
     CInventoryOwner* owner = smart_cast<CInventoryOwner*>(&object());

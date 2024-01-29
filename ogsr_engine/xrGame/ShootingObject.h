@@ -144,6 +144,7 @@ protected:
 
     //партиклы полосы от пули
     virtual void StartShotParticles();
+    virtual void ChangeFP(float fp);
 
     //партиклы гильз
     virtual void OnShellDrop(const Fvector& play_pos, const Fvector& parent_vel);

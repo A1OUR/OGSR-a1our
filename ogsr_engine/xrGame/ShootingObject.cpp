@@ -289,7 +289,7 @@ void CShootingObject::OnShellDrop(const Fvector& play_pos, const Fvector& parent
     }
     else if (Core.Features.test(xrCore::Feature::npc_simplified_shooting))
         return;
-
+    
     if (!m_sShellParticles)
         return;
     if (Device.vCameraPosition.distance_to_sqr(play_pos) > 2 * 2)
@@ -470,7 +470,7 @@ void CShootingObject::FireBullet(const Fvector& pos, const Fvector& shot_dir, fl
     {
         l_fHitPower = fvHitPower[egdMaster];
     }
-
+    Msg("[%u]", fvHitPower[egdMaster]);
     Level().BulletManager().AddBullet(pos, dir, m_fStartBulletSpeed, l_fHitPower, fHitImpulse, parent_id, weapon_id, m_eHitType, fireDistance, cartridge, send_hit, aim_bullet);
 }
 
@@ -481,4 +481,10 @@ void CShootingObject::StartShotParticles()
 {
     CParticlesObject* pSmokeParticles = NULL;
     StartParticles(pSmokeParticles, *m_sShotParticles, m_vCurrentShootPos, m_vCurrentShootDir, true);
+}
+
+void CShootingObject::ChangeFP(float fp)
+{
+    fvHitPower.set(fp, fp, fp, fp);
+    
 }
