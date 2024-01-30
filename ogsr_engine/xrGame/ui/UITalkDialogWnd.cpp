@@ -74,6 +74,11 @@ void CUITalkDialogWnd::Init(float x, float y, float width, float height)
     CUIXmlInit::Init3tButton(*m_uiXml, "button", 0, &UIToTradeButton);
     UIToTradeButton.SetWindowName("trade_btn");
 
+    //кнопка перехода в режим апгрейда
+    AttachChild(&UIToUpgradeButton);
+    CUIXmlInit::Init3tButton(*m_uiXml, "button_1", 0, &UIToUpgradeButton);
+    UIToUpgradeButton.SetWindowName("upgrade_btn");
+
     //Элементы автоматического добавления
     CUIXmlInit::InitAutoStatic(*m_uiXml, "auto_static", this);
 
@@ -88,6 +93,7 @@ void CUITalkDialogWnd::Init(float x, float y, float width, float height)
     Register(&UIToTradeButton);
     AddCallback("question_item", LIST_ITEM_CLICKED, fastdelegate::MakeDelegate(this, &CUITalkDialogWnd::OnQuestionClicked));
     AddCallback("trade_btn", BUTTON_CLICKED, fastdelegate::MakeDelegate(this, &CUITalkDialogWnd::OnTradeClicked));
+    Register(&UIToUpgradeButton);
 }
 
 #include "UIInventoryUtilities.h"

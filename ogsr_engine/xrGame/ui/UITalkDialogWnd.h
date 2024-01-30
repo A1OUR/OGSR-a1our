@@ -47,6 +47,7 @@ public:
     CUIStatic UIStaticBottom;
 
     CUI3tButton UIToTradeButton;
+    CUI3tButton UIToUpgradeButton;
 
     //информация о персонажах
     CUIStatic UIOurIcon;
