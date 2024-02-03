@@ -142,10 +142,10 @@ public:
         w_float(mag);
     }
     IC void w_stringZ(LPCSTR S) { w(S, (u32)xr_strlen(S) + 1); }
-    IC void w_stringZ(shared_str& p)
+    IC void w_stringZ(const shared_str& p)
     {
         if (*p)
-            w(*p, (u32)xr_strlen(p) + 1);
+            w(*p, p.size() + 1);
         else
             w_u8(0);
     }

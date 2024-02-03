@@ -14,6 +14,7 @@ class CInventoryOwner;
 class CPhraseDialogManager;
 class CUITalkDialogWnd;
 class CUITradeWnd;
+class CUIUpgradeWnd;
 ///////////////////////////////////////
 //
 ///////////////////////////////////////
@@ -50,6 +51,7 @@ public:
     virtual bool IR_OnKeyboardPress(int dik);
     virtual bool OnKeyboard(int dik, EUIMessages keyboard_action);
     void SwitchToTrade();
+    void SwitchToUpgrade();
     void AddIconedMessage(LPCSTR text, LPCSTR texture_name, Frect texture_rect, LPCSTR templ_name);
 
 protected:
@@ -70,6 +72,7 @@ public:
 protected:
     //для режима торговли
     CUITradeWnd* UITradeWnd;
+    CUIUpgradeWnd* UIUpgradeWnd;
     CUITalkDialogWnd* UITalkDialogWnd;
 
     //указатель на владельца инвентаря вызвавшего менюшку

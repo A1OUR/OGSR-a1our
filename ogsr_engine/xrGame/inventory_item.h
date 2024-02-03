@@ -12,6 +12,7 @@
 #include "hit_immunity.h"
 #include "attachable_item.h"
 #include "ui\UIIconParams.h"
+#include "xrServer_Objects_ALife_Items.h"
 
 class CUIInventoryCellItem;
 
@@ -265,7 +266,6 @@ public:
     virtual CHudItem* cast_hud_item() { return 0; }
     virtual CWeaponAmmo* cast_weapon_ammo() { return 0; }
     virtual CGameObject* cast_game_object() { return 0; };
-
 private:
     u8 loaded_belt_index;
     void SetLoadedBeltIndex(u8);
@@ -274,6 +274,12 @@ public:
     u8 GetLoadedBeltIndex() { return loaded_belt_index; };
     bool m_highlight_equipped;
     bool m_always_ungroupable;
+//upgrades
+public:
+    typedef xr_vector<shared_str> Upgrades_type;
+protected:
+    virtual void net_Spawn_install_upgrades(CSE_Abstract* DC);
+    Upgrades_type m_upgrades;
 };
 
 #include "inventory_item_inline.h"

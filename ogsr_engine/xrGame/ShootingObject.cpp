@@ -470,7 +470,6 @@ void CShootingObject::FireBullet(const Fvector& pos, const Fvector& shot_dir, fl
     {
         l_fHitPower = fvHitPower[egdMaster];
     }
-    Msg("[%u]", fvHitPower[egdMaster]);
     Level().BulletManager().AddBullet(pos, dir, m_fStartBulletSpeed, l_fHitPower, fHitImpulse, parent_id, weapon_id, m_eHitType, fireDistance, cartridge, send_hit, aim_bullet);
 }
 

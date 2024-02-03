@@ -2110,6 +2110,9 @@
     <Filter Include="EmbeddedEditor">
       <UniqueIdentifier>{2ae8c39f-5f30-4c34-b654-7b159e43244b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AI\AScript\ScriptClasses\UI\Common\UpgradeWnd">
+      <UniqueIdentifier>{a73c1eaa-c582-413a-a433-931be5604961}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -6077,6 +6080,9 @@
     <ClInclude Include="embedded_editor\embedded_editor_pos_informer.h">
       <Filter>EmbeddedEditor</Filter>
     </ClInclude>
+    <ClInclude Include="ui\UIUpgradeWnd.h">
+      <Filter>AI\AScript\ScriptClasses\UI\Common\UpgradeWnd</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -8869,6 +8875,12 @@
     </ClCompile>
     <ClCompile Include="embedded_editor\embedded_editor_pos_informer.cpp">
       <Filter>EmbeddedEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIUpgradeWnd.cpp">
+      <Filter>AI\AScript\ScriptClasses\UI\Common\UpgradeWnd</Filter>
+    </ClCompile>
+    <ClCompile Include="inventory_item_upgrade.cpp">
+      <Filter>Core\Client\Objects\inventory\InventoryItem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

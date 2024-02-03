@@ -163,7 +163,7 @@ public:
     }
     IC const CSpecificCharacter& SpecificCharacter() const { return CharacterInfo().m_SpecificCharacter; };
     bool InfinitiveMoney() { return CharacterInfo().m_SpecificCharacter.MoneyDef().inf_money; }
-
+    //maks: тут надо захреначить чтение является ли нпс техником из конфига
     //установка группировки на клиентском и серверном объкте
     virtual void SetCommunity(CHARACTER_COMMUNITY_INDEX);
     virtual void SetRank(CHARACTER_RANK_VALUE);

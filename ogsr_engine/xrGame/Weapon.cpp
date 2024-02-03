@@ -257,7 +257,6 @@ void CWeapon::Load(LPCSTR section)
 #endif
 
     // load ammo classes
-    Msg("reload ammo types");
     m_ammoTypes.clear();
     LPCSTR S = pSettings->r_string(section, "ammo_class");
     if (S && S[0])

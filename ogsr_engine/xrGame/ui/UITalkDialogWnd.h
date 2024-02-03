@@ -74,6 +74,7 @@ private:
     u32 m_uOurReplicsColor;
 
     void OnTradeClicked(CUIWindow* w, void*);
+    void OnUpgradeClicked(CUIWindow* w, void*);
     void OnQuestionClicked(CUIWindow* w, void*);
 };
 
