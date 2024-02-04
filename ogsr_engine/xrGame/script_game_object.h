@@ -716,6 +716,7 @@ public:
     bool GetGLMode();
 
     u32 GetCurrAmmo();
+    float GetCurrAmmoDisp();
 
     CScriptGameObject* GetActorHolder();
     CCameraBase* GetCarCamera();

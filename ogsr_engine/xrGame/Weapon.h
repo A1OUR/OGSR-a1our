@@ -525,6 +525,7 @@ public:
 
     LPCSTR GetCurrentAmmo_ShortName();
     float GetMagazineWeight(const decltype(m_magazine)& mag) const;
+    float GetCurrentAmmoDisp();
 
 protected:
     u32 m_ef_main_weapon_type;

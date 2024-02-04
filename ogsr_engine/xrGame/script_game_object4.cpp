@@ -602,6 +602,16 @@ u32 CScriptGameObject::GetCurrAmmo()
     return k->m_boxCurr;
 }
 
+float CScriptGameObject::GetCurrAmmoDisp()
+{
+    CWeapon* k = smart_cast<CWeapon*>(&object());
+    if (!k)
+    {
+        Msg("not a weapon");
+        return 1;
+    }
+    return k->GetCurrentAmmoDisp();
+}
 u32 CScriptGameObject::GetAmmoElapsed2()
 {
     const CWeaponMagazinedWGrenade* weapon = smart_cast<CWeaponMagazinedWGrenade*>(&object());

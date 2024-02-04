@@ -1957,6 +1957,14 @@ LPCSTR CWeapon::GetCurrentAmmo_ShortName()
     return *(l_cartridge.m_InvShortName);
 }
 
+float CWeapon::GetCurrentAmmoDisp()
+{
+    if (m_magazine.empty())
+        return (3);
+    CCartridge& l_cartridge = m_magazine.back();
+    return (l_cartridge.m_kDisp);
+}
+
 float CWeapon::GetMagazineWeight(const decltype(CWeapon::m_magazine)& mag) const
 {
     float res = 0;
