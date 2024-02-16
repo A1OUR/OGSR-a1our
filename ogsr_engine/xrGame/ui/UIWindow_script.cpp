@@ -230,7 +230,7 @@ void CUIWindow::script_register(lua_State* L)
                       value("MESSAGE_BOX_QUIT_GAME_CLICKED", int(MESSAGE_BOX_QUIT_GAME_CLICKED)), value("MESSAGE_BOX_QUIT_WIN_CLICKED", int(MESSAGE_BOX_QUIT_WIN_CLICKED)),
 
                       // CUITalkDialogWnd
-                      value("TALK_DIALOG_TRADE_BUTTON_CLICKED", int(TALK_DIALOG_TRADE_BUTTON_CLICKED)), value("TALK_DIALOG_QUESTION_CLICKED", int(TALK_DIALOG_QUESTION_CLICKED)), value("TALK_DIALOG_UPGRADE_BUTTON_CLICKED", int(TALK_DIALOG_UPGRADE_BUTTON_CLICKED)),
+                      value("TALK_DIALOG_TRADE_BUTTON_CLICKED", int(TALK_DIALOG_TRADE_BUTTON_CLICKED)), value("TALK_DIALOG_QUESTION_CLICKED", int(TALK_DIALOG_QUESTION_CLICKED)),
 
     // CUIPdaContactsWnd
 #pragma todo( \
@@ -238,7 +238,7 @@ void CUIWindow::script_register(lua_State* L)
                       value("PDA_CONTACTS_WND_CONTACT_SELECTED", int(PDA_CONTACTS_WND_CONTACT_SELECTED)),
 
                       // CUITradeWnd
-                      value("TRADE_WND_CLOSED", int(TRADE_WND_CLOSED)), value("UPGRADE_WND_CLOSED", int(UPGRADE_WND_CLOSED)),
+                      value("TRADE_WND_CLOSED", int(TRADE_WND_CLOSED)),
 
                       // CUIInventroyWnd
                       value("INVENTORY_DROP_ACTION", int(INVENTORY_DROP_ACTION)), value("INVENTORY_EAT_ACTION", int(INVENTORY_EAT_ACTION)),

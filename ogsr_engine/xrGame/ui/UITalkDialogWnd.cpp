@@ -94,7 +94,6 @@ void CUITalkDialogWnd::Init(float x, float y, float width, float height)
     AddCallback("question_item", LIST_ITEM_CLICKED, fastdelegate::MakeDelegate(this, &CUITalkDialogWnd::OnQuestionClicked));
     AddCallback("trade_btn", BUTTON_CLICKED, fastdelegate::MakeDelegate(this, &CUITalkDialogWnd::OnTradeClicked));
     Register(&UIToUpgradeButton);
-    AddCallback("upgrade_btn", BUTTON_CLICKED, fastdelegate::MakeDelegate(this, &CUITalkDialogWnd::OnUpgradeClicked));
 }
 
 #include "UIInventoryUtilities.h"
@@ -122,8 +121,6 @@ void CUITalkDialogWnd::OnQuestionClicked(CUIWindow* w, void*)
 }
 
 void CUITalkDialogWnd::OnTradeClicked(CUIWindow* w, void*) { GetTop()->SendMessage(this, TALK_DIALOG_TRADE_BUTTON_CLICKED); }
-
-void CUITalkDialogWnd::OnUpgradeClicked(CUIWindow* w, void*) { GetTop()->SendMessage(this, TALK_DIALOG_UPGRADE_BUTTON_CLICKED); }
 
 //пересылаем сообщение родительскому окну для обработки
 //и фильтруем если оно пришло от нашего дочернего окна

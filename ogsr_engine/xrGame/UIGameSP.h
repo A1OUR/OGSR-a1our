@@ -6,7 +6,6 @@
 
 class CUIInventoryWnd;
 class CUITradeWnd;
-class CUIUpWnd;
 class CUIPdaWnd;
 class CUITalkWnd;
 class CUICarBodyWnd;

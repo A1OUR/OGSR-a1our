@@ -12,7 +12,6 @@
 #include "clsid_game.h"
 #include "xrServer_Objects_ALife_Items.h"
 #include "clsid_game.h"
-#include "object_broker.h"
 
 #ifdef XRGAME_EXPORTS
 #ifdef DEBUG
@@ -62,7 +61,6 @@ CSE_ALifeInventoryItem::~CSE_ALifeInventoryItem() {}
 void CSE_ALifeInventoryItem::STATE_Write(NET_Packet& tNetPacket)
 {
     tNetPacket.w_float(m_fCondition);
-    save_data(m_upgrades, tNetPacket);
     State.position = base()->o_Position;
 }
 
@@ -71,9 +69,6 @@ void CSE_ALifeInventoryItem::STATE_Read(NET_Packet& tNetPacket, u16 size)
     u16 m_wVersion = base()->m_wVersion;
     if (m_wVersion > 52)
         tNetPacket.r_float(m_fCondition);
-
-    load_data(m_upgrades, tNetPacket);
-    
 
     State.position = base()->o_Position;
 }

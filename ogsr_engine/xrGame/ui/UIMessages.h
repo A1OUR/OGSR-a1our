@@ -79,7 +79,6 @@ enum EUIMessages : s16
 
     // CUITalkDialogWnd
     TALK_DIALOG_TRADE_BUTTON_CLICKED,
-    TALK_DIALOG_UPGRADE_BUTTON_CLICKED,
     TALK_DIALOG_QUESTION_CLICKED,
 
     // CUIPdaWnd
@@ -91,7 +90,6 @@ enum EUIMessages : s16
 
     // CUITradeWnd
     TRADE_WND_CLOSED,
-    UPGRADE_WND_CLOSED,
 
     // CUIInventroyWnd
     INVENTORY_DROP_ACTION,

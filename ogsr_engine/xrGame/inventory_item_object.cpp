@@ -101,7 +101,6 @@ void CInventoryItemObject::OnEvent(NET_Packet& P, u16 type)
 
 BOOL CInventoryItemObject::net_Spawn(CSE_Abstract* DC)
 {
-    CInventoryItem::net_Spawn_install_upgrades(DC);
     BOOL res = CPhysicItem::net_Spawn(DC);
     CInventoryItem::net_Spawn(DC);
     return (res);
