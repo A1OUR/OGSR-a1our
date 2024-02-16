@@ -2,6 +2,7 @@
 #include "UITalkWnd.h"
 
 #include "UITradeWnd.h"
+#include "UIUpgradeWnd.h"
 #include "UITalkDialogWnd.h"
 
 #include "../actor.h"
@@ -63,6 +64,12 @@ void CUITalkWnd::Init()
     UITradeWnd->SetAutoDelete(true);
     AttachChild(UITradeWnd);
     UITradeWnd->Hide();
+    /////////////////////////
+    //Меню торговли
+    UIUpgradeWnd = xr_new<CUIUpgradeWnd>();
+    UIUpgradeWnd->SetAutoDelete(true);
+    AttachChild(UIUpgradeWnd);
+    UIUpgradeWnd->Hide();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -96,6 +103,7 @@ void CUITalkWnd::InitTalkDialog()
     UITalkDialogWnd->Show();
 
     UITradeWnd->Hide();
+    UIUpgradeWnd->Hide();
 }
 
 void CUITalkWnd::InitOthersStartDialog()
@@ -180,6 +188,15 @@ void CUITalkWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
     {
         UITalkDialogWnd->Show();
         UITradeWnd->Hide();
+    }
+    else if (pWnd == UIUpgradeWnd && msg == UPGRADE_WND_CLOSED)
+    {
+        UITalkDialogWnd->Show();
+        UIUpgradeWnd->Hide();
+    }
+    else if (pWnd == UITalkDialogWnd && msg == TALK_DIALOG_UPGRADE_BUTTON_CLICKED)
+    {
+        SwitchToUpgrade();
     }
 
     inherited::SendMessage(pWnd, msg, pData);
@@ -267,6 +284,7 @@ void CUITalkWnd::Hide()
 
     inherited::Hide();
     UITradeWnd->Hide();
+    UIUpgradeWnd->Hide();
     if (!m_pActor)
         return;
 
@@ -372,6 +390,16 @@ void CUITalkWnd::SwitchToTrade()
         UITradeWnd->StartTrade();
         UITradeWnd->BringAllToTop();
         StopSnd();
+    }
+}
+
+void CUITalkWnd::SwitchToUpgrade()
+{
+    if (m_pOurInvOwner->IsTradeEnabled() && m_pOthersInvOwner->IsTradeEnabled())
+    {
+        UITalkDialogWnd->Hide();
+        UIUpgradeWnd->InitUpgrade(m_pOurInvOwner, m_pOthersInvOwner);
+        UIUpgradeWnd->Show();
     }
 }
 

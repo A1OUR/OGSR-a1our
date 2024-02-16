@@ -1673,7 +1673,6 @@
     <ClCompile Include="ik_limb_state.cpp" />
     <ClCompile Include="ik_object_shift.cpp" />
     <ClCompile Include="InventoryContainer.cpp" />
-    <ClCompile Include="inventory_item_upgrade.cpp" />
     <ClCompile Include="player_hud.cpp" />
     <ClCompile Include="player_hud_tune.cpp" />
     <ClCompile Include="pose_extrapolation.cpp" />

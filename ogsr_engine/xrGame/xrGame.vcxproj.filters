@@ -8879,9 +8879,6 @@
     <ClCompile Include="ui\UIUpgradeWnd.cpp">
       <Filter>AI\AScript\ScriptClasses\UI\Common\UpgradeWnd</Filter>
     </ClCompile>
-    <ClCompile Include="inventory_item_upgrade.cpp">
-      <Filter>Core\Client\Objects\inventory\InventoryItem</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuildStep Include="Explosive.h">
