@@ -1948,10 +1948,11 @@ bool CActor::AreEnemiesNearby()
 
     for (xr_vector<CObject*>::iterator it = feel_touch.begin(); it != feel_touch.end(); it++)
     {
-        CEntityAlive* pEA = smart_cast<CEntityAlive*>(*it);
-        if (pEA)
+        CGameObject* pGO = smart_cast<CGameObject*>(*it);
+
+        if (pGO)
         {
-            if (inherited::is_relation_enemy(pEA))
+            if (pGO->lua_game_object()->IsRelationEnemy(lua_game_object()))
             {
                 return true;
             }
