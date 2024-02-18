@@ -291,23 +291,26 @@ void CControllerPsyHit::death_glide_start()
     //////////////////////////////////////////////////////////////////////////
 }
 
+const CEntityAlive* target;
+
 void CControllerPsyHit::death_glide_end()
 {
     CController* monster = smart_cast<CController*>(m_object);
-    if ((m_object->EnemyMan.get_enemy())->g_Alive())
+    target = m_object->EnemyMan.get_enemy();
+    if ((target)->g_Alive())
     {
-        if (m_object->EnemyMan.get_enemy() == Actor())
+        if (target == Actor())
         {
             monster->draw_fire_particles();
 
             monster->m_sound_tube_hit_left.play_at_pos(Actor(), Fvector().set(-1.f, 0.f, 1.f), sm_2D);
             monster->m_sound_tube_hit_right.play_at_pos(Actor(), Fvector().set(1.f, 0.f, 1.f), sm_2D);
-            m_object->Hit_Psy(m_object->EnemyMan.get_enemy(), monster->m_tube_damage);
+            m_object->Hit_Psy(target, monster->m_tube_damage);
         }
         else
         {
-            Fvector pos = m_object->EnemyMan.get_enemy()->Position();
-            m_object->HitEntity(m_object->EnemyMan.get_enemy(), monster->m_tube_damage, 0.0f, pos, ALife::EHitType::eHitTypeWound, 0);
+            Fvector pos = target->Position();
+            m_object->HitEntity(target, monster->m_tube_damage, 0.0f, pos, ALife::EHitType::eHitTypeWound, 0);
         }
     }
     m_time_last_tube = Device.dwTimeGlobal;

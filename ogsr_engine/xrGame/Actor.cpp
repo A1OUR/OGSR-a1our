@@ -1952,7 +1952,7 @@ bool CActor::AreEnemiesNearby()
 
         if (pGO)
         {
-            if (pGO->lua_game_object()->IsRelationEnemy(lua_game_object()))
+            if (((pGO->lua_game_object()->GetHealth()) > 0) and (pGO->lua_game_object()->IsRelationEnemy(lua_game_object())))
             {
                 return true;
             }
