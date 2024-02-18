@@ -49,6 +49,8 @@ float m_fDeteriorationValue;
 CSE_ALifeObject* m_self{};
 u32 m_last_update_time;
 
+shared_str m_upgrades;
+
 CSE_ALifeInventoryItem(LPCSTR caSection);
 virtual ~CSE_ALifeInventoryItem();
 // we need this to prevent virtual inheritance :-(
