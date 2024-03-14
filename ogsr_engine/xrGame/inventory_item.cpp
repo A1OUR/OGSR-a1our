@@ -334,6 +334,7 @@ BOOL CInventoryItem::net_Spawn(CSE_Abstract* DC)
         if (itm)
         {
             m_fCondition = itm->m_fCondition;
+            m_upgrades = itm->m_upgrades;
         }
     }
 

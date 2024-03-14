@@ -196,7 +196,7 @@ protected:
     xr_vector<u8> m_slots;
     LPCSTR m_slots_sect;
     float m_fCondition;
-
+    xr_vector<shared_str> m_upgrades;
     float m_fControlInertionFactor;
     shared_str m_icon_name;
     bool m_need_brief_info;

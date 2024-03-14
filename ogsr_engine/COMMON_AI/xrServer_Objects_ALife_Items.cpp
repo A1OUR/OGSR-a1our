@@ -47,7 +47,7 @@ CSE_ALifeInventoryItem::CSE_ALifeInventoryItem(LPCSTR caSection)
     State.angular_vel.set(0.f, 0.f, 0.f);
     State.linear_vel.set(0.f, 0.f, 0.f);
 
-    m_upgrades = NULL;
+    m_upgrades = "default";
 }
 
 CSE_Abstract* CSE_ALifeInventoryItem::init()
