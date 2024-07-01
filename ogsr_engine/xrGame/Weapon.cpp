@@ -2275,8 +2275,8 @@ void CWeapon::ChangeFP(float fp)
             _GetItem(S, it, _ammoItem);
             m_ammoTypes.push_back(_ammoItem);
         }
-	}
-
+    }
+}
 void CWeapon::update_visual_bullet_textures(const bool forced)
 {
     if (bullet_textures_in_model.empty())
