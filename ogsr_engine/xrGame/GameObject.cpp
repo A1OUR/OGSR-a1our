@@ -537,9 +537,8 @@ void CGameObject::spawn_supplies()
                 {   
                     if (f_cond == 1.0f)
                     {
-                        f_cond = 0.1f;
+                        f_cond = 0.1f + ::Random.randF(0.2f);;
                     }
-                    f_cond = f_cond + ::Random.randF(0.2f);
                     if (W->m_scope_status == CSE_ALifeItemWeapon::eAddonAttachable)
                         W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonScope, bScope);
                     if (W->m_silencer_status == CSE_ALifeItemWeapon::eAddonAttachable)
