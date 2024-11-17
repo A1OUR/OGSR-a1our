@@ -55,7 +55,7 @@ protected:
     u32 CalcItemsPrice(CUIDragDropListEx* pList, CTrade* pTrade, bool bBuying);
     float CalcItemsWeight(CUIDragDropListEx* pList);
 
-    void TransferItems(CUIDragDropListEx* pSellList, CUIDragDropListEx* pBuyList, CTrade* pTrade, bool bBuying);
+    void TransferItems(CUIDragDropListEx* pSellList, CUIDragDropListEx* pBuyList, CTrade* pTrade, bool bBuying, bool pBarter);
 
     void PerformTrade();
     void UpdatePrices();

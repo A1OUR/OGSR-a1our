@@ -173,6 +173,7 @@ void CSpecificCharacter::load_shared(LPCSTR)
         MoneyDef().min_money = pXML->ReadAttribInt("money", 0, "min");
         MoneyDef().max_money = pXML->ReadAttribInt("money", 0, "max");
         MoneyDef().inf_money = !!pXML->ReadAttribInt("money", 0, "infinitive");
+        MoneyDef().barter_mode = !!pXML->ReadAttribInt("money", 0, "barter_mode");
         MoneyDef().max_money = _max(MoneyDef().max_money, MoneyDef().min_money); // :)
     }
     else
@@ -180,6 +181,7 @@ void CSpecificCharacter::load_shared(LPCSTR)
         MoneyDef().min_money = 0;
         MoneyDef().max_money = 0;
         MoneyDef().inf_money = false;
+        MoneyDef().barter_mode = false;
     }
 
 #endif

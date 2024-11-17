@@ -459,27 +459,43 @@ void CUITradeWnd::PerformTrade()
 
     our_money += delta_price;
     others_money -= (m_pOthersInvOwner->InfinitiveMoney()) ? 0 : delta_price;
-
-    if (our_money >= 0 && others_money >= 0 && (m_iOurTradePrice >= 0 || m_iOthersTradePrice > 0))
+    if (m_pOthersInvOwner->BarterMode() == 0)
     {
-        m_pOthersTrade->OnPerformTrade(m_iOthersTradePrice, m_iOurTradePrice);
-
-        TransferItems(&m_uidata->UIOurTradeList, &m_uidata->UIOthersBagList, m_pOthersTrade, true);
-        TransferItems(&m_uidata->UIOthersTradeList, &m_uidata->UIOurBagList, m_pOthersTrade, false);
-        if (others_zero_trade)
+        if (our_money >= 0 && others_money >= 0 && (m_iOurTradePrice >= 0 || m_iOthersTradePrice > 0))
         {
-            m_pOthersTrade->pThis.inv_owner->set_money(others_money, true);
-            m_pOthersTrade->pPartner.inv_owner->set_money(our_money, true);
+            m_pOthersTrade->OnPerformTrade(m_iOthersTradePrice, m_iOurTradePrice);
+            Msg("money");
+            TransferItems(&m_uidata->UIOurTradeList, &m_uidata->UIOthersBagList, m_pOthersTrade, true, false);
+            TransferItems(&m_uidata->UIOthersTradeList, &m_uidata->UIOurBagList, m_pOthersTrade, false, false);
+            if (others_zero_trade)
+            {
+                m_pOthersTrade->pThis.inv_owner->set_money(others_money, true);
+                m_pOthersTrade->pPartner.inv_owner->set_money(our_money, true);
+            }
+        }
+        else
+        {
+            if (others_money < 0)
+                m_uidata->UIDealMsg = HUD().GetUI()->UIGame()->AddCustomStatic("not_enough_money_other", true);
+            else
+                m_uidata->UIDealMsg = HUD().GetUI()->UIGame()->AddCustomStatic("not_enough_money_mine", true);
+
+            m_uidata->UIDealMsg->m_endTime = Device.fTimeGlobal + 2.0f; // sec
         }
     }
     else
     {
-        if (others_money < 0)
-            m_uidata->UIDealMsg = HUD().GetUI()->UIGame()->AddCustomStatic("not_enough_money_other", true);
+        if (m_iOurTradePrice >= m_iOthersTradePrice)
+        {
+            Msg("barter");
+            TransferItems(&m_uidata->UIOurTradeList, &m_uidata->UIOthersBagList, m_pOthersTrade, true, true);
+            TransferItems(&m_uidata->UIOthersTradeList, &m_uidata->UIOurBagList, m_pOthersTrade, false, true);
+        }
         else
-            m_uidata->UIDealMsg = HUD().GetUI()->UIGame()->AddCustomStatic("not_enough_money_mine", true);
-
-        m_uidata->UIDealMsg->m_endTime = Device.fTimeGlobal + 2.0f; // sec
+        {
+            m_uidata->UIDealMsg = HUD().GetUI()->UIGame()->AddCustomStatic("barter_dont_agree", true);
+            m_uidata->UIDealMsg->m_endTime = Device.fTimeGlobal + 2.0f; // sec
+        }
     }
     SetCurrentItem(NULL);
 }
@@ -565,13 +581,14 @@ void CUITradeWnd::UpdatePrices()
     }
 
     static const char* StMoneyDescr = CStringTable().translate("ui_st_money_descr").c_str();
+    static const char* StBarter = CStringTable().translate("ui_st_barter").c_str();
     m_uidata->UIOurPriceCaption.GetPhraseByIndex(2)->str = std::format("{} {}", m_iOurTradePrice, StMoneyDescr).c_str();
     m_uidata->UIOthersPriceCaption.GetPhraseByIndex(2)->str = std::format("{} {}", m_iOthersTradePrice, StMoneyDescr).c_str();
-    m_uidata->UIOurMoneyStatic.SetText(std::format("{} {}", m_pInvOwner->get_money(), StMoneyDescr).c_str());
-    m_uidata->UIOtherMoneyStatic.SetText(m_pOthersInvOwner->InfinitiveMoney() ? "---" : std::format("{} {}", m_pOthersInvOwner->get_money(), StMoneyDescr).c_str());
+    m_uidata->UIOurMoneyStatic.SetText(m_pOthersInvOwner->BarterMode() ? StBarter : std::format("{} {}", m_pInvOwner->get_money(), StMoneyDescr).c_str());
+    m_uidata->UIOtherMoneyStatic.SetText(m_pOthersInvOwner->BarterMode() ? StBarter : (m_pOthersInvOwner->InfinitiveMoney() ? "---" : std::format("{} {}", m_pOthersInvOwner->get_money(), StMoneyDescr).c_str()));
 }
 
-void CUITradeWnd::TransferItems(CUIDragDropListEx* pSellList, CUIDragDropListEx* pBuyList, CTrade* pTrade, bool bBuying)
+void CUITradeWnd::TransferItems(CUIDragDropListEx* pSellList, CUIDragDropListEx* pBuyList, CTrade* pTrade, bool bBuying, bool pBarter)
 {
     while (pSellList->ItemsCount())
     {
@@ -579,14 +596,22 @@ void CUITradeWnd::TransferItems(CUIDragDropListEx* pSellList, CUIDragDropListEx*
         auto InvItm = (PIItem)itm->m_pData;
         InvItm->m_highlight_equipped = false; //Убираем подсветку после продажи предмета
         itm->m_select_equipped = false;
-        pTrade->TransferItem(InvItm, bBuying, !others_zero_trade);
+        pTrade->TransferItem(InvItm, bBuying, !pBarter);
         pBuyList->SetItem(itm);
     }
 
     if (!others_zero_trade)
     {
-        pTrade->pThis.inv_owner->set_money(pTrade->pThis.inv_owner->get_money(), true);
-        pTrade->pPartner.inv_owner->set_money(pTrade->pPartner.inv_owner->get_money(), true);
+        if (!pBarter)
+        {
+            Msg("money_no_barter");
+            pTrade->pThis.inv_owner->set_money(pTrade->pThis.inv_owner->get_money(), true);
+            pTrade->pPartner.inv_owner->set_money(pTrade->pPartner.inv_owner->get_money(), true);
+        }
+        else
+        {
+            Msg("barter_no_money");
+        }
     }
 }
 

@@ -81,6 +81,7 @@ struct SSpecificCharacterData : CSharedResource
         u32 min_money;
         u32 max_money;
         bool inf_money;
+        bool barter_mode;
     };
     SMoneyDef money_def{};
 #endif
