@@ -534,7 +534,8 @@ void CActor::Hit(SHit* pHDS)
     HitMark(HDS.damage(), HDS.dir, HDS.who, HDS.bone(), HDS.p_in_bone_space, HDS.impulse, HDS.hit_type);
 
     float hit_power = HitArtefactsOnBelt(HDS.damage(), HDS.hit_type);
-
+    Msg("damage before art:%f", HDS.damage());
+    Msg("damage after art:%f", hit_power);
     if (GodMode())
     {
         HDS.power = 0.0f;
@@ -1640,7 +1641,8 @@ void CActor::UpdateArtefactsOnBelt()
 float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool belt_only)
 {
     float res_hit_power_k = 1.0f;
-    float _af_count = 0.0f;
+    float sum_hit_power = 0.0f;
+    //float _af_count = 0.0f;
     for (TIItemContainer::iterator it = inventory().m_belt.begin(); inventory().m_belt.end() != it; ++it)
     {
         CArtefact* artefact = smart_cast<CArtefact*>(*it);
@@ -1648,8 +1650,11 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
         {
             if (!Core.Features.test(xrCore::Feature::af_zero_condition) || !fis_zero(artefact->GetCondition()))
             {
-                res_hit_power_k += artefact->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type);
-                _af_count += 1.0f;
+                float local_hit_power = (artefact->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type));
+                res_hit_power_k = _min(local_hit_power, res_hit_power_k);
+                sum_hit_power += (1.0f - local_hit_power);
+                Msg("res_hit_power_k:%f", res_hit_power_k);
+                //_af_count += 1.0f;
             }
         }
     }
@@ -1662,14 +1667,16 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
         {
             if (!Core.Features.test(xrCore::Feature::af_zero_condition) || !fis_zero(helmet->GetCondition()))
             {
-                res_hit_power_k += helmet->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type);
-                _af_count += 1.0f;
+                Msg("HELMAETS ARE DISABLED");
+                //res_hit_power_k += helmet->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type);
+                //_af_count += 1.0f;
             }
         }
     }
 
-    res_hit_power_k -= _af_count;
-
+    //res_hit_power_k -= _af_count;
+    res_hit_power_k -= (sum_hit_power - (1.0f-res_hit_power_k))*0.05;
+    Msg("final_hit_power_k:%f", res_hit_power_k);
     return res_hit_power_k > 0 ? res_hit_power_k * hit_power : 0;
 }
 
