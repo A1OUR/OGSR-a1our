@@ -1642,7 +1642,7 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
 {
     float res_hit_power_k = 1.0f;
     float sum_hit_power = 0.0f;
-    //float _af_count = 0.0f;
+    u32 max_belt = inventory().GetMaxBelt();
     for (TIItemContainer::iterator it = inventory().m_belt.begin(); inventory().m_belt.end() != it; ++it)
     {
         CArtefact* artefact = smart_cast<CArtefact*>(*it);
@@ -1651,7 +1651,9 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
             if (!Core.Features.test(xrCore::Feature::af_zero_condition) || !fis_zero(artefact->GetCondition()))
             {
                 float local_hit_power = (artefact->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type));
+                //берём наименьший урон из артов на поиси
                 res_hit_power_k = _min(local_hit_power, res_hit_power_k);
+                //складываем резисты со всех артов на поиси
                 sum_hit_power += (1.0f - local_hit_power);
                 Msg("res_hit_power_k:%f", res_hit_power_k);
                 //_af_count += 1.0f;
@@ -1659,23 +1661,32 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
         }
     }
     // учет иммунитета от шлема
-    PIItem helm = inventory().m_slots[HELMET_SLOT].m_pIItem;
-    if (helm && !belt_only)
-    {
-        CArtefact* helmet = smart_cast<CArtefact*>(helm);
-        if (helmet)
-        {
-            if (!Core.Features.test(xrCore::Feature::af_zero_condition) || !fis_zero(helmet->GetCondition()))
-            {
-                Msg("HELMAETS ARE DISABLED");
-                //res_hit_power_k += helmet->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type);
-                //_af_count += 1.0f;
-            }
-        }
-    }
+    //PIItem helm = inventory().m_slots[HELMET_SLOT].m_pIItem;
+    //if (helm && !belt_only)
+    //{
+    //    CArtefact* helmet = smart_cast<CArtefact*>(helm);
+    //    if (helmet)
+    //    {
+    //        if (!Core.Features.test(xrCore::Feature::af_zero_condition) || !fis_zero(helmet->GetCondition()))
+    //        {
+    //            Msg("HELMAETS ARE DISABLED");
+    //            //res_hit_power_k += helmet->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type);
+    //            //_af_count += 1.0f;
+    //        }
+    //    }
+    //}
 
     //res_hit_power_k -= _af_count;
-    res_hit_power_k -= (sum_hit_power - (1.0f-res_hit_power_k))*0.05;
+    float final_hit_power = sum_hit_power - (1.0f - res_hit_power_k);
+    if ((final_hit_power != 0.0f) && ((max_belt-1) != 0))
+    {
+        Msg("picked_added_value:%f", _min(0.12, res_hit_power_k * 0.5));
+        Msg("max_needed_resist:%f", ((1.0f - res_hit_power_k) * (max_belt - 1)));
+        Msg("sum_resist:%f", final_hit_power);
+        Msg("percentage_of_added_resist:%f", (final_hit_power / ((1.0f - res_hit_power_k) * (max_belt - 1))));
+        //Msg("actual_added_value:%f", (_min(0.12, (1.0f - res_hit_power_k) * 0.5)) * (final_hit_power / ((1.0f - res_hit_power_k) * (max_belt - 1))));
+        res_hit_power_k -= (_min(0.12, res_hit_power_k * 0.5))*(final_hit_power / ((1.0f - res_hit_power_k)*(max_belt - 1)));
+    }
     Msg("final_hit_power_k:%f", res_hit_power_k);
     return res_hit_power_k > 0 ? res_hit_power_k * hit_power : 0;
 }

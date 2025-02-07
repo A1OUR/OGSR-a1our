@@ -154,7 +154,7 @@ public:
 
     // максимальный вес инвентаря
     float m_fMaxWeight;
-
+    u32 GetMaxBelt() const { return m_iMaxBelt; }
 protected:
     void UpdateDropTasks();
     void UpdateDropItem(PIItem pIItem);
