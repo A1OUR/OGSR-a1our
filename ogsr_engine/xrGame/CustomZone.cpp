@@ -720,7 +720,7 @@ void CCustomZone::feel_touch_new(CObject* O)
     else
         object_info.small_object = false;
 
-    if (IgnoreAny || (object_info.small_object && IgnoreSmall) || (object_info.nonalive_object && IgnoreNonAlive) || (pArtefact && IgnoreArtefact))
+    if (IgnoreAny || (object_info.small_object && IgnoreSmall) || (object_info.nonalive_object && IgnoreNonAlive) || (pArtefact && IgnoreArtefact) || (pEntityAlive && (pEntityAlive->GetfHealth()>0.4f) && pEntityAlive->ID() != 0))
         object_info.zone_ignore = true;
     else
         object_info.zone_ignore = false;

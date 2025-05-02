@@ -133,10 +133,10 @@ void CAI_Stalker::feel_touch_new(CObject* O)
 
     if ((O->spatial.type | STYPE_VISIBLEFORAI) != O->spatial.type)
         return;
-
+    return;
     // Now, test for game specific logical objects to minimize traffic
     CInventoryItem* I = smart_cast<CInventoryItem*>(O);
-
+        
     if (!wounded() && !critically_wounded() && I && I->useful_for_NPC() && can_take(I))
     {
 #ifndef SILENCE

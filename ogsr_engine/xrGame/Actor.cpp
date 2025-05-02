@@ -534,8 +534,8 @@ void CActor::Hit(SHit* pHDS)
     HitMark(HDS.damage(), HDS.dir, HDS.who, HDS.bone(), HDS.p_in_bone_space, HDS.impulse, HDS.hit_type);
 
     float hit_power = HitArtefactsOnBelt(HDS.damage(), HDS.hit_type);
-    Msg("damage before art:%f", HDS.damage());
-    Msg("damage after art:%f", hit_power);
+    //Msg("damage before art:%f", HDS.damage());
+    //Msg("damage after art:%f", hit_power);
     if (GodMode())
     {
         HDS.power = 0.0f;
@@ -1640,8 +1640,8 @@ void CActor::UpdateArtefactsOnBelt()
 
 float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool belt_only)
 {
-    float res_hit_power_k = 1.0f;
-    float sum_hit_power = 0.0f;
+    float base_protection = 0.0f;
+    float sum_protection = 0.0f;
     u32 max_belt = inventory().GetMaxBelt();
     for (TIItemContainer::iterator it = inventory().m_belt.begin(); inventory().m_belt.end() != it; ++it)
     {
@@ -1650,13 +1650,11 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
         {
             if (!Core.Features.test(xrCore::Feature::af_zero_condition) || !fis_zero(artefact->GetCondition()))
             {
-                float local_hit_power = (artefact->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type));
-                //берём наименьший урон из артов на поиси
-                res_hit_power_k = _min(local_hit_power, res_hit_power_k);
+                float local_protection = 1.0f -(artefact->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type));
+                //берём наибольшую защиту из артов на поиси
+                base_protection = _max(local_protection, base_protection);
                 //складываем резисты со всех артов на поиси
-                sum_hit_power += (1.0f - local_hit_power);
-                Msg("res_hit_power_k:%f", res_hit_power_k);
-                //_af_count += 1.0f;
+                sum_protection += local_protection;
             }
         }
     }
@@ -1677,17 +1675,14 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
     //}
 
     //res_hit_power_k -= _af_count;
-    float final_hit_power = sum_hit_power - (1.0f - res_hit_power_k);
-    if ((final_hit_power != 0.0f) && ((max_belt-1) != 0))
+    float protection_rest = sum_protection - base_protection;
+    if ((protection_rest != 0.0f) && ((max_belt-1) > 0))
     {
-        Msg("picked_added_value:%f", _min(0.12, res_hit_power_k * 0.5));
-        Msg("max_needed_resist:%f", ((1.0f - res_hit_power_k) * (max_belt - 1)));
-        Msg("sum_resist:%f", final_hit_power);
-        Msg("percentage_of_added_resist:%f", (final_hit_power / ((1.0f - res_hit_power_k) * (max_belt - 1))));
-        //Msg("actual_added_value:%f", (_min(0.12, (1.0f - res_hit_power_k) * 0.5)) * (final_hit_power / ((1.0f - res_hit_power_k) * (max_belt - 1))));
-        res_hit_power_k -= (_min(0.12, res_hit_power_k * 0.5))*(final_hit_power / ((1.0f - res_hit_power_k)*(max_belt - 1)));
+        float max_bonus_prot = base_protection * _min((1.0f - log(base_protection)) / 4.5f, (1 - base_protection) * 0.7f);
+        float bonus_prot_k = pow((log((protection_rest / (base_protection * (max_belt - 1))) * 100) / 5), 2);
+        base_protection += max_bonus_prot*bonus_prot_k;
     }
-    Msg("final_hit_power_k:%f", res_hit_power_k);
+    float res_hit_power_k = 1.0f - base_protection;
     return res_hit_power_k > 0 ? res_hit_power_k * hit_power : 0;
 }
 

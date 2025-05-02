@@ -58,6 +58,7 @@ _value_type CStalkerPropertyEvaluatorAlive::evaluate() { return (!!object().g_Al
 
 CStalkerPropertyEvaluatorItems::CStalkerPropertyEvaluatorItems(CAI_Stalker* object, LPCSTR evaluator_name) : inherited(object ? object->lua_game_object() : 0, evaluator_name) {}
 
+//_value_type CStalkerPropertyEvaluatorItems::evaluate() { return false; }
 _value_type CStalkerPropertyEvaluatorItems::evaluate() { return (!!m_object->memory().item().selected()); }
 
 //////////////////////////////////////////////////////////////////////////

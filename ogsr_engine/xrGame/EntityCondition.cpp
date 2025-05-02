@@ -339,9 +339,9 @@ CWound* CEntityCondition::ConditionHit(SHit* pHDS)
 
     float hit_power_org = pHDS->damage();
     float hit_power = hit_power_org;
-    Msg("damage before outfit:%f", hit_power);
+    //Msg("damage before outfit:%f", hit_power);
     hit_power = HitOutfitEffect(hit_power, pHDS->hit_type, pHDS->boneID, pHDS->ap);
-    Msg("damage after outfit:%f", hit_power);
+    //Msg("damage after outfit:%f", hit_power);
     bool bAddWound = true;
     switch (pHDS->hit_type)
     {

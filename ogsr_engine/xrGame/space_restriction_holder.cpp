@@ -123,9 +123,9 @@ void CSpaceRestrictionHolder::register_restrictor(CSpaceRestrictor* space_restri
             strconcat(sizeof(m_temp_string), m_temp_string, **temp, ",", *space_restrictors);
         else
             strconcat(sizeof(m_temp_string), m_temp_string, **temp, *space_restrictors);
-
+        //Msg("REGHISTERING %s", space_restrictor->cName().c_str());
         *temp = normalize_string(m_temp_string);
-
+        //Msg("REGHISTERING 2 %s", space_restrictor->cName().c_str());
         if (xr_strcmp(*temp, temp1))
             on_default_restrictions_changed();
     }

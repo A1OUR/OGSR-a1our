@@ -233,10 +233,11 @@ void RELATION_REGISTRY::Action(CEntityAlive* from, CEntityAlive* to, ERelationAc
             if (delta_reputation)
                 inv_owner_from->ChangeReputation(delta_reputation);
 
-            CHARACTER_RANK_VALUE delta_rank = 0;
+            //убрано начисление поинтов за киллы
+            /*CHARACTER_RANK_VALUE delta_rank = 0;
             delta_rank = CHARACTER_RANK::rank_kill_points(CHARACTER_RANK::ValueToIndex(stalker->Rank()));
             if (delta_rank)
-                inv_owner_from->ChangeRank(delta_rank);
+                inv_owner_from->ChangeRank(delta_rank);*/
         }
     }
     break;

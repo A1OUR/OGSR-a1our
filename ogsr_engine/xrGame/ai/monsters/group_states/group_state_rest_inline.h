@@ -35,7 +35,7 @@ void CStateGroupRestAbstract::initialize()
     inherited::initialize();
     time_for_sleep = 0;
     time_for_life = time() + object->m_min_life_time + Random.randI(10) * object->m_min_life_time;
-    object->anomaly_detector().activate();
+    //object->anomaly_detector().activate();
 }
 
 TEMPLATE_SPECIALIZATION
@@ -43,7 +43,7 @@ void CStateGroupRestAbstract::finalize()
 {
     inherited::finalize();
 
-    object->anomaly_detector().deactivate();
+    //object->anomaly_detector().deactivate();
 }
 
 TEMPLATE_SPECIALIZATION
@@ -51,7 +51,7 @@ void CStateGroupRestAbstract::critical_finalize()
 {
     inherited::critical_finalize();
 
-    object->anomaly_detector().deactivate();
+    //object->anomaly_detector().deactivate();
 }
 
 TEMPLATE_SPECIALIZATION

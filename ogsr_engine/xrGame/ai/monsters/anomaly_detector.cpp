@@ -53,6 +53,7 @@ void CAnomalyDetector::update_schedule()
     {
         if (it->time_registered == 0)
         {
+            //Msg("temp add in %s, %d", m_object->Name(), Level().Objects.net_Find(it->id)->cName());
             temp_in_restrictors.push_back(it->id);
             it->time_registered = time();
         }
@@ -65,6 +66,7 @@ void CAnomalyDetector::update_schedule()
     {
         if (it->time_registered + m_time_to_rememeber < time() && !it->ignored)
         {
+            //Msg("temp remove in %s, %d", m_object->Name(), Level().Objects.net_Find(it->id)->cName());
             temp_in_restrictors.push_back(it->id);
         }
     }
