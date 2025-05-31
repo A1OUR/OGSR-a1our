@@ -143,7 +143,7 @@ BOOL CObjectSpace::_RayPick(const Fvector& start, const Fvector& dir, float rang
             if (collidable == ignore_object)
                 continue;
             ECollisionFormType tp = collidable->collidable.model->Type();
-            if (((tgt & (rqtObject | rqtObstacle)) && (tp == cftObject)) || ((tgt & rqtShape) && (tp == cftShape)))
+            if (((tgt & (rqtObject | rqtObstacle)) && (tp == cftObject)) || ((tgt & rqtShape) && (tp == cftShape))) // тут чёто вылетает если бить стекло во время дождя. не критично но стоит попробовать фиксить
             {
 #ifdef DEBUG
                 u32 C = D3DCOLOR_XRGB(64, 64, 64);
