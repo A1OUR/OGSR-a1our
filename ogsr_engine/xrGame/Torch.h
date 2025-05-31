@@ -28,10 +28,6 @@ protected:
     ref_glow glow_render;
     Fvector m_focus;
     Fcolor m_color;
-    bool m_bind_to_camera;
-    Fvector m_camera_torch_offset;
-    Fvector m_camera_omni_offset;
-    float m_min_target_dist;
 
 private:
     bool useVolumetric{}, useVolumetricForActor{};
@@ -71,8 +67,6 @@ protected:
     HUD_SOUND m_NightVisionOffSnd;
     HUD_SOUND m_NightVisionIdleSnd;
     HUD_SOUND m_NightVisionBrokenSnd;
-    HUD_SOUND sndTurnOn;
-    HUD_SOUND sndTurnOff;
 
     enum EStats
     {
@@ -88,7 +82,7 @@ public:
     virtual void setup_physic_shell();
 
     virtual void afterDetach();
-    virtual void renderable_Render(u32 context_id, IRenderable* root) override;
+    virtual void renderable_Render();
 
     // alpet: управление светом фонаря
     IRender_Light* GetLight(int target = 0) const;

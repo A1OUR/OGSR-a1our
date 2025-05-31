@@ -1,3 +1,5 @@
+#ifndef WallMarkArray_included
+#define WallMarkArray_included
 #pragma once
 
 #include "FactoryPtr.h"
@@ -19,3 +21,5 @@ public:
     //	passing IWallMarkArray directly to renderer.
     virtual wm_shader GenerateWallmark() = 0;
 };
+
+#endif //	WallMarkArray_included

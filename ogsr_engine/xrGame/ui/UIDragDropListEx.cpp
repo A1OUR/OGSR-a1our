@@ -322,7 +322,7 @@ bool CUIDragDropListEx::OnMouse(float x, float y, EUIMessages mouse_action)
 
     if (m_vScrollBar->IsShown())
     {
-        bool with_shift = pInput->iGetAsyncKeyState(DIK_LSHIFT) || pInput->iGetAsyncKeyState(DIK_RSHIFT);
+        bool with_shift = Level().IR_GetKeyState(DIK_LSHIFT) || Level().IR_GetKeyState(DIK_RSHIFT);
 
         switch (mouse_action)
         {
@@ -570,7 +570,6 @@ CUICellItem* CUICellContainer::RemoveItem(CUICellItem* itm, bool force_root)
         {
             CUICellItem* iii = i->PopChild();
             R_ASSERT(0 == iii->ChildsCount());
-            i->UpdateItemText();
             return iii;
         }
     }
@@ -579,7 +578,6 @@ CUICellItem* CUICellContainer::RemoveItem(CUICellItem* itm, bool force_root)
     {
         CUICellItem* iii = itm->PopChild();
         R_ASSERT(0 == iii->ChildsCount());
-        itm->UpdateItemText();
         return iii;
     }
 
@@ -764,7 +762,7 @@ void CUICellContainer::ClearAll(bool bDestroy)
     {
         CUIWindow* w = m_ChildWndList.back();
         CUICellItem* wc = smart_cast<CUICellItem*>(w);
-        R_ASSERT(!wc->IsAutoDelete());
+        VERIFY(!wc->IsAutoDelete());
         DetachChild(wc);
 
         while (wc->ChildsCount())
@@ -773,12 +771,12 @@ void CUICellContainer::ClearAll(bool bDestroy)
             R_ASSERT(ci->ChildsCount() == 0);
 
             if (bDestroy)
-                xr_delete(ci);
+                delete_data(ci);
         }
 
         if (bDestroy)
         {
-            xr_delete(wc);
+            delete_data(wc);
         }
     }
 }

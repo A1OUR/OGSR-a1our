@@ -6,7 +6,7 @@
 #pragma warning(disable : 4200)
 struct XRCORE_API str_value
 {
-    std::atomic_uint32_t dwReference;
+    u32 dwReference;
     u32 dwLength;
     u32 dwCRC;
     str_value* next;
@@ -35,7 +35,7 @@ private:
     str_container_impl* impl;
 };
 
-XRCORE_API extern  str_container* g_pStringContainer;
+XRCORE_API extern str_container* g_pStringContainer;
 
 //////////////////////////////////////////////////////////////////////////
 class shared_str
@@ -43,22 +43,22 @@ class shared_str
 private:
     str_value* p_;
 
-private:
+protected:
     // ref-counting
     void _dec()
     {
-        if (!p_)
+        if (0 == p_)
             return;
         p_->dwReference--;
         if (0 == p_->dwReference)
-            p_ = nullptr;
+            p_ = 0;
     }
 
-private:
+public:
     void _set(const char* rhs)
     {
         str_value* v = g_pStringContainer->dock(rhs);
-        if (v)
+        if (0 != v)
             v->dwReference++;
         _dec();
         p_ = v;
@@ -66,7 +66,7 @@ private:
     void _set(shared_str const& rhs)
     {
         str_value* v = rhs.p_;
-        if (v)
+        if (0 != v)
             v->dwReference++;
         _dec();
         p_ = v;
@@ -75,15 +75,15 @@ private:
 
 public:
     // construction
-    shared_str() { p_ = nullptr; }
+    shared_str() { p_ = 0; }
     shared_str(const char* rhs)
     {
-        p_ = nullptr;
+        p_ = 0;
         _set(rhs);
     }
     shared_str(shared_str const& rhs)
     {
-        p_ = nullptr;
+        p_ = 0;
         _set(rhs);
     }
     ~shared_str() { _dec(); }
@@ -126,6 +126,13 @@ public:
 
     bool empty() const { return size() == 0; }
 
+    void swap(shared_str& rhs)
+    {
+        str_value* tmp = p_;
+        p_ = rhs.p_;
+        rhs.p_ = tmp;
+
+    }
     bool equal(const shared_str& rhs) const { return (p_ == rhs.p_); }
 
     shared_str& __cdecl sprintf(const char* format, ...)
@@ -147,6 +154,9 @@ using xr_string = std::basic_string<char, std::char_traits<char>, xr_allocator<c
 
 DEFINE_VECTOR(xr_string, SStringVec, SStringVecIt);
 
+// externally visible standart functionality
+IC void swap(shared_str& lhs, shared_str& rhs) { lhs.swap(rhs); }
+
 IC u32 xr_strlen(shared_str& a) { return a.size(); }
 IC int xr_strcmp(const shared_str& a, const char* b) { return xr_strcmp(*a, b); }
 IC int xr_strcmp(const char* a, const shared_str& b) { return xr_strcmp(a, *b); }
@@ -160,8 +170,8 @@ IC int xr_strcmp(const shared_str& a, const shared_str& b)
 
 IC void xr_strlwr(xr_string& src)
 {
-    for (char& it : src)
-        it = xr_string::value_type(tolower(it));
+    for (xr_string::iterator it = src.begin(); it != src.end(); it++)
+        *it = xr_string::value_type(tolower(*it));
 }
 IC void xr_strlwr(shared_str& src)
 {
@@ -244,9 +254,3 @@ inline void strlwr(T& data)
 }
 
 } // namespace xr_string_utils
-
-struct pred_shared_str
-{
-    // bool operator()(const char* x, const char* y) const { return std::strcmp(x, y) < 0; }
-    bool operator()(const shared_str& x, const shared_str& y) const { return xr_strcmp(x, y) < 0; }
-};

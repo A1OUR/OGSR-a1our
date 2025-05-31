@@ -6,6 +6,9 @@
 //	Description : Object factory
 ////////////////////////////////////////////////////////////////////////////
 
+#ifndef object_factoryH
+#define object_factoryH
+
 #pragma once
 
 #include "script_export_space.h"
@@ -72,3 +75,4 @@ add_to_type_list(CObjectFactory)
 IC const CObjectFactory& object_factory();
 
 #include "object_factory_inline.h"
+#endif

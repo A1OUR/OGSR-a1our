@@ -88,17 +88,16 @@ bool CPHSkeleton::Spawn(CSE_Abstract* D)
     else
     {
         CPhysicsShellHolder* obj = PPhysicsShellHolder();
-
-        IKinematics* k = nullptr;
+        IKinematics* K = NULL;
         if (obj->Visual())
         {
-            k = smart_cast<IKinematics*>(obj->Visual());
-            if (k)
+            K = smart_cast<IKinematics*>(obj->Visual());
+            if (K)
             {
-                k->LL_SetBoneRoot(po->saved_bones.root_bone);
+                K->LL_SetBoneRoot(po->saved_bones.root_bone);
+                K->LL_SetBonesVisible(po->saved_bones.bones_mask);
             }
         }
-
         SpawnInitPhysics(D);
         RestoreNetState(po);
         if (obj->PPhysicsShell() && obj->PPhysicsShell()->isFullActive())
@@ -106,9 +105,9 @@ bool CPHSkeleton::Spawn(CSE_Abstract* D)
 
         CPHDestroyableNotificate::spawn_notificate(D);
 
-        if (k)
+        if (K)
         {
-            CInifile* ini = k->LL_UserData();
+            CInifile* ini = K->LL_UserData();
             if (ini && ini->section_exist("collide"))
             {
                 if (ini->line_exist("collide", "not_collide_parts"))
@@ -128,8 +127,6 @@ bool CPHSkeleton::Spawn(CSE_Abstract* D)
                     obj->PPhysicsShell()->SetIgnoreSmall();
                 }
             }
-
-            k->LL_SetBonesVisible(po->saved_bones.bones_mask);
         }
     }
     return false;
@@ -304,13 +301,15 @@ void CPHSkeleton::RestoreNetState(CSE_PHSkeleton* /*po*/)
         }
         else
         {
-            MsgDbg("! [%s]: [%s] skip load of bone state due to single root bone with fixed position. Visual[%s]", __FUNCTION__, obj->Name_script(), obj->cNameVisual().c_str());
+            Msg("! [%s]: [%s] skip load of bone state due to single root bone with fixed position. Visual[%s]", __FUNCTION__, obj->Name_script(), obj->cNameVisual().c_str());
         }
     }
     else
     {
-        MsgDbg("~ [%s]: [%s] has different state in saved_bones[%u] PHGetSyncItemsNumber[%u] Visual[%s] alive[%s]", __FUNCTION__, obj->Name_script(), saved_bones.size(),
-            obj->PHGetSyncItemsNumber(), obj->cNameVisual().c_str(), (obj->cast_entity_alive() && obj->cast_entity_alive()->conditions().GetHealth() > 0.f) ? "yes" : "no");
+        bool alive = obj->cast_entity_alive() && obj->cast_entity_alive()->conditions().GetHealth() > 0.f;
+
+        Msg("~ [%s]: [%s] has different state in saved_bones[%u] PHGetSyncItemsNumber[%u] Visual[%s] alive[%s]", __FUNCTION__, obj->Name_script(), saved_bones.size(),
+            obj->PHGetSyncItemsNumber(), obj->cNameVisual().c_str(), alive ? "yes" : "no");
     }
 
     saved_bones.clear();

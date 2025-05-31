@@ -1,3 +1,5 @@
+#ifndef dx10ShaderResourceStateCache_included
+#define dx10ShaderResourceStateCache_included
 #pragma once
 
 class dx10ShaderResourceStateCache
@@ -7,7 +9,7 @@ public:
 
     void ResetDeviceState();
 
-    void Apply(u32 context_id);
+    void Apply();
 
     void SetPSResource(u32 uiSlot, ID3DShaderResourceView* pRes);
     void SetGSResource(u32 uiSlot, ID3DShaderResourceView* pRes);
@@ -17,12 +19,12 @@ public:
     void SetCSResource(u32 uiSlot, ID3DShaderResourceView* pRes);
 
 private:
-    ID3DShaderResourceView* m_PSViews[CTexture::mtMaxPixelShaderTextures];
-    ID3DShaderResourceView* m_GSViews[CTexture::mtMaxGeometryShaderTextures];
-    ID3DShaderResourceView* m_VSViews[CTexture::mtMaxVertexShaderTextures];
-    ID3DShaderResourceView* m_HSViews[CTexture::mtMaxHullShaderTextures];
-    ID3DShaderResourceView* m_DSViews[CTexture::mtMaxDomainShaderTextures];
-    ID3DShaderResourceView* m_CSViews[CTexture::mtMaxComputeShaderTextures];
+    ID3DShaderResourceView* m_PSViews[CBackend::mtMaxPixelShaderTextures];
+    ID3DShaderResourceView* m_GSViews[CBackend::mtMaxGeometryShaderTextures];
+    ID3DShaderResourceView* m_VSViews[CBackend::mtMaxVertexShaderTextures];
+    ID3DShaderResourceView* m_HSViews[CBackend::mtMaxHullShaderTextures];
+    ID3DShaderResourceView* m_DSViews[CBackend::mtMaxDomainShaderTextures];
+    ID3DShaderResourceView* m_CSViews[CBackend::mtMaxComputeShaderTextures];
 
     u32 m_uiMinPSView;
     u32 m_uiMaxPSView;
@@ -49,3 +51,7 @@ private:
     bool m_bUpdateDSViews;
     bool m_bUpdateCSViews;
 };
+
+extern dx10ShaderResourceStateCache SRVSManager;
+
+#endif //	dx10ShaderResourceStateCache_included

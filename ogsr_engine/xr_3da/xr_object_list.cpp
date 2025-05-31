@@ -186,6 +186,7 @@ void CObjectList::ProcessDestroyQueue()
         for (int it = destroy_queue.size() - 1; it >= 0; it--)
             Sound->object_relcase(destroy_queue[it]);
 
+        CCustomHUD& hud = *g_pGameLevel->pHUD;
         RELCASE_CALLBACK_VEC::iterator It = m_relcase_callbacks.begin();
         RELCASE_CALLBACK_VEC::iterator Ite = m_relcase_callbacks.end();
         for (; It != Ite; ++It)
@@ -196,7 +197,7 @@ void CObjectList::ProcessDestroyQueue()
             for (; dIt != dIte; ++dIt)
             {
                 (*It).m_Callback(*dIt);
-                g_hud->net_Relcase(*dIt);
+                hud.net_Relcase(*dIt);
             }
         }
 
@@ -205,7 +206,6 @@ void CObjectList::ProcessDestroyQueue()
         {
             CObject* O = destroy_queue[it];
             // Msg( "Object [%x]", O );
-            O->setDestroy(TRUE);
 #ifdef DEBUG
             Msg("Destroying object[%x] [%d][%s] frame[%d]", O, O->ID(), O->cName().c_str(), Device.dwFrame);
 #endif // DEBUG
@@ -244,11 +244,11 @@ void CObjectList::Load() { R_ASSERT(map_NETID.empty() && objects_active.empty() 
 
 void CObjectList::Unload()
 {
-    if (!objects_sleeping.empty() || !objects_active.empty())
+    if (objects_sleeping.size() || objects_active.size())
         Msg("! objects-leaked: %d", objects_sleeping.size() + objects_active.size());
 
     // Destroy objects
-    while (!objects_sleeping.empty())
+    while (objects_sleeping.size())
     {
         CObject* O = objects_sleeping.back();
         Msg("! [%x] s[%4d]-[%s]-[%s]", O, O->ID(), *O->cNameSect(), *O->cName());
@@ -260,8 +260,7 @@ void CObjectList::Unload()
         O->net_Destroy();
         Destroy(O);
     }
-
-    while (!objects_active.empty())
+    while (objects_active.size())
     {
         CObject* O = objects_active.back();
         Msg("! [%x] a[%4d]-[%s]-[%s]", O, O->ID(), *O->cNameSect(), *O->cName());

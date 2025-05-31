@@ -581,7 +581,7 @@ bool CInventory::Action(s32 cmd, u32 flags)
 {
     if (m_iActiveSlot < m_slots.size() && m_slots[m_iActiveSlot].m_pIItem && m_slots[m_iActiveSlot].m_pIItem->Action(cmd, flags))
         return true;
-
+    bool b_send_event = false;
     switch (cmd)
     {
     case kWPN_1:
@@ -593,9 +593,9 @@ bool CInventory::Action(s32 cmd, u32 flags)
         if (flags & CMD_START)
         {
             if (GetActiveSlot() == cmd - kWPN_1 && ActiveItem())
-                Activate(NO_ACTIVE_SLOT);
+                b_send_event = Activate(NO_ACTIVE_SLOT);
             else
-                Activate(cmd - kWPN_1, eKeyAction);
+                b_send_event = Activate(cmd - kWPN_1, eKeyAction);
         }
     }
     break;
@@ -608,17 +608,15 @@ bool CInventory::Action(s32 cmd, u32 flags)
             if (!Pda || !Pda->Is3DPDA() || !psActorFlags.test(AF_3D_PDA))
                 break;
 
-            extern bool g_actor_allow_pda;
-
             if (GetActiveSlot() == PDA_SLOT && ActiveItem())
-                Activate(NO_ACTIVE_SLOT);
-            else if (g_actor_allow_pda)
+                b_send_event = Activate(NO_ACTIVE_SLOT);
+            else
             {
                 auto pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
                 if (pGameSP->InventoryMenu->IsShown())
                     break;
                 pGameSP->PdaMenu->SetActiveSubdialog(cmd == kACTIVE_JOBS ? eptQuests : (cmd == kMAP ? eptMap : eptContacts));
-                Activate(PDA_SLOT, eKeyAction);
+                b_send_event = Activate(PDA_SLOT, eKeyAction);
             }
         }
     }

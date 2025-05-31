@@ -1,4 +1,6 @@
 #pragma once
+#ifndef PH_CAPTURE_H
+#define PH_CAPTURE_H
 
 #include "phobject.h"
 #include "gameobject.h"
@@ -73,3 +75,4 @@ private:
 public:
     CPhysicsShellHolder* taget_object() const { return m_taget_object; };
 };
+#endif

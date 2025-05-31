@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PHDISABLING_H
+#define PHDISABLING_H
 
 #include "DisablingParams.h"
 #include "ode_include.h"
@@ -102,3 +103,4 @@ public:
     virtual void UpdateL2();
     virtual void set_DisableParams(const SAllDDOParams& params);
 };
+#endif

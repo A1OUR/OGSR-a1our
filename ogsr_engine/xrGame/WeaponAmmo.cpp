@@ -203,10 +203,10 @@ bool CWeaponAmmo::Get(CCartridge& cartridge)
     return true;
 }
 
-void CWeaponAmmo::renderable_Render(u32 context_id, IRenderable* root)
+void CWeaponAmmo::renderable_Render()
 {
     if (!m_ready_to_destroy)
-        inherited::renderable_Render(context_id, root);
+        inherited::renderable_Render();
 }
 
 void CWeaponAmmo::UpdateCL()

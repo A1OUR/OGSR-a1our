@@ -14,6 +14,7 @@ public:
 
     virtual void Load(LPCSTR section);
     virtual void Postprocess(f32 val);
+    virtual bool EnableEffector() { return true; }
 
     virtual void Affect(SZoneObjectInfo* O);
 

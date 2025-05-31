@@ -126,10 +126,10 @@ void CInventoryItemObject::load(IReader& packet)
     CInventoryItem::load(packet);
 }
 
-void CInventoryItemObject::renderable_Render(u32 context_id, IRenderable* root)
+void CInventoryItemObject::renderable_Render()
 {
-    CPhysicItem::renderable_Render(context_id, root);
-    CInventoryItem::renderable_Render(context_id, root);
+    CPhysicItem::renderable_Render();
+    CInventoryItem::renderable_Render();
 }
 
 void CInventoryItemObject::reload(LPCSTR section)

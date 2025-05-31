@@ -8,7 +8,7 @@ dx10StateCache<ID3DBlendState, D3D_BLEND_DESC> BSManager;
 template <class IDeviceState, class StateDecs>
 dx10StateCache<IDeviceState, StateDecs>::dx10StateCache()
 {
-    constexpr size_t iMasRSStates = 10;
+    static const int iMasRSStates = 10;
     m_StateArray.reserve(iMasRSStates);
 }
 
@@ -18,6 +18,7 @@ dx10StateCache<IDeviceState, StateDecs>::~dx10StateCache()
     ClearStateArray();
     //	VERIFY(m_StateArray.empty());
 }
+
 
 template <class IDeviceState, class StateDecs>
 void dx10StateCache<IDeviceState, StateDecs>::ClearStateArray()
@@ -31,7 +32,7 @@ void dx10StateCache<IDeviceState, StateDecs>::ClearStateArray()
 }
 
 template <>
-void dx10StateCache<ID3DRasterizerState, D3D_RASTERIZER_DESC>::CreateState(const D3D_RASTERIZER_DESC& desc, ID3DRasterizerState** ppIState)
+void dx10StateCache<ID3DRasterizerState, D3D_RASTERIZER_DESC>::CreateState(D3D_RASTERIZER_DESC desc, ID3DRasterizerState** ppIState)
 {
     CHK_DX(HW.pDevice->CreateRasterizerState(&desc, ppIState));
 
@@ -42,7 +43,7 @@ void dx10StateCache<ID3DRasterizerState, D3D_RASTERIZER_DESC>::CreateState(const
 }
 
 template <>
-void dx10StateCache<ID3DDepthStencilState, D3D_DEPTH_STENCIL_DESC>::CreateState(const D3D_DEPTH_STENCIL_DESC& desc, ID3DDepthStencilState** ppIState)
+void dx10StateCache<ID3DDepthStencilState, D3D_DEPTH_STENCIL_DESC>::CreateState(D3D_DEPTH_STENCIL_DESC desc, ID3DDepthStencilState** ppIState)
 {
     CHK_DX(HW.pDevice->CreateDepthStencilState(&desc, ppIState));
 
@@ -53,7 +54,7 @@ void dx10StateCache<ID3DDepthStencilState, D3D_DEPTH_STENCIL_DESC>::CreateState(
 }
 
 template <>
-void dx10StateCache<ID3DBlendState, D3D_BLEND_DESC>::CreateState(const D3D_BLEND_DESC& desc, ID3DBlendState** ppIState)
+void dx10StateCache<ID3DBlendState, D3D_BLEND_DESC>::CreateState(D3D_BLEND_DESC desc, ID3DBlendState** ppIState)
 {
     CHK_DX(HW.pDevice->CreateBlendState(&desc, ppIState));
 

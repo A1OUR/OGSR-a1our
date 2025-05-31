@@ -1,13 +1,16 @@
 #include "stdafx.h"
 
-void CRenderTarget::phase_rain_drops(CBackend& cmd_list)
+void CRenderTarget::PhaseRainDrops()
 {
+    if (Device.m_SecondViewport.IsSVPFrame()) //В прицеле не рендерим
+        return;
+
     static float rain_drops_factor = 0.f;
     static u32 steps_finished = 0;
 
     // Чтобы по команде r2_rain_drops_control off/on эффект перезапускался.
     static bool saved_rain_drops_control = false;
-    const bool current_rain_drops_control = !!ps_r2_ls_flags_ext.test(R2FLAGEXT_RAIN_DROPS_CONTROL);
+    bool current_rain_drops_control = !!ps_r2_ls_flags_ext.test(R2FLAGEXT_RAIN_DROPS_CONTROL);
     if (saved_rain_drops_control != current_rain_drops_control)
     {
         saved_rain_drops_control = current_rain_drops_control;
@@ -21,7 +24,7 @@ void CRenderTarget::phase_rain_drops(CBackend& cmd_list)
 
     // Функция рассчитывает интенсивность эффекта капель на худе. В шейдере нормально рассчитать слишком муторно, проще посчитать здесь и получить в шейдере через c_timers.w
     auto update_rain_drops_factor = [](bool act_on_rain) {
-        const float rain_factor = g_pGamePersistent->Environment().CurrentEnv->rain_density;
+        float rain_factor = g_pGamePersistent->pEnvironment->CurrentEnv->rain_density;
         if (!fis_zero(rain_factor))
         {
             // В данном варианте настроек - при выходе из укрытия в шторм, капли заработают на полную мощность за 20 секунд. При заходе в укрытие - эффект отключится так же через
@@ -68,17 +71,20 @@ void CRenderTarget::phase_rain_drops(CBackend& cmd_list)
         }
     };
 
-    const bool actor_in_hideout = IGame_Persistent::IsActorInHideout();
+    const bool actor_in_hideout = g_pGamePersistent->IsActorInHideout();
 
     update_rain_drops_factor(!actor_in_hideout);
 
     if (fis_zero(rain_drops_factor))
         return;
 
-    PIX_EVENT(phase_rain_drops);
+    // Msg("##[%s] rain_drops_factor: [%f], rain_density: [%f]", __FUNCTION__, rain_drops_factor, g_pGamePersistent->pEnvironment->CurrentEnv->rain_density);
 
-    const Fvector4 params{rain_drops_factor, ps_r2_rain_drops_intensity, ps_r2_rain_drops_speed, 0.0f};
-    RenderScreenQuad(cmd_list, Device.dwWidth, Device.dwHeight, rt_Generic_combine, s_rain_drops->E[0], [&]() { cmd_list.set_c("rain_drops_params", params); });
+    ref_rt& dest_rt = RImplementation.o.dx10_msaa ? rt_Generic : rt_Color;
 
-    HW.get_context(cmd_list.context_id)->CopyResource(rt_Generic_0->pSurface, rt_Generic_combine->pSurface);
+    Fvector4 params{rain_drops_factor, ps_r2_rain_drops_intensity, ps_r2_rain_drops_speed, 0.0f};
+    string_unordered_map<const char*, Fvector4*> consts{{"rain_drops_params", &params}};
+    RenderScreenQuad(Device.dwWidth, Device.dwHeight, dest_rt, s_rain_drops->E[0], &consts);
+
+    HW.pContext->CopyResource(rt_Generic_0->pTexture->surface_get(), dest_rt->pTexture->surface_get());
 }

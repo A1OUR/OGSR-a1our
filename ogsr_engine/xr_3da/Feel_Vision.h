@@ -23,9 +23,8 @@ private:
     xr_vector<CObject*> seen;
     xr_vector<CObject*> query;
     xr_vector<CObject*> diff;
-
-    xr_vector<ISpatial*> r_spatial;
     collide::rq_results RQR;
+    xr_vector<ISpatial*> r_spatial;
 
     void o_new(CObject* E);
     void o_delete(CObject* E);
@@ -34,22 +33,17 @@ private:
 public:
     Vision();
     virtual ~Vision();
-
     struct feel_visible_Item
     {
-        float fuzzy{}; // note range: (-1[no]..1[yes])
-        CObject* O{};
-
-        collide::ray_cache Cache{};
-        float Cache_vis{};
-
-        Fvector cp_LP{};
-        Fvector cp_LR_src{};
-        Fvector cp_LR_dst{};
-
-        Fvector cp_LAST{}; // last point found to be visible
-
-        float trans{};
+        float fuzzy; // note range: (-1[no]..1[yes])
+        CObject* O;
+        collide::ray_cache Cache;
+        float Cache_vis;
+        Fvector cp_LP;
+        Fvector cp_LR_src;
+        Fvector cp_LR_dst;
+        Fvector cp_LAST; // last point found to be visible
+        float trans;
     };
     xr_vector<feel_visible_Item> feel_visible;
 
@@ -62,20 +56,20 @@ public:
     {
         R.clear();
         xr_vector<feel_visible_Item>::iterator I = feel_visible.begin(), E = feel_visible.end();
-        for (; I != E; ++I)
+        for (; I != E; I++)
             if (positive(I->fuzzy))
                 R.push_back(I->O);
     }
     Fvector feel_vision_get_vispoint(CObject* _O)
     {
         xr_vector<feel_visible_Item>::iterator I = feel_visible.begin(), E = feel_visible.end();
-        for (; I != E; ++I)
+        for (; I != E; I++)
             if (_O == I->O)
             {
                 VERIFY(positive(I->fuzzy));
                 return I->cp_LAST;
             }
-        VERIFY(0, "There is no such object in the potentially visible list");
+        VERIFY2(0, "There is no such object in the potentially visible list");
         return Fvector().set(flt_max, flt_max, flt_max);
     }
     virtual BOOL feel_vision_isRelevant(CObject* O) = 0;

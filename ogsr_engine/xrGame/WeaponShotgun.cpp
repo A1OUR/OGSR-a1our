@@ -6,7 +6,6 @@
 #include "inventory.h"
 #include "level.h"
 #include "actor.h"
-#include "../xr_3da/x_ray.h"
 
 CWeaponShotgun::CWeaponShotgun(void) : CWeaponCustomPistol("TOZ34")
 {
@@ -122,26 +121,24 @@ void CWeaponShotgun::OnShotBoth()
     AddShotEffector();
 
     // анимация дуплета
-    PlayHUDMotion({"anim_shoot_both", "anm_shots_both"}, IS_OGSR_GA, GetState());
+    PlayHUDMotion({"anim_shoot_both", "anm_shots_both"}, false, GetState());
 
     // Shell Drop
     Fvector vel;
     PHGetLinearVell(vel);
     OnShellDrop(get_LastSP(), vel);
 
-    if (ShouldPlayFlameParticles())
-    {
-        StartFlameParticles();
-        ForceUpdateFireParticles();
-    }
+    //огонь из 2х стволов
+    StartFlameParticles();
+    StartFlameParticles2();
 
     //дым из 2х стволов
     if (ParentIsActor())
     {
         CParticlesObject* pSmokeParticles = NULL;
-        CShootingObject::StartParticles(pSmokeParticles, *m_sSmokeParticlesCurrent, get_LastFP(), {}, true);
+        CShootingObject::StartParticles(pSmokeParticles, *m_sSmokeParticlesCurrent, get_LastFP(), zero_vel, true);
         pSmokeParticles = NULL;
-        CShootingObject::StartParticles(pSmokeParticles, *m_sSmokeParticlesCurrent, get_LastFP2(), {}, true);
+        CShootingObject::StartParticles(pSmokeParticles, *m_sSmokeParticlesCurrent, get_LastFP2(), zero_vel, true);
     }
 }
 

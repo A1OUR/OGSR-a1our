@@ -15,8 +15,6 @@ struct event_comparer
 
 CUIDialogWndEx::CUIDialogWndEx() : inherited() { Hide(); }
 
-CUIDialogWndEx::~CUIDialogWndEx() { ClearCallbacks(); }
-
 void CUIDialogWndEx::Register(CUIWindow* pChild) { pChild->SetMessageTarget(this); }
 
 void CUIDialogWndEx::Register(CUIWindow* pChild, LPCSTR name)
@@ -33,7 +31,10 @@ void CUIDialogWndEx::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
     if (it == m_callbacks.end())
         return inherited::SendMessage(pWnd, msg, pData);
 
-    it->m_callback();
+    (*it).m_callback();
+
+    //	if ( (*it)->m_cpp_callback )
+    //		(*it)->m_cpp_callback(pData);
 }
 
 bool CUIDialogWndEx::Load(LPCSTR xml_name) { return true; }
@@ -63,6 +64,4 @@ void CUIDialogWndEx::ClearCallbacks()
 {
     for (auto& cb : m_callbacks)
         cb.m_callback.clear();
-
-    m_callbacks.clear();
 }

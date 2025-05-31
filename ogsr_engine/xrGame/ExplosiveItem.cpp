@@ -71,8 +71,7 @@ bool CExplosiveItem::shedule_Needed()
     return (inherited::shedule_Needed() || CDelayedActionFuse::isActive());
 }
 
-void CExplosiveItem::renderable_Render(u32 context_id, IRenderable* root) { inherited::renderable_Render(context_id, root); }
-
+void CExplosiveItem::renderable_Render() { inherited::renderable_Render(); }
 void CExplosiveItem::net_Relcase(CObject* O)
 {
     CExplosive::net_Relcase(O);

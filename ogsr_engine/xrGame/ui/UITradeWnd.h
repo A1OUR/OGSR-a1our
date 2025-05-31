@@ -108,15 +108,4 @@ protected:
     bool OnItemRButtonClick(CUICellItem* itm);
 
     void BindDragDropListEvents(CUIDragDropListEx* lst);
-
-    enum eInventorySndAction
-    {
-        eInvProperties = 0,
-        eInvItemMove,
-        eInvSndTrade,
-        eInvSndTradeBlock,
-        eInvSndMax
-    };
-    ref_sound sounds[eInvSndMax];
-    void PlaySnd(eInventorySndAction a);
 };

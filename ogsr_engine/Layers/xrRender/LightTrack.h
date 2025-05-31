@@ -2,6 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#if !defined(AFX_LIGHTTRACK_H__89914D61_AC0B_4C7C_BA8C_D7D810738CE7__INCLUDED_)
+#define AFX_LIGHTTRACK_H__89914D61_AC0B_4C7C_BA8C_D7D810738CE7__INCLUDED_
 #pragma once
 
 const float lt_inc = 4.f;
@@ -78,6 +80,7 @@ private:
     s32 sky_rays_uptodate;
 
 public:
+    virtual void force_mode(u32 mode) { MODE = mode; };
     virtual float get_luminocity()
     {
         float result = _max(approximate.x, _max(approximate.y, approximate.z));
@@ -87,9 +90,9 @@ public:
     virtual float get_luminocity_hemi() { return get_hemi(); }
     virtual float* get_luminocity_hemi_cube() { return hemi_cube_smooth; }
 
-    void add(light* source);
+    void add(light* L);
     void update(IRenderable* O);
-    void update_smooth(IRenderable* O = nullptr);
+    void update_smooth(IRenderable* O = 0);
 
     ICF float get_hemi()
     {
@@ -139,3 +142,5 @@ private:
     void smart_update(IRenderable* O);
 
 };
+
+#endif // !defined(AFX_LIGHTTRACK_H__89914D61_AC0B_4C7C_BA8C_D7D810738CE7__INCLUDED_)

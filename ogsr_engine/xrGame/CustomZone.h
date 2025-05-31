@@ -321,6 +321,8 @@ protected:
     void PlayObjectIdleParticles(CGameObject* pObject);
     void StopObjectIdleParticles(CGameObject* pObject);
 
+    virtual bool EnableEffector() { return false; }
+
     virtual bool IsVisibleForZones() { return false; }
 
     //обновление, если зона передвигается
@@ -386,7 +388,7 @@ protected:
 protected:
     u32 m_ef_anomaly_type;
     u32 m_ef_weapon_type;
-    bool m_b_always_fastmode;
+    BOOL m_b_always_fastmode;
 
     bool DestroyAfterBlowout{}; //Для самоудаления мин после взрыва
     u32 LastBlowoutTime{};
@@ -398,19 +400,19 @@ public:
 
     // optimization FAST/SLOW mode
 public:
-    bool o_fastmode;
+    BOOL o_fastmode;
     IC void o_switch_2_fast()
     {
         if (o_fastmode)
             return;
-        o_fastmode = true;
+        o_fastmode = TRUE;
         processing_activate();
     }
     IC void o_switch_2_slow()
     {
         if (!o_fastmode)
             return;
-        o_fastmode = false;
+        o_fastmode = FALSE;
         processing_deactivate();
     }
 };

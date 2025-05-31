@@ -65,7 +65,6 @@ class CUITaskSubItem : public CUITaskItem
     u32 m_active_color;
     u32 m_failed_color;
     u32 m_accomplished_color;
-    u32 m_skiped_color;
 
 protected:
     CUIStatic* m_ActiveObjectiveStatic;

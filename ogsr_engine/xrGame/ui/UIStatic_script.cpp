@@ -18,7 +18,8 @@ void UIMiniMapInit(CUIMiniMap* wnd)
 
     CInifile* pLtx = pGameIni;
 
-    R_ASSERT(pLtx->section_exist(Level().name()));
+    if (!pLtx->section_exist(Level().name()))
+        pLtx = Level().pLevel;
 
     wnd->Init(Level().name(), *pLtx, "hud\\default");
 
@@ -32,7 +33,7 @@ void UIMiniMapInit(CUIMiniMap* wnd)
 
 using namespace luabind;
 
-
+#pragma optimize("s", on)
 void CUIStatic::script_register(lua_State* L)
 {
     module(L)[class_<CUIStatic, CUIWindow>("CUIStatic")

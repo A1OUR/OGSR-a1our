@@ -86,10 +86,7 @@ void CAI_Space::load(LPCSTR level_name)
 
     const CGameGraph::SLevel& current_level = game_graph().header().level(level_name);
 
-    string_path file_name;
-    FS.update_path(file_name, "$level$", LEVEL_GRAPH_NAME);
-
-    m_level_graph = xr_new<CLevelGraph>(file_name);
+    m_level_graph = xr_new<CLevelGraph>();
     game_graph().set_current_level(current_level.id());
     auto& crossHeader = cross_table().header();
     auto& levelHeader = level_graph().header();

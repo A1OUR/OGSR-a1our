@@ -123,7 +123,10 @@ void ResetDescription(D3D_RASTERIZER_DESC& desc)
     desc.SlopeScaledDepthBias = 0.0f;
     desc.DepthClipEnable = TRUE;
     desc.ScissorEnable = FALSE;
-    desc.MultisampleEnable = FALSE;
+    if (RImplementation.o.dx10_msaa)
+        desc.MultisampleEnable = TRUE;
+    else
+        desc.MultisampleEnable = FALSE;
     desc.AntialiasedLineEnable = FALSE;
 }
 
@@ -134,8 +137,16 @@ void ResetDescription(D3D_DEPTH_STENCIL_DESC& desc)
     desc.DepthWriteMask = D3D_DEPTH_WRITE_MASK_ALL;
     desc.DepthFunc = D3D_COMPARISON_LESS;
     desc.StencilEnable = TRUE;
-    desc.StencilReadMask = 0xFF;
-    desc.StencilWriteMask = 0xFF;
+    if (!RImplementation.o.dx10_msaa)
+    {
+        desc.StencilReadMask = 0xFF;
+        desc.StencilWriteMask = 0xFF;
+    }
+    else
+    {
+        desc.StencilReadMask = 0x7F;
+        desc.StencilWriteMask = 0x7F;
+    }
 
     desc.FrontFace.StencilFailOp = D3D_STENCIL_OP_KEEP;
     desc.FrontFace.StencilDepthFailOp = D3D_STENCIL_OP_KEEP;
@@ -148,6 +159,7 @@ void ResetDescription(D3D_DEPTH_STENCIL_DESC& desc)
     desc.BackFace.StencilFunc = D3D_COMPARISON_ALWAYS;
 }
 
+
 void ResetDescription(D3D_BLEND_DESC& desc)
 {
     ZeroMemory(&desc, sizeof(desc));
@@ -155,16 +167,16 @@ void ResetDescription(D3D_BLEND_DESC& desc)
     desc.AlphaToCoverageEnable = FALSE;
     desc.IndependentBlendEnable = FALSE;
 
-    for (auto& i : desc.RenderTarget)
+    for (int i = 0; i < 8; ++i)
     {
-        i.SrcBlend = D3D_BLEND_ONE;
-        i.DestBlend = D3D_BLEND_ZERO;
-        i.BlendOp = D3D_BLEND_OP_ADD;
-        i.SrcBlendAlpha = D3D_BLEND_ONE;
-        i.DestBlendAlpha = D3D_BLEND_ZERO;
-        i.BlendOpAlpha = D3D_BLEND_OP_ADD;
-        i.BlendEnable = FALSE;
-        i.RenderTargetWriteMask = D3D_COLOR_WRITE_ENABLE_ALL;
+        desc.RenderTarget[i].SrcBlend = D3D_BLEND_ONE;
+        desc.RenderTarget[i].DestBlend = D3D_BLEND_ZERO;
+        desc.RenderTarget[i].BlendOp = D3D_BLEND_OP_ADD;
+        desc.RenderTarget[i].SrcBlendAlpha = D3D_BLEND_ONE;
+        desc.RenderTarget[i].DestBlendAlpha = D3D_BLEND_ZERO;
+        desc.RenderTarget[i].BlendOpAlpha = D3D_BLEND_OP_ADD;
+        desc.RenderTarget[i].BlendEnable = FALSE;
+        desc.RenderTarget[i].RenderTargetWriteMask = D3D_COLOR_WRITE_ENABLE_ALL;
     }
 }
 
@@ -369,16 +381,16 @@ u32 GetHash(const D3D_BLEND_DESC& desc)
     Hash.AddData(&desc.AlphaToCoverageEnable, sizeof(desc.AlphaToCoverageEnable));
     Hash.AddData(&desc.IndependentBlendEnable, sizeof(desc.IndependentBlendEnable));
 
-    for (const auto& i : desc.RenderTarget)
+    for (int i = 0; i < 8; ++i)
     {
-        Hash.AddData(&i.SrcBlend, sizeof(i.SrcBlend));
-        Hash.AddData(&i.DestBlend, sizeof(i.DestBlend));
-        Hash.AddData(&i.BlendOp, sizeof(i.BlendOp));
-        Hash.AddData(&i.SrcBlendAlpha, sizeof(i.SrcBlendAlpha));
-        Hash.AddData(&i.DestBlendAlpha, sizeof(i.DestBlendAlpha));
-        Hash.AddData(&i.BlendOpAlpha, sizeof(i.BlendOpAlpha));
-        Hash.AddData(&i.BlendEnable, sizeof(i.BlendEnable));
-        Hash.AddData(&i.RenderTargetWriteMask, sizeof(i.RenderTargetWriteMask));
+        Hash.AddData(&desc.RenderTarget[i].SrcBlend, sizeof(desc.RenderTarget[i].SrcBlend));
+        Hash.AddData(&desc.RenderTarget[i].DestBlend, sizeof(desc.RenderTarget[i].DestBlend));
+        Hash.AddData(&desc.RenderTarget[i].BlendOp, sizeof(desc.RenderTarget[i].BlendOp));
+        Hash.AddData(&desc.RenderTarget[i].SrcBlendAlpha, sizeof(desc.RenderTarget[i].SrcBlendAlpha));
+        Hash.AddData(&desc.RenderTarget[i].DestBlendAlpha, sizeof(desc.RenderTarget[i].DestBlendAlpha));
+        Hash.AddData(&desc.RenderTarget[i].BlendOpAlpha, sizeof(desc.RenderTarget[i].BlendOpAlpha));
+        Hash.AddData(&desc.RenderTarget[i].BlendEnable, sizeof(desc.RenderTarget[i].BlendEnable));
+        Hash.AddData(&desc.RenderTarget[i].RenderTargetWriteMask, sizeof(desc.RenderTarget[i].RenderTargetWriteMask));
     }
 
     return Hash.GetHash();
@@ -441,43 +453,43 @@ void ValidateState(D3D_BLEND_DESC& desc)
 {
     BOOL bBlendEnable = FALSE;
 
-    for (const auto& i : desc.RenderTarget)
+    for (int i = 0; i < 8; ++i)
     {
         VERIFY((desc.RenderTarget[i].BlendEnable == 0) || (desc.RenderTarget[i].BlendEnable == 1));
-        bBlendEnable |= i.BlendEnable;
+        bBlendEnable |= desc.RenderTarget[i].BlendEnable;
     }
 
-    for (auto& i : desc.RenderTarget)
+    for (int i = 0; i < 8; ++i)
     {
         if (!bBlendEnable)
         {
-            i.SrcBlend = D3D_BLEND_ONE;
-            i.DestBlend = D3D_BLEND_ZERO;
-            i.BlendOp = D3D_BLEND_OP_ADD;
-            i.SrcBlendAlpha = D3D_BLEND_ONE;
-            i.DestBlendAlpha = D3D_BLEND_ZERO;
-            i.BlendOpAlpha = D3D_BLEND_OP_ADD;
+            desc.RenderTarget[i].SrcBlend = D3D_BLEND_ONE;
+            desc.RenderTarget[i].DestBlend = D3D_BLEND_ZERO;
+            desc.RenderTarget[i].BlendOp = D3D_BLEND_OP_ADD;
+            desc.RenderTarget[i].SrcBlendAlpha = D3D_BLEND_ONE;
+            desc.RenderTarget[i].DestBlendAlpha = D3D_BLEND_ZERO;
+            desc.RenderTarget[i].BlendOpAlpha = D3D_BLEND_OP_ADD;
         }
         else
         {
-            switch (i.SrcBlendAlpha)
+            switch (desc.RenderTarget[i].SrcBlendAlpha)
             {
-            case D3D_BLEND_SRC_COLOR: i.SrcBlendAlpha = D3D_BLEND_SRC_ALPHA; break;
-            case D3D_BLEND_INV_SRC_COLOR: i.SrcBlendAlpha = D3D_BLEND_INV_SRC_ALPHA; break;
-            case D3D_BLEND_DEST_COLOR: i.SrcBlendAlpha = D3D_BLEND_DEST_ALPHA; break;
-            case D3D_BLEND_INV_DEST_COLOR: i.SrcBlendAlpha = D3D_BLEND_INV_DEST_ALPHA; break;
-            case D3D_BLEND_SRC1_COLOR: i.SrcBlendAlpha = D3D_BLEND_SRC1_ALPHA; break;
-            case D3D_BLEND_INV_SRC1_COLOR: i.SrcBlendAlpha = D3D_BLEND_INV_SRC1_ALPHA; break;
+            case D3D_BLEND_SRC_COLOR: desc.RenderTarget[i].SrcBlendAlpha = D3D_BLEND_SRC_ALPHA; break;
+            case D3D_BLEND_INV_SRC_COLOR: desc.RenderTarget[i].SrcBlendAlpha = D3D_BLEND_INV_SRC_ALPHA; break;
+            case D3D_BLEND_DEST_COLOR: desc.RenderTarget[i].SrcBlendAlpha = D3D_BLEND_DEST_ALPHA; break;
+            case D3D_BLEND_INV_DEST_COLOR: desc.RenderTarget[i].SrcBlendAlpha = D3D_BLEND_INV_DEST_ALPHA; break;
+            case D3D_BLEND_SRC1_COLOR: desc.RenderTarget[i].SrcBlendAlpha = D3D_BLEND_SRC1_ALPHA; break;
+            case D3D_BLEND_INV_SRC1_COLOR: desc.RenderTarget[i].SrcBlendAlpha = D3D_BLEND_INV_SRC1_ALPHA; break;
             }
 
-            switch (i.DestBlendAlpha)
+            switch (desc.RenderTarget[i].DestBlendAlpha)
             {
-            case D3D_BLEND_SRC_COLOR: i.DestBlendAlpha = D3D_BLEND_SRC_ALPHA; break;
-            case D3D_BLEND_INV_SRC_COLOR: i.DestBlendAlpha = D3D_BLEND_INV_SRC_ALPHA; break;
-            case D3D_BLEND_DEST_COLOR: i.DestBlendAlpha = D3D_BLEND_DEST_ALPHA; break;
-            case D3D_BLEND_INV_DEST_COLOR: i.DestBlendAlpha = D3D_BLEND_INV_DEST_ALPHA; break;
-            case D3D_BLEND_SRC1_COLOR: i.DestBlendAlpha = D3D_BLEND_SRC1_ALPHA; break;
-            case D3D_BLEND_INV_SRC1_COLOR: i.DestBlendAlpha = D3D_BLEND_INV_SRC1_ALPHA; break;
+            case D3D_BLEND_SRC_COLOR: desc.RenderTarget[i].DestBlendAlpha = D3D_BLEND_SRC_ALPHA; break;
+            case D3D_BLEND_INV_SRC_COLOR: desc.RenderTarget[i].DestBlendAlpha = D3D_BLEND_INV_SRC_ALPHA; break;
+            case D3D_BLEND_DEST_COLOR: desc.RenderTarget[i].DestBlendAlpha = D3D_BLEND_DEST_ALPHA; break;
+            case D3D_BLEND_INV_DEST_COLOR: desc.RenderTarget[i].DestBlendAlpha = D3D_BLEND_INV_DEST_ALPHA; break;
+            case D3D_BLEND_SRC1_COLOR: desc.RenderTarget[i].DestBlendAlpha = D3D_BLEND_SRC1_ALPHA; break;
+            case D3D_BLEND_INV_SRC1_COLOR: desc.RenderTarget[i].DestBlendAlpha = D3D_BLEND_INV_SRC1_ALPHA; break;
             }
         }
     }
@@ -487,9 +499,9 @@ void ValidateState(D3D_SAMPLER_DESC& desc)
 {
     if ((desc.AddressU != D3D_TEXTURE_ADDRESS_BORDER) && (desc.AddressV != D3D_TEXTURE_ADDRESS_BORDER) && (desc.AddressW != D3D_TEXTURE_ADDRESS_BORDER))
     {
-        for (float& i : desc.BorderColor)
+        for (int i = 0; i < 4; ++i)
         {
-            i = 0.0f;
+            desc.BorderColor[i] = 0.0f;
         }
     }
 

@@ -1,7 +1,10 @@
 //---------------------------------------------------------------------------
-#pragma once
+#ifndef ParticleEffectH
+#define ParticleEffectH
+//---------------------------------------------------------------------------
 
 #include "ParticleEffectDef.h"
+
 
 #include "../xrRender/FBasicVisual.h"
 #include "../xrRender/dxParticleCustom.h"
@@ -11,6 +14,7 @@ namespace PS
 {
 class ECORE_API CParticleEffect : public dxParticleCustom
 {
+    //		friend void ParticleRenderStream( LPVOID lpvParams );
     friend class CPEDef;
 
 protected:
@@ -25,8 +29,11 @@ protected:
 
 public:
     CPEDef* m_Def;
-
     Fmatrix m_XFORM;
+
+protected:
+    DestroyCallback m_DestroyCallback;
+    CollisionCallback m_CollisionCallback;
 
 public:
     enum
@@ -48,7 +55,8 @@ public:
 
     void OnFrame(u32 dt);
 
-    virtual void Render(CBackend& cmd_list, float lod, bool use_fast_geo) override;
+    u32 RenderTO();
+    virtual void Render(float LOD);
     virtual void Copy(dxRender_Visual* pFrom);
 
     virtual void OnDeviceCreate();
@@ -58,15 +66,13 @@ public:
 
     BOOL Compile(CPEDef* def);
 
-    IC CPEDef* GetDefinition() const { return m_Def; }
-
+    IC CPEDef* GetDefinition() { return m_Def; }
     IC int GetHandleEffect() { return m_HandleEffect; }
     IC int GetHandleActionList() { return m_HandleActionList; }
 
     virtual void Play();
     virtual void Stop(BOOL bDefferedStop = TRUE);
     virtual BOOL IsPlaying() { return m_RT_Flags.is(flRT_Playing); }
-    virtual BOOL IsDeferredStopped() { return m_RT_Flags.is(flRT_DefferedStop); }
 
     virtual void SetHudMode(BOOL b) { m_RT_Flags.set(flRT_HUDmode, b); }
     virtual BOOL GetHudMode() { return m_RT_Flags.is(flRT_HUDmode); }
@@ -83,14 +89,15 @@ public:
         return m_Def->m_Name;
     }
 
-    void SetBirthDeadCB(PAPI::OnBirthParticleCB bc, PAPI::OnDeadParticleCB dc, void* owner, u32 p) const;
+    void SetDestroyCB(DestroyCallback destroy_cb) { m_DestroyCallback = destroy_cb; }
+    void SetCollisionCB(CollisionCallback collision_cb) { m_CollisionCallback = collision_cb; }
+    void SetBirthDeadCB(PAPI::OnBirthParticleCB bc, PAPI::OnDeadParticleCB dc, void* owner, u32 p);
 
     virtual u32 ParticlesCount();
-
-    virtual void Depart();
 };
-
 void OnEffectParticleBirth(void* owner, u32 param, PAPI::Particle& m, u32 idx);
 void OnEffectParticleDead(void* owner, u32 param, PAPI::Particle& m, u32 idx);
 
 } // namespace PS
+//---------------------------------------------------------------------------
+#endif

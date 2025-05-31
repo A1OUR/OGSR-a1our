@@ -232,10 +232,8 @@ BOOL CHelicopter::net_Spawn(CSE_Abstract* DC)
     if (pUserData->section_exist("destroyed"))
         CPHDestroyable::Load(pUserData, "destroyed");
 #ifdef DEBUG
-    Device.seqRender.Add(this, REG_PRIORITY_LOW);
+    Device.seqRender.Add(this, REG_PRIORITY_LOW - 1);
 #endif
-
-    renderable.visual->ignore_optimization = true;
 
     return TRUE;
 }

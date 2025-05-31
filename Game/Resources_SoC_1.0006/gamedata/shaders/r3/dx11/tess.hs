@@ -56,8 +56,5 @@ main(InputPatch<p_bumped, 3> ip, uint i
 #endif
     ouput.RDrops = ip[i].RDrops;
 
-    ouput.hpos_curr = ip[i].hpos_curr;
-    ouput.hpos_old = ip[i].hpos_old;
-
     return ouput;
 }

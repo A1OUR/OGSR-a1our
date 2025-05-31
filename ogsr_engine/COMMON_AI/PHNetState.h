@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PHNETSTATE_H
+#define PHNETSTATE_H
 
 class NET_Packet;
 
@@ -58,3 +59,4 @@ public:
     const Fvector& get_min() const { return m_min; }
     const Fvector& get_max() const { return m_max; }
 };
+#endif

@@ -1,9 +1,8 @@
-#pragma once
-
+#ifndef D_TRI_CYLINDER_H
+#define D_TRI_CYLINDER_H
 #include "../dCylinder/dCylinder.h"
 #include "TriPrimitiveCollideClassDef.h"
 #include "dcTriListCollider.h"
-
 struct dxCylinder
 { // cylinder
     dReal radius, lz; // radius, length along z axis */
@@ -22,3 +21,5 @@ IC float dcTriListCollider::dCylProj(dxGeom* cylinder, const dReal* normal)
     //////////////////////////////
     return cos1 * hlz + sin1 * radius;
 }
+
+#endif

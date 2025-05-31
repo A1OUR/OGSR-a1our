@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PHYSICS_H
+#define PHYSICS_H
 
 #include "dCylinder/dCylinder.h"
 #include "PhysicsShell.h"
@@ -11,7 +12,6 @@
 #include "PHContactBodyEffector.h"
 #include "phvalide.h"
 //#define ODE_SLOW_SOLVER
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void BodyCutForce(dBodyID body, float l_limit, float w_limit);
@@ -42,3 +42,5 @@ extern dJointGroupID ContactGroup;
 extern Fbox phBoundaries;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif PHYSICS_H

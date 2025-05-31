@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MONSTER_AURA_H_INCLUDED
+#define MONSTER_AURA_H_INCLUDED
 
 class CBaseMonster;
 
@@ -43,3 +44,5 @@ private:
     void remove_pp_effector();
     float get_post_process_factor() const;
 };
+
+#endif // MONSTER_AURA_H_INCLUDED

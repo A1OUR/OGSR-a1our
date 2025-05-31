@@ -30,7 +30,8 @@
 
  */
 
-#pragma once
+#ifndef _LIMBH
+#define _LIMBH
 
 #include "aint.h"
 #include "Dof7control.h"
@@ -145,3 +146,5 @@ public:
 
     int GetJointIntervals(Matrix G, AngleIntList f1[6], AngleIntList f2[6]);
 };
+
+#endif

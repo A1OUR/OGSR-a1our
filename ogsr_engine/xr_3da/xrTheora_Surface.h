@@ -12,6 +12,7 @@ class ENGINE_API CTheoraSurface
     u32 tm_play;
     u32 tm_total;
     BOOL ready;
+    BOOL bShaderYUV2RGB;
 
 public:
     BOOL playing;

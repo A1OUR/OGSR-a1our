@@ -1,6 +1,9 @@
+#ifndef dxRenderFactory_included
+#define dxRenderFactory_included
 #pragma once
 
-#include "../../Include/xrRender/RenderFactory.h"
+#include "..\..\Include\xrRender\RenderFactory.h"
+
 
 class dxRenderFactory : public IRenderFactory
 {
@@ -8,8 +11,16 @@ class dxRenderFactory : public IRenderFactory
     virtual void DestroyUISequenceVideoItem(IUISequenceVideoItem* pObject);
     virtual IUIShader* CreateUIShader();
     virtual void DestroyUIShader(IUIShader* pObject);
+    virtual IStatGraphRender* CreateStatGraphRender();
+    virtual void DestroyStatGraphRender(IStatGraphRender* pObject);
+    virtual IConsoleRender* CreateConsoleRender();
+    virtual void DestroyConsoleRender(IConsoleRender* pObject);
     virtual IRenderDeviceRender* CreateRenderDeviceRender();
     virtual void DestroyRenderDeviceRender(IRenderDeviceRender* pObject);
+#ifdef DEBUG
+    virtual IObjectSpaceRender* CreateObjectSpaceRender();
+    virtual void DestroyObjectSpaceRender(IObjectSpaceRender* pObject);
+#endif // DEBUG
     virtual IWallMarkArray* CreateWallMarkArray();
     virtual void DestroyWallMarkArray(IWallMarkArray* pObject);
     virtual IStatsRender* CreateStatsRender();
@@ -36,3 +47,5 @@ class dxRenderFactory : public IRenderFactory
 };
 
 extern dxRenderFactory RenderFactoryImpl;
+
+#endif //	RenderFactory_included

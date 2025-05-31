@@ -56,7 +56,7 @@ CCustomZone::CCustomZone(void)
 
     m_effector = NULL;
     m_bIdleObjectParticlesDontStop = FALSE;
-    m_b_always_fastmode = false;
+    m_b_always_fastmode = FALSE;
 
     m_bBornOnBlowoutFlag = false;
     m_keep_update = false;
@@ -379,8 +379,6 @@ void CCustomZone::Load(LPCSTR section)
     m_ef_weapon_type = pSettings->r_u32(section, "ef_weapon_type");
 
     DestroyAfterBlowout = READ_IF_EXISTS(pSettings, r_bool, section, "DestroyAfterBlowout", false);
-
-    m_b_always_fastmode = READ_IF_EXISTS(pSettings, r_bool, section, "always_fast_mode", false);
 }
 
 BOOL CCustomZone::net_Spawn(CSE_Abstract* DC)
@@ -456,7 +454,7 @@ BOOL CCustomZone::net_Spawn(CSE_Abstract* DC)
     m_fDistanceToCurEntity = flt_max;
     m_bBlowoutWindActive = false;
 
-    o_fastmode = true; // start initially with fast-mode enabled
+    o_fastmode = TRUE; // start initially with fast-mode enabled
     if (spawn_ini() && spawn_ini()->line_exist("fast_mode", "always_fast"))
     {
         m_b_always_fastmode = spawn_ini()->r_bool("fast_mode", "always_fast");
@@ -481,7 +479,7 @@ void CCustomZone::net_Destroy()
         m_effector->Stop();
     //---------------------------------------------
     OBJECT_INFO_VEC_IT i = m_ObjectInfoMap.begin(), e = m_ObjectInfoMap.end();
-    for (; e != i; ++i)
+    for (; e != i; i++)
         exit_Zone(*i);
     m_ObjectInfoMap.clear();
 }
@@ -535,7 +533,7 @@ void CCustomZone::UpdateWorkload(u32 dt)
 
     if (!IsEnabled())
     {
-        if (m_effector)
+        if (m_effector && EnableEffector())
             m_effector->Stop();
         // KRodin: чуть переделал фикс неотключения света после отключения аномалии. Это более оптимальный вариант, на мой взгляд.
         if (m_pIdleLight && m_pIdleLight->get_active())
@@ -572,7 +570,7 @@ void CCustomZone::UpdateWorkload(u32 dt)
     {
         m_fDistanceToCurEntity = Level().CurrentEntity()->Position().distance_to(Position());
 
-        if (m_effector)
+        if (m_effector && EnableEffector())
             m_effector->Update(m_fDistanceToCurEntity);
     }
 
@@ -807,9 +805,9 @@ void CCustomZone::PlayIdleParticles()
         if (!m_pIdleParticles)
         {
             m_pIdleParticles = CParticlesObject::Create(*m_sIdleParticles, FALSE);
-            m_pIdleParticles->UpdateParent(XFORM(), {});
+            m_pIdleParticles->UpdateParent(XFORM(), zero_vel);
         }
-        m_pIdleParticles->UpdateParent(XFORM(), {});
+        m_pIdleParticles->UpdateParent(XFORM(), zero_vel);
         m_pIdleParticles->Play();
     }
 
@@ -870,7 +868,7 @@ void CCustomZone::PlayBlowoutParticles()
 
     CParticlesObject* pParticles;
     pParticles = CParticlesObject::Create(*m_sBlowoutParticles, TRUE);
-    pParticles->UpdateParent(XFORM(), {});
+    pParticles->UpdateParent(XFORM(), zero_vel);
     pParticles->Play();
 
     m_fBlowoutTimeLeft = Device.dwTimeGlobal + m_BendGrass_Blowout_time;
@@ -983,7 +981,7 @@ void CCustomZone::PlayBulletParticles(Fvector& pos)
     M = XFORM();
     M.c.set(pos);
 
-    pParticles->UpdateParent(M, {});
+    pParticles->UpdateParent(M, zero_vel);
     pParticles->Play();
 }
 
@@ -1163,7 +1161,7 @@ void CCustomZone::OnMove()
         Fvector vel;
 
         if (fis_zero(time_delta))
-            vel = {};
+            vel = zero_vel;
         else
         {
             vel.sub(Position(), m_vPrevPos);
@@ -1414,7 +1412,7 @@ void CCustomZone::ThrowOutArtefact(CArtefact* pArtefact)
     {
         CParticlesObject* pParticles;
         pParticles = CParticlesObject::Create(*m_sArtefactSpawnParticles, TRUE);
-        pParticles->UpdateParent(pArtefact->XFORM(), {});
+        pParticles->UpdateParent(pArtefact->XFORM(), zero_vel);
         pParticles->Play();
     }
 
@@ -1541,7 +1539,7 @@ void CCustomZone::PlayAccumParticles()
     {
         CParticlesObject* pParticles;
         pParticles = CParticlesObject::Create(*m_sAccumParticles, TRUE);
-        pParticles->UpdateParent(XFORM(), {});
+        pParticles->UpdateParent(XFORM(), zero_vel);
         pParticles->Play();
     }
 
@@ -1555,7 +1553,7 @@ void CCustomZone::PlayAwakingParticles()
     {
         CParticlesObject* pParticles;
         pParticles = CParticlesObject::Create(*m_sAwakingParticles, TRUE);
-        pParticles->UpdateParent(XFORM(), {});
+        pParticles->UpdateParent(XFORM(), zero_vel);
         pParticles->Play();
     }
 

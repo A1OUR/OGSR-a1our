@@ -5,8 +5,8 @@
 
 void DestroySounds(SoundVec& lst)
 {
-    for (auto& it : lst)
-        it.destroy();
+    for (SoundIt it = lst.begin(); lst.end() != it; ++it)
+        it->destroy();
 }
 /*
 void DestroyMarks(ShaderVec& lst)
@@ -22,28 +22,15 @@ void DestroyPSs(PSVec& lst)
     //		Device.Resources->Delete(*it);
 }
 
-void CreateSounds(SoundVec& lst, xr_vector<std::string>& buf)
-{
-    int cnt = buf.size();
-    R_ASSERT(cnt <= GAMEMTL_SUBITEM_COUNT + 2);
-    lst.resize(cnt);
-    for (int k = 0; k < cnt; ++k)
-        lst[k].create(buf[k].c_str(), st_Effect, sg_SourceType);
-}
-
-void CreateSoundNames(xr_vector<std::string>& lst, LPCSTR buf)
+void CreateSounds(SoundVec& lst, LPCSTR buf)
 {
     string128 tmp;
     int cnt = _GetItemCount(buf);
     R_ASSERT(cnt <= GAMEMTL_SUBITEM_COUNT + 2);
-    lst.reserve(cnt);
+    lst.resize(cnt);
     for (int k = 0; k < cnt; ++k)
-    {
-        std::string s{_GetItem(buf, k, tmp)};
-        lst.push_back(s);
-    }
+        lst[k].create(_GetItem(buf, k, tmp), st_Effect, sg_SourceType);
 }
-
 /*
 void CreateMarks(ShaderVec& lst, LPCSTR buf)
 {
@@ -57,7 +44,6 @@ void CreateMarks(ShaderVec& lst, LPCSTR buf)
     }
 }
 */
-
 void CreateMarks(IWallMarkArray* pMarks, LPCSTR buf)
 {
     string256 tmp;
@@ -73,9 +59,7 @@ void CreatePSs(PSVec& lst, LPCSTR buf)
     int cnt = _GetItemCount(buf);
     R_ASSERT(cnt <= GAMEMTL_SUBITEM_COUNT);
     for (int k = 0; k < cnt; ++k)
-    {
-        lst.emplace_back(_GetItem(buf, k, tmp));
-    }
+        lst.push_back(_GetItem(buf, k, tmp));
 }
 
 SGameMtlPair::~SGameMtlPair()
@@ -100,38 +84,18 @@ void SGameMtlPair::Load(IReader& fs)
 
     R_ASSERT(fs.find_chunk(GAMEMTLPAIR_CHUNK_BREAKING));
     fs.r_stringZ(buf);
-    CreateSoundNames(BreakingSoundNames, *buf);
+    CreateSounds(BreakingSounds, *buf);
 
     R_ASSERT(fs.find_chunk(GAMEMTLPAIR_CHUNK_STEP));
     fs.r_stringZ(buf);
-    CreateSoundNames(StepSoundNames, *buf);
+    CreateSounds(StepSounds, *buf);
 
     R_ASSERT(fs.find_chunk(GAMEMTLPAIR_CHUNK_COLLIDE));
     fs.r_stringZ(buf);
-    CreateSoundNames(CollideSoundNames, *buf);
-
+    CreateSounds(CollideSounds, *buf);
     fs.r_stringZ(buf);
     CreatePSs(CollideParticles, *buf);
-
     fs.r_stringZ(buf);
+
     CreateMarks(&*m_pCollideMarks, *buf);
-}
-
-void SGameMtlPair::CreateAllSounds()
-{
-    CreateSounds(BreakingSounds, BreakingSoundNames);
-    CreateSounds(StepSounds, StepSoundNames);
-    CreateSounds(CollideSounds, CollideSoundNames);
-}
-
-void SGameMtlPair::CreateAllParticles()
-{
-    for (const auto& collide_particle : CollideParticles)
-    {
-        for (u32 i = 0; i < 4; i++) // 16 ??
-        {
-            IRenderVisual* vis = Render->model_CreateParticles(collide_particle.c_str(), TRUE);
-            Render->model_Delete(vis);
-        }
-    }
 }

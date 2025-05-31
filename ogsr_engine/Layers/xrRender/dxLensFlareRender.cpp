@@ -18,19 +18,20 @@ void dxFlareRender::DestroyShader() { hShader.destroy(); }
 
 void dxLensFlareRender::Copy(ILensFlareRender& _in) { *this = *(dxLensFlareRender*)&_in; }
 
-void dxLensFlareRender::Render(CBackend& cmd_list, CLensFlare& owner, BOOL bSun, BOOL bFlares, BOOL bGradient)
+void dxLensFlareRender::Render(CLensFlare& owner, BOOL bSun, BOOL bFlares, BOOL bGradient)
 {
     Fcolor dwLight;
     Fcolor color;
-    Fvector vecSx, vecSy;
+    Fvector vec, vecSx, vecSy;
+    Fvector vecDx, vecDy;
 
     dwLight.set(owner.LightColor);
     svector<ref_shader, MAX_Flares> _2render;
 
     u32 VS_Offset;
-    FVF::LIT* pv = (FVF::LIT*)RImplementation.Vertex.Lock(MAX_Flares * 4, hGeom.stride(), VS_Offset);
+    FVF::LIT* pv = (FVF::LIT*)RCache.Vertex.Lock(MAX_Flares * 4, hGeom.stride(), VS_Offset);
 
-    const float fDistance = g_pGamePersistent->Environment().CurrentEnv->far_plane * 0.75f;
+    float fDistance = g_pGamePersistent->Environment().CurrentEnv->far_plane * 0.75f;
 
     if (bSun)
     {
@@ -43,7 +44,7 @@ void dxLensFlareRender::Render(CBackend& cmd_list, CLensFlare& owner, BOOL bSun,
             else
                 color.set(dwLight);
             color.a *= owner.m_StateBlend;
-            const u32 c = color.get();
+            u32 c = color.get();
             pv->set(owner.vecLight.x + vecSx.x - vecSy.x, owner.vecLight.y + vecSx.y - vecSy.y, owner.vecLight.z + vecSx.z - vecSy.z, c, 0, 0);
             pv++;
             pv->set(owner.vecLight.x + vecSx.x + vecSy.x, owner.vecLight.y + vecSx.y + vecSy.y, owner.vecLight.z + vecSx.z + vecSy.z, c, 0, 1);
@@ -57,27 +58,23 @@ void dxLensFlareRender::Render(CBackend& cmd_list, CLensFlare& owner, BOOL bSun,
     }
     if (owner.fBlend >= EPS_L)
     {
-        if (owner.m_Current->m_Flags.is(CLensFlareDescriptor::flFlare))
+        if (bFlares)
         {
-            if (bFlares)
+            vecDx.normalize(owner.vecAxis);
+            vecDy.crossproduct(vecDx, owner.vecDir);
+            if (owner.m_Current->m_Flags.is(CLensFlareDescriptor::flFlare))
             {
-                Fvector vecDy;
-                Fvector vecDx;
-                vecDx.normalize(owner.vecAxis);
-                vecDy.crossproduct(vecDx, owner.vecDir);
-
-                Fvector vec;
                 for (CLensFlareDescriptor::FlareIt it = owner.m_Current->m_Flares.begin(); it != owner.m_Current->m_Flares.end(); it++)
                 {
-                    const CLensFlareDescriptor::SFlare& F = *it;
+                    CLensFlareDescriptor::SFlare& F = *it;
                     vec.mul(owner.vecAxis, F.fPosition);
                     vec.add(owner.vecCenter);
                     vecSx.mul(vecDx, F.fRadius * fDistance);
                     vecSy.mul(vecDy, F.fRadius * fDistance);
-                    const float cl = F.fOpacity * owner.fBlend * owner.m_StateBlend;
+                    float cl = F.fOpacity * owner.fBlend * owner.m_StateBlend;
                     color.set(dwLight);
                     color.mul_rgba(cl);
-                    const u32 c = color.get();
+                    u32 c = color.get();
                     pv->set(vec.x + vecSx.x - vecSy.x, vec.y + vecSx.y - vecSy.y, vec.z + vecSx.z - vecSy.z, c, 0, 0);
                     pv++;
                     pv->set(vec.x + vecSx.x + vecSy.x, vec.y + vecSx.y + vecSy.y, vec.z + vecSx.z + vecSy.z, c, 0, 1);
@@ -101,7 +98,7 @@ void dxLensFlareRender::Render(CBackend& cmd_list, CLensFlare& owner, BOOL bSun,
                 color.set(dwLight);
                 color.mul_rgba(owner.fGradientValue * owner.m_StateBlend);
 
-                const u32 c = color.get();
+                u32 c = color.get();
                 pv->set(owner.vecLight.x + vecSx.x - vecSy.x, owner.vecLight.y + vecSx.y - vecSy.y, owner.vecLight.z + vecSx.z - vecSy.z, c, 0, 0);
                 pv++;
                 pv->set(owner.vecLight.x + vecSx.x + vecSy.x, owner.vecLight.y + vecSx.y + vecSy.y, owner.vecLight.z + vecSx.z + vecSy.z, c, 0, 1);
@@ -114,21 +111,21 @@ void dxLensFlareRender::Render(CBackend& cmd_list, CLensFlare& owner, BOOL bSun,
             }
         }
     }
-    RImplementation.Vertex.Unlock(_2render.size() * 4, hGeom.stride());
+    RCache.Vertex.Unlock(_2render.size() * 4, hGeom.stride());
 
-    cmd_list.set_xform_world(Fidentity);
-    cmd_list.set_Geometry(hGeom);
+    RCache.set_xform_world(Fidentity);
+    RCache.set_Geometry(hGeom);
     for (u32 i = 0; i < _2render.size(); i++)
     {
         if (_2render[i])
         {
-            const u32 vBase = i * 4 + VS_Offset;
-            cmd_list.set_Shader(_2render[i]);
-            cmd_list.Render(D3DPT_TRIANGLELIST, vBase, 0, 4, 0, 2);
+            u32 vBase = i * 4 + VS_Offset;
+            RCache.set_Shader(_2render[i]);
+            RCache.Render(D3DPT_TRIANGLELIST, vBase, 0, 4, 0, 2);
         }
     }
 }
 
-void dxLensFlareRender::OnDeviceCreate() { hGeom.create(FVF::F_LIT, RImplementation.Vertex.Buffer(), RImplementation.QuadIB); }
+void dxLensFlareRender::OnDeviceCreate() { hGeom.create(FVF::F_LIT, RCache.Vertex.Buffer(), RCache.QuadIB); }
 
 void dxLensFlareRender::OnDeviceDestroy() { hGeom.destroy(); }

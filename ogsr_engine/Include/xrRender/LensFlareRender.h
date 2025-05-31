@@ -1,3 +1,5 @@
+#ifndef LensFlareRender_included
+#define LensFlareRender_included
 #pragma once
 
 class IFlareRender
@@ -11,7 +13,6 @@ public:
 };
 
 class CLensFlare;
-class CBackend;
 
 class ILensFlareRender
 {
@@ -19,7 +20,9 @@ public:
     virtual ~ILensFlareRender() { ; }
     virtual void Copy(ILensFlareRender& _in) = 0;
 
-    virtual void Render(CBackend& cmd_list, CLensFlare& owner, BOOL bSun, BOOL bFlares, BOOL bGradient) = 0;
+    virtual void Render(CLensFlare& owner, BOOL bSun, BOOL bFlares, BOOL bGradient) = 0;
     virtual void OnDeviceCreate() = 0;
     virtual void OnDeviceDestroy() = 0;
 };
+
+#endif //	LensFlareRender_included

@@ -6,7 +6,10 @@
 //	Description : All server objects
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef xrServer_Objects_ALife_AllH
+#define xrServer_Objects_ALife_AllH
 
 #include "xrServer_Objects_ALife_Items.h"
 #include "xrServer_Objects_ALife_Monsters.h"
+
+#endif

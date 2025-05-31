@@ -2,6 +2,7 @@
 
 struct ENGINE_API SBaseEffector
 {
+    fastdelegate::FastDelegate<void()> m_on_b_remove_callback;
     virtual ~SBaseEffector() = default;
 };
 

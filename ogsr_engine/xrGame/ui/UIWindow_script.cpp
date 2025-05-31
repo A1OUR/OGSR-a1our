@@ -56,16 +56,7 @@ T* wnd_object_cast(CUIWindow* wnd)
 #include "UIButton.h"
 using namespace luabind;
 
-
-
-void CUIWindow::create_ui_snd(ref_sound& S, LPCSTR fName)
-{
-    S.destroy();
-
-    if (fName && fName[0])
-        ::Sound->create(S, fName, st_Effect, sg_SourceType);
-}
-
+#pragma optimize("s", on)
 void CUIWindow::script_register(lua_State* L)
 {
     module(L)[def("GetARGB", &GetARGB),

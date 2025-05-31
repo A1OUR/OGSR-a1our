@@ -4,28 +4,29 @@
 
 smapvis::smapvis()
 {
+    pending = false;
     invalidate();
     frame_sleep = 0;
 }
 
 smapvis::~smapvis()
 {
-    flushoccq();
+    // flushoccq();
     invalidate();
 }
 
 void smapvis::invalidate()
 {
     state = state_counting;
-    testQ_V = nullptr;
+    testQ_V = 0;
     frame_sleep = Device.dwFrame + ps_r__LightSleepFrames;
     invisible.clear();
+    resetoccq();
 }
 
 void smapvis::begin()
 {
-    auto& dsgraph = RImplementation.get_context(context_id);
-    dsgraph.clear_Counters();
+    RImplementation.clear_Counters();
     switch (state)
     {
     case state_counting:
@@ -33,10 +34,11 @@ void smapvis::begin()
         break;
     case state_working:
         // mark already known to be invisible visuals, set breakpoint
-        testQ_V = nullptr;
+        testQ_V = 0;
+        resetoccq();
         testQ_id = 0;
         mark();
-        dsgraph.set_Feedback(this, test_current);
+        RImplementation.set_Feedback(this, test_current);
         break;
     case state_usingTC:
         // just mark
@@ -46,13 +48,11 @@ void smapvis::begin()
 }
 void smapvis::end()
 {
-    auto& dsgraph = RImplementation.get_context(context_id);
-
     // Gather stats
-    u32 ts;
-    dsgraph.get_Counters(ts);
+    u32 ts, td;
+    RImplementation.get_Counters(ts, td);
     RImplementation.stats.ic_total += ts;
-    dsgraph.set_Feedback(nullptr, 0);
+    RImplementation.set_Feedback(0, 0);
 
     switch (state)
     {
@@ -70,14 +70,13 @@ void smapvis::end()
         // issue query
         if (testQ_V)
         {
-            RImplementation.occq_begin(testQ_id, dsgraph.cmd_list.context_id);
-
-            dsgraph.marker++;
-            dsgraph.r_dsgraph_insert_static(testQ_V);
-            dsgraph.r_dsgraph_render_graph(0);
-
-            RImplementation.occq_end(testQ_id, dsgraph.cmd_list.context_id);
+            RImplementation.occq_begin(testQ_id);
+            RImplementation.marker += 1;
+            RImplementation.r_dsgraph_insert_static(testQ_V);
+            RImplementation.r_dsgraph_render_graph(0);
+            RImplementation.occq_end(testQ_id);
             testQ_frame = Device.dwFrame + 1; // get result on next frame
+            pending = true;
         }
         break;
     case state_usingTC:
@@ -89,15 +88,15 @@ void smapvis::end()
 void smapvis::flushoccq()
 {
     // the tough part
-    if (testQ_frame != Device.dwFrame)
+    if (!pending || testQ_frame < Device.dwFrame)
         return;
+
+    u64 fragments = RImplementation.occq_get(testQ_id);
+    pending = false;
 
     if (state != state_working || !testQ_V)
         return;
 
-    ZoneScoped;
-
-    const u64 fragments = RImplementation.occq_get(testQ_id, 6.f);
     if (fragments == 0)
     {
         // this is invisible shadow-caster, register it
@@ -110,8 +109,7 @@ void smapvis::flushoccq()
         // this is visible shadow-caster, advance testing
         test_current++;
     }
-
-    testQ_V = nullptr;
+    testQ_V = 0;
 
     if (test_current == test_count)
     {
@@ -123,27 +121,24 @@ void smapvis::flushoccq()
 
 void smapvis::resetoccq()
 {
-    if (testQ_frame == (Device.dwFrame + 1))
-        testQ_frame--;
-    flushoccq();
+    testQ_frame = Device.dwFrame;
+    if (pending)
+    {
+        RImplementation.occq_free(testQ_id);
+        pending = false;
+    }
 }
 
-void smapvis::mark() const
+void smapvis::mark()
 {
-    if (invisible.empty())
-        return;
-
     RImplementation.stats.ic_culled += invisible.size();
-
-    const auto& dsgraph = RImplementation.get_context(context_id);
-    const u32 marker = dsgraph.marker + 1; // we are called before marker increment
-    for (auto& it : invisible)
-        it->getVisData().marker[context_id] = marker; // this effectively disables processing
+    u32 marker = RImplementation.marker + 1; // we are called befor marker increment
+    for (u32 it = 0; it < invisible.size(); it++)
+        invisible[it]->vis.marker = marker; // this effectively disables processing
 }
 
 void smapvis::rfeedback_static(dxRender_Visual* V)
 {
     testQ_V = V;
-    auto& dsgraph = RImplementation.get_context(context_id);
-    dsgraph.set_Feedback(nullptr, 0);
+    RImplementation.set_Feedback(0, 0);
 }

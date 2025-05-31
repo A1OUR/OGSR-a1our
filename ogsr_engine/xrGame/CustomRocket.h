@@ -49,7 +49,7 @@ public:
     virtual BOOL UsedAI_Locations() { return (FALSE); }
     virtual bool Useful() const { return (m_eState == eInactive); }
 
-    virtual void renderable_Render(u32 context_id, IRenderable* root) override { inherited::renderable_Render(context_id, root); }
+    virtual void renderable_Render() { inherited::renderable_Render(); }
 
     //создание физической оболочки
     virtual void activate_physic_shell();

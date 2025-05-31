@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EnvelopeH
+#define EnvelopeH
 
 // refs
 class IWriter;
@@ -71,7 +72,6 @@ struct st_Key
             return false;
         return true;
     }
-
     IC void Save(IWriter& F)
     {
         F.w_float(value);
@@ -88,7 +88,6 @@ struct st_Key
             F.w_float_q16(param[3], -32.f, 32.f);
         }
     }
-
     IC void Load_1(IReader& F)
     {
         value = F.r_float();
@@ -99,7 +98,6 @@ struct st_Key
         bias = F.r_float();
         F.r(&param, sizeof(float) * 4);
     }
-
     IC void Load_2(IReader& F)
     {
         value = F.r_float();
@@ -120,6 +118,9 @@ struct st_Key
 #pragma pack(pop)
 
 DEFINE_VECTOR(st_Key*, KeyVec, KeyIt);
+
+// refs
+class CExporter;
 
 class ENGINE_API CEnvelope
 {
@@ -142,6 +143,19 @@ public:
     void Save(IWriter& F);
     void Load_1(IReader& F);
     void Load_2(IReader& F);
+    void SaveA(IWriter& F);
+    void LoadA(IReader& F);
 
+    void RotateKeys(float angle);
+
+    KeyIt FindKey(float t, float eps);
+    void FindNearestKey(float t, KeyIt& min, KeyIt& max, float eps);
+    void InsertKey(float t, float val);
+    void DeleteKey(float t);
+    BOOL ScaleKeys(float from_time, float to_time, float scale_factor, float eps);
     float GetLength(float* mn, float* mx);
+
+    void Optimize();
 };
+
+#endif //_ENVELOPE_H_

@@ -6,6 +6,9 @@
 //	Description : Object factory inline functions
 ////////////////////////////////////////////////////////////////////////////
 
+#ifndef object_factory_inlineH
+#define object_factory_inlineH
+
 #pragma once
 
 IC const CObjectFactory& object_factory()
@@ -65,3 +68,5 @@ IC void CObjectFactory::actualize() const
     m_actual = true;
     std::sort(m_clsids.begin(), m_clsids.end(), CObjectItemPredicate());
 }
+
+#endif

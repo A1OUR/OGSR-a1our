@@ -32,7 +32,7 @@ bool CUITrackBar::OnMouse(float x, float y, EUIMessages mouse_action)
 
     if (m_bCursorOverWindow)
     {
-        if (pInput->iGetAsyncKeyState(MOUSE_1))
+        if (pInput->iGetAsyncBtnState(0))
         {
             UpdatePosRelativeToMouse();
             return true;

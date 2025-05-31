@@ -3,15 +3,16 @@
 #include "xr_input.h"
 #include "IInputReceiver.h"
 
-CInput* pInput = nullptr;
+CInput* pInput = NULL;
 IInputReceiver dummyController;
 
-ENGINE_API float psMouseSens = 0.1f;
+ENGINE_API float psMouseSens = 1.f;
 ENGINE_API float psMouseSensScale = 1.f;
 ENGINE_API Flags32 psMouseInvert = {FALSE};
 
 #define MOUSEBUFFERSIZE 64
 #define KEYBOARDBUFFERSIZE 64
+#define _KEYDOWN(name, key) (name[key] & 0x80)
 
 CInput::CInput(bool bExclusive, int deviceForInit)
 {
@@ -29,13 +30,12 @@ CInput::CInput(bool bExclusive, int deviceForInit)
 
     // KEYBOARD
     if (deviceForInit & keyboard_device_key)
-        CHK_DX(CreateInputDevice(&pKeyboard, GUID_SysKeyboard, &c_dfDIKeyboard
-            , (is_exclusive_mode ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND, KEYBOARDBUFFERSIZE));
+        CHK_DX(CreateInputDevice(&pKeyboard, GUID_SysKeyboard, &c_dfDIKeyboard, (is_exclusive_mode ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND, KEYBOARDBUFFERSIZE));
 
     // MOUSE
     if (deviceForInit & mouse_device_key)
-        CHK_DX(CreateInputDevice(&pMouse, GUID_SysMouse, &c_dfDIMouse2
-            , (is_exclusive_mode ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND | DISCL_NOWINKEY, MOUSEBUFFERSIZE));
+        CHK_DX(CreateInputDevice(&pMouse, GUID_SysMouse, &c_dfDIMouse2, (is_exclusive_mode ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND | DISCL_NOWINKEY,
+                                 MOUSEBUFFERSIZE));
 
     Device.seqAppActivate.Add(this);
     Device.seqAppDeactivate.Add(this);
@@ -69,7 +69,7 @@ CInput::~CInput(void)
 // Name: CreateInputDevice()
 // Desc: Create a DirectInput device.
 //-----------------------------------------------------------------------------
-HRESULT CInput::CreateInputDevice(LPDIRECTINPUTDEVICE8* device, GUID guidDevice, const DIDATAFORMAT* pdidDataFormat, u32 dwFlags, u32 buf_size) const
+HRESULT CInput::CreateInputDevice(LPDIRECTINPUTDEVICE8* device, GUID guidDevice, const DIDATAFORMAT* pdidDataFormat, u32 dwFlags, u32 buf_size)
 {
     // Obtain an interface to the input device
     //.	CHK_DX( pDI->CreateDeviceEx( guidDevice, IID_IDirectInputDevice8, (void**)device, NULL ) );
@@ -103,10 +103,21 @@ HRESULT CInput::CreateInputDevice(LPDIRECTINPUTDEVICE8* device, GUID guidDevice,
 
 //-----------------------------------------------------------------------
 
-void CInput::SetAllAcquire(BOOL bAcquire) const
+void CInput::SetAllAcquire(BOOL bAcquire)
 {
     if (pMouse)
         bAcquire ? pMouse->Acquire() : pMouse->Unacquire();
+    if (pKeyboard)
+        bAcquire ? pKeyboard->Acquire() : pKeyboard->Unacquire();
+}
+
+void CInput::SetMouseAcquire(BOOL bAcquire)
+{
+    if (pMouse)
+        bAcquire ? pMouse->Acquire() : pMouse->Unacquire();
+}
+void CInput::SetKBDAcquire(BOOL bAcquire)
+{
     if (pKeyboard)
         bAcquire ? pKeyboard->Acquire() : pKeyboard->Unacquire();
 }
@@ -116,17 +127,16 @@ void CInput::exclusive_mode(const bool exclusive)
     is_exclusive_mode = exclusive;
 
     pKeyboard->Unacquire();
-    R_CHK(pKeyboard->SetCooperativeLevel(Device.m_hWnd, (exclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND));
-    pKeyboard->Acquire();
-
     pMouse->Unacquire();
-    R_CHK(pMouse->SetCooperativeLevel(Device.m_hWnd, (exclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND | DISCL_NOWINKEY));
+
+    R_CHK(pKeyboard->SetCooperativeLevel(RDEVICE.m_hWnd, (exclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND));
+    pKeyboard->Acquire();
+    R_CHK(pMouse->SetCooperativeLevel(RDEVICE.m_hWnd, (exclusive ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND | DISCL_NOWINKEY));
     pMouse->Acquire();
 }
 
 //-----------------------------------------------------------------------
 BOOL b_altF4 = FALSE;
-
 void CInput::KeyUpdate()
 {
     HRESULT hr;
@@ -175,7 +185,7 @@ void CInput::KeyUpdate()
     }
 }
 
-bool CInput::get_dik_name(int dik, LPSTR dest_str, int dest_sz) const
+bool CInput::get_dik_name(int dik, LPSTR dest_str, int dest_sz)
 {
     DIPROPSTRING keyname;
     keyname.diph.dwSize = sizeof(DIPROPSTRING);
@@ -195,7 +205,7 @@ bool CInput::get_dik_name(int dik, LPSTR dest_str, int dest_sz) const
     return cnt != -1;
 }
 
-BOOL CInput::iGetAsyncKeyState(int dik, bool hold) const
+BOOL CInput::iGetAsyncKeyState(int dik)
 {
     // KRodin: да-да, я знаю, что этот код ужасен.
     switch (dik)
@@ -206,39 +216,17 @@ BOOL CInput::iGetAsyncKeyState(int dik, bool hold) const
     case DIK_LCONTROL: return GetAsyncKeyState(VK_LCONTROL) & 0x8000;
     case DIK_RCONTROL: return GetAsyncKeyState(VK_RCONTROL) & 0x8000;
     case DIK_DELETE: return GetAsyncKeyState(VK_DELETE) & 0x8000;
-    default: {
-        if (dik < COUNT_KB_BUTTONS)
-        {
-            return KBState[dik];
-        }
-        if (dik >= MOUSE_1 && dik <= MOUSE_8)
-        {
-            const int btn = dik - MOUSE_1;
-            return iGetAsyncBtnState(btn, hold);
-        }
-        return FALSE; // unknown key ???
-    }
+    default: return KBState[dik];
     }
 }
 
-#define MOUSE_HOLD_TIME 60
-
-BOOL CInput::iGetAsyncBtnState(int btn, bool hold) const
-{
-    if (mouseState[btn] && hold)
-        return Device.dwTimeGlobal - mouseTime[btn] >= MOUSE_HOLD_TIME;
-    return mouseState[btn];
-}
+BOOL CInput::iGetAsyncBtnState(int btn) { return mouseState[btn]; }
 
 void CInput::MouseUpdate()
 {
 #pragma push_macro("FIELD_OFFSET")
 #undef FIELD_OFFSET
-#define FIELD_OFFSET \
-    offsetof // Фиксим warning C4644 - просто переводим макрос из винсдк на
-             // использование стандартного оффсетофа.
-
-    static u32 swapped = GetSystemMetrics(SM_SWAPBUTTON); // может проверять на каждом апдейте ?
+#define FIELD_OFFSET offsetof // Фиксим warning C4644 - просто переводим макрос из винсдк на использование стандартного оффсетофа.
 
     HRESULT hr;
     DWORD dwElements = MOUSEBUFFERSIZE;
@@ -258,27 +246,11 @@ void CInput::MouseUpdate()
     };
     BOOL mouse_prev[COUNT_MOUSE_BUTTONS];
 
-    for (int i = 0; i < COUNT_MOUSE_BUTTONS; i++)
-        mouse_prev[i] = mouseState[i];
-
-    auto processMouseButton = [&](int i, bool state) {
-        if (state)
-        {
-            mouseState[i] = TRUE;
-            if (mouseTime[i] == 0)
-                mouseTime[i] = dwCurTime;
-            cbStack.back()->IR_OnMousePress(i);
-        }
-        else
-        {
-            mouseState[i] = FALSE;
-            mouseTime[i] = 0;
-            cbStack.back()->IR_OnMouseRelease(i);
-        }
-    };
+    mouse_prev[0] = mouseState[0];
+    mouse_prev[1] = mouseState[1];
+    mouse_prev[2] = mouseState[2];
 
     offs[0] = offs[1] = offs[2] = 0;
-
     for (u32 i = 0; i < dwElements; i++)
     {
         switch (od[i].dwOfs)
@@ -295,27 +267,102 @@ void CInput::MouseUpdate()
             offs[2] += od[i].dwData;
             timeStamp[2] = od[i].dwTimeStamp;
             break;
-
         case DIMOFS_BUTTON0:
-        case DIMOFS_BUTTON1:
-        case DIMOFS_BUTTON2:
-        case DIMOFS_BUTTON3:
-        case DIMOFS_BUTTON4:
-        case DIMOFS_BUTTON5:
-        case DIMOFS_BUTTON6:
-        case DIMOFS_BUTTON7: {
-            int btn = od[i].dwOfs - DIMOFS_BUTTON0;
-
-            if (swapped)
+            if (od[i].dwData & 0x80)
             {
-                if (btn == 0)
-                    btn = 1;
-                else if (btn == 1)
-                    btn = 0;
+                mouseState[0] = TRUE;
+                cbStack.back()->IR_OnMousePress(0);
             }
-
-            processMouseButton(btn, od[i].dwData & 0x80);
-        }break;
+            if (!(od[i].dwData & 0x80))
+            {
+                mouseState[0] = FALSE;
+                cbStack.back()->IR_OnMouseRelease(0);
+            }
+            break;
+        case DIMOFS_BUTTON1:
+            if (od[i].dwData & 0x80)
+            {
+                mouseState[1] = TRUE;
+                cbStack.back()->IR_OnMousePress(1);
+            }
+            if (!(od[i].dwData & 0x80))
+            {
+                mouseState[1] = FALSE;
+                cbStack.back()->IR_OnMouseRelease(1);
+            }
+            break;
+        case DIMOFS_BUTTON2:
+            if (od[i].dwData & 0x80)
+            {
+                mouseState[2] = TRUE;
+                cbStack.back()->IR_OnMousePress(2);
+            }
+            if (!(od[i].dwData & 0x80))
+            {
+                mouseState[2] = FALSE;
+                cbStack.back()->IR_OnMouseRelease(2);
+            }
+            break;
+        case DIMOFS_BUTTON3:
+            if (od[i].dwData & 0x80)
+            {
+                mouseState[2] = TRUE;
+                cbStack.back()->IR_OnKeyboardPress(0xED + 103);
+            }
+            if (!(od[i].dwData & 0x80))
+            {
+                mouseState[2] = FALSE;
+                cbStack.back()->IR_OnKeyboardRelease(0xED + 103);
+            }
+            break;
+        case DIMOFS_BUTTON4:
+            if (od[i].dwData & 0x80)
+            {
+                mouseState[2] = TRUE;
+                cbStack.back()->IR_OnKeyboardPress(0xED + 104);
+            }
+            if (!(od[i].dwData & 0x80))
+            {
+                mouseState[2] = FALSE;
+                cbStack.back()->IR_OnKeyboardRelease(0xED + 104);
+            }
+            break;
+        case DIMOFS_BUTTON5:
+            if (od[i].dwData & 0x80)
+            {
+                mouseState[2] = TRUE;
+                cbStack.back()->IR_OnKeyboardPress(0xED + 105);
+            }
+            if (!(od[i].dwData & 0x80))
+            {
+                mouseState[2] = FALSE;
+                cbStack.back()->IR_OnKeyboardRelease(0xED + 105);
+            }
+            break;
+        case DIMOFS_BUTTON6:
+            if (od[i].dwData & 0x80)
+            {
+                mouseState[2] = TRUE;
+                cbStack.back()->IR_OnKeyboardPress(0xED + 106);
+            }
+            if (!(od[i].dwData & 0x80))
+            {
+                mouseState[2] = FALSE;
+                cbStack.back()->IR_OnKeyboardRelease(0xED + 106);
+            }
+            break;
+        case DIMOFS_BUTTON7:
+            if (od[i].dwData & 0x80)
+            {
+                mouseState[2] = TRUE;
+                cbStack.back()->IR_OnKeyboardPress(0xED + 107);
+            }
+            if (!(od[i].dwData & 0x80))
+            {
+                mouseState[2] = FALSE;
+                cbStack.back()->IR_OnKeyboardRelease(0xED + 107);
+            }
+            break;
         }
     }
 
@@ -324,41 +371,34 @@ void CInput::MouseUpdate()
     hr = pMouse->GetDeviceState(sizeof(MouseState), &MouseState);
 
     auto RecheckMouseButtonFunc = [&](int i) {
-
-        int btn = i;
-
-        if (swapped)
+        if (MouseState.rgbButtons[i] & 0x80 && mouseState[i] == FALSE)
         {
-            if (btn == 0)
-                btn = 1;
-            else if (btn == 1)
-                btn = 0;
+            mouseState[i] = TRUE;
+            cbStack.back()->IR_OnMousePress(i);
         }
-
-        if (MouseState.rgbButtons[i] & 0x80 && mouseState[btn] == FALSE)
-            processMouseButton(btn, true);
-        else if (!(MouseState.rgbButtons[i] & 0x80) && mouseState[btn] == TRUE)
-            processMouseButton(btn, false);
+        else if (!(MouseState.rgbButtons[i] & 0x80) && mouseState[i] == TRUE)
+        {
+            mouseState[i] = FALSE;
+            cbStack.back()->IR_OnMouseRelease(i);
+        }
     };
 
     if (hr == S_OK)
     {
-        for (int i = 0; i < COUNT_MOUSE_BUTTONS; i++)
-            RecheckMouseButtonFunc(i);
+        RecheckMouseButtonFunc(0);
+        RecheckMouseButtonFunc(1);
+        RecheckMouseButtonFunc(2);
     }
     //-Giperion
 
-    const u32 dwCurTime = Device.dwTimeGlobal;
-
     auto isButtonOnHold = [&](int i) {
-        if (mouseState[i] && mouse_prev[i] && dwCurTime - mouseTime[i] >= MOUSE_HOLD_TIME)
+        if (mouseState[i] && mouse_prev[i])
             cbStack.back()->IR_OnMouseHold(i);
     };
 
-    for (int i = 0; i < COUNT_MOUSE_BUTTONS; i++)
-    {
-        isButtonOnHold(i);
-    }
+    isButtonOnHold(0);
+    isButtonOnHold(1);
+    isButtonOnHold(2);
 
     if (dwElements)
     {
@@ -450,8 +490,6 @@ void CInput::OnAppDeactivate(void)
 
 void CInput::OnFrame(void)
 {
-    ZoneScoped;
-
     Device.Statistic->Input.Begin();
     dwCurTime = Device.TimerAsync_MMT();
     if (pKeyboard)
@@ -461,15 +499,15 @@ void CInput::OnFrame(void)
     Device.Statistic->Input.End();
 }
 
-IInputReceiver* CInput::CurrentIR() const
+IInputReceiver* CInput::CurrentIR()
 {
     if (cbStack.size())
         return cbStack.back();
     else
-        return nullptr;
+        return NULL;
 }
 
-u16 CInput::DikToChar(const int dik, const bool utf) const
+u16 CInput::DikToChar(const int dik, const bool utf)
 {
     switch (dik)
     {
@@ -542,10 +580,8 @@ void CInput::clip_cursor(bool clip)
 {
     if (clip)
     {
-        while (ShowCursor(FALSE) >= 0)
-            ;
-
-        if (Device.m_hWnd)
+        ShowCursor(FALSE);
+        if (Device.m_hWnd && !psDeviceFlags.is(rsFullscreen))
         {
             RECT rect;
             GetClientRect(Device.m_hWnd, &rect);

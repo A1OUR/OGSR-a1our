@@ -1,2 +1,2 @@
-#define DISABLE_WIND
+#define USE_TREEWAVE
 #include "shadow_direct_tree.vs"

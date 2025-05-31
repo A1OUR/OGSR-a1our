@@ -17,10 +17,10 @@ struct ParticleEffect
 public:
     ParticleEffect(int mp)
     {
-        owner = nullptr;
+        owner = 0;
         param = 0;
-        b_cb = nullptr;
-        d_cb = nullptr;
+        b_cb = 0;
+        d_cb = 0;
         p_count = 0;
         max_particles = mp;
         particles_allocated = max_particles;

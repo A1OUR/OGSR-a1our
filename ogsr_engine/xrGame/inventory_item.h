@@ -80,7 +80,6 @@ public:
 public:
     virtual void Load(LPCSTR section);
 
-    void ReloadNames();
     virtual LPCSTR Name();
     virtual LPCSTR NameShort();
     //.	virtual LPCSTR				NameComplex			();

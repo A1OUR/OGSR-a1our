@@ -5,12 +5,13 @@
 class ENGINE_API CEvent;
 typedef CEvent* EVENT;
 
+//---------------------------------------------------------------------
 class ENGINE_API IEventReceiver
 {
 public:
     virtual void OnEvent(EVENT E, u64 P1, u64 P2) = 0;
 };
-
+//---------------------------------------------------------------------
 class ENGINE_API CEventAPI
 {
     struct Deferred
@@ -23,7 +24,6 @@ class ENGINE_API CEventAPI
 private:
     xr_vector<EVENT> Events;
     xr_vector<Deferred> Events_Deferred;
-
     xrCriticalSection CS;
 
 public:
@@ -45,5 +45,5 @@ public:
     void Dump();
     BOOL Peek(LPCSTR EName);
 
-    void Destroy();
+    void _destroy();
 };

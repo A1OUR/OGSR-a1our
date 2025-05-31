@@ -102,7 +102,7 @@ struct rq_result
     {
         if (I->range < range)
         {
-            set(nullptr, I->range, I->id);
+            set(0, I->range, I->id);
             return TRUE;
         }
         else

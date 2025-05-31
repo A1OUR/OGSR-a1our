@@ -120,7 +120,7 @@ void CSoundRender_Core::update(const Fvector& P, const Fvector& D, const Fvector
             if (!curr_env.size() || curr_env != e_target->name)
             {
                 curr_env = e_target->name;
-                MsgDbg("~ current environment sound zone name [%s]", curr_env.c_str());
+                Msg("~ current environment sound zone name [%s]", curr_env.c_str());
             }
         }
 

@@ -20,7 +20,7 @@ CPEDef::CPEDef()
     m_uStep = 33;
     m_fStep = float(m_uStep) / 1000.f;
     m_MaxParticles = 0;
-    m_CachedShader = nullptr;
+    m_CachedShader = 0;
     m_fTimeLimit = 0.f;
     // collision
     m_fCollideOneMinusFriction = 1.f;
@@ -36,11 +36,11 @@ CPEDef::CPEDef()
 
 CPEDef::~CPEDef()
 {
-    for (auto& it : m_EActionList)
-        xr_delete(it);
+    for (EPAVecIt it = m_EActionList.begin(); it != m_EActionList.end(); it++)
+        xr_delete(*it);
 }
 
-u32 CPEDef::GetUStep() const { return m_uStep * ps_particle_update_coeff; }
+u32 CPEDef::GetUStep() { return m_uStep * ps_particle_update_coeff; }
 
 float CPEDef::GetFStep() { return m_fStep * ps_particle_update_coeff; }
 
@@ -56,11 +56,10 @@ void CPEDef::CreateShader()
 }
 
 void CPEDef::DestroyShader() { m_CachedShader.destroy(); }
-void CPEDef::SetName(LPCSTR name) { m_Name = name; }
 
 void CPEDef::ExecuteAnimate(Particle* particles, u32 p_cnt, float dt)
 {
-    const float speedFac = m_Frame.m_fSpeed * dt;
+    float speedFac = m_Frame.m_fSpeed * dt;
     for (u32 i = 0; i < p_cnt; i++)
     {
         Particle& m = particles[i];
@@ -88,14 +87,14 @@ void CPEDef::ExecuteCollision(PAPI::Particle* particles, u32 p_cnt, float dt, CP
             pick_needed = false;
             Fvector dir;
             dir.sub(m.pos, m.posB);
-            const float dist = dir.magnitude();
+            float dist = dir.magnitude();
             if (dist >= EPS)
             {
                 dir.div(dist);
 
                 collide::rq_result RQ;
-                const collide::rq_target RT = m_Flags.is(dfCollisionDyn) ? collide::rqtBoth : collide::rqtStatic;
-                if (g_pGameLevel->ObjectSpace.RayPick(m.posB, dir, dist, RT, RQ, nullptr))
+                collide::rq_target RT = m_Flags.is(dfCollisionDyn) ? collide::rqtBoth : collide::rqtStatic;
+                if (g_pGameLevel->ObjectSpace.RayPick(m.posB, dir, dist, RT, RQ, NULL))
                 {
                     pt.mad(m.posB, dir, RQ.range);
                     if (RQ.O)
@@ -104,8 +103,8 @@ void CPEDef::ExecuteCollision(PAPI::Particle* particles, u32 p_cnt, float dt, CP
                     }
                     else
                     {
-                        const CDB::TRI* T = g_pGameLevel->ObjectSpace.GetStaticTris() + RQ.element;
-                        const Fvector* verts = g_pGameLevel->ObjectSpace.GetStaticVerts();
+                        CDB::TRI* T = g_pGameLevel->ObjectSpace.GetStaticTris() + RQ.element;
+                        Fvector* verts = g_pGameLevel->ObjectSpace.GetStaticVerts();
                         n.mknormal(verts[T->verts[0]], verts[T->verts[1]], verts[T->verts[2]]);
                     }
 
@@ -120,7 +119,7 @@ void CPEDef::ExecuteCollision(PAPI::Particle* particles, u32 p_cnt, float dt, CP
                     else
                     {
                         // Compute tangential and normal components of velocity
-                        const float nmag = m.vel * n;
+                        float nmag = m.vel * n;
                         pVector vn(n * nmag); // Normal Vn = (V.N)N
                         pVector vt(m.vel - vn); // Tangent Vt = V - Vn
 
@@ -153,7 +152,7 @@ void CPEDef::ExecuteCollision(PAPI::Particle* particles, u32 p_cnt, float dt, CP
 BOOL CPEDef::Load(IReader& F)
 {
     R_ASSERT(F.find_chunk(PED_CHUNK_VERSION));
-    const u16 version = F.r_u16();
+    u16 version = F.r_u16();
 
     if (version != PED_VERSION)
         return FALSE;
@@ -165,7 +164,7 @@ BOOL CPEDef::Load(IReader& F)
     m_MaxParticles = F.r_u32();
 
     {
-        const u32 action_list = F.find_chunk(PED_CHUNK_ACTIONLIST);
+        u32 action_list = F.find_chunk(PED_CHUNK_ACTIONLIST);
         R_ASSERT(action_list);
         m_Actions.w(F.pointer(), action_list);
     }
@@ -218,15 +217,15 @@ BOOL CPEDef::Load(IReader& F)
     {
         m_EActionList.resize(F.r_u32());
         bool valid = false;
-        for (auto& it : m_EActionList)
+        for (EPAVecIt it = m_EActionList.begin(); it != m_EActionList.end(); ++it)
         {
-            const PAPI::PActionEnum type = (PAPI::PActionEnum)F.r_u32();
-            it = pCreateEAction(type);
-            valid = it->Load(F);
+            PAPI::PActionEnum type = (PAPI::PActionEnum)F.r_u32();
+            (*it) = pCreateEAction(type);
+            valid = (*it)->Load(F);
             if (!valid)
                 break;
         }
-        //if (valid)
+        //if (valid) //???
         //    Compile(m_EActionList);
         //else
         //    m_EActionList.clear();
@@ -241,7 +240,7 @@ void PS::CPEDef::Compile(EPAVec& v)
     m_Actions.w_u32(v.size());
     int cnt = 0;
     EPAVecIt it = v.begin();
-    const EPAVecIt it_e = v.end();
+    EPAVecIt it_e = v.end();
 
     for (; it != it_e; ++it)
     {
@@ -304,14 +303,14 @@ BOOL CPEDef::Load2(CInifile& ini)
         m_APDefaultRotation = ini.r_fvector3("align_to_path", "default_rotation");
     }
 
-    const u32 count = ini.r_u32("_effect", "action_count");
+    u32 count = ini.r_u32("_effect", "action_count");
     m_EActionList.resize(count);
     u32 action_id = 0;
     for (EPAVecIt it = m_EActionList.begin(); it != m_EActionList.end(); ++it, ++action_id)
     {
         string256 sect;
         xr_sprintf(sect, sizeof(sect), "action_%04d", action_id);
-        const PAPI::PActionEnum type = (PAPI::PActionEnum)(ini.r_u32(sect, "action_type"));
+        PAPI::PActionEnum type = (PAPI::PActionEnum)(ini.r_u32(sect, "action_type"));
         (*it) = pCreateEAction(type);
         (*it)->Load2(ini, sect);
     }
@@ -443,10 +442,10 @@ void CPEDef::Save(IWriter& F)
 
     F.open_chunk(PED_CHUNK_EDATA);
     F.w_u32(m_EActionList.size());
-    for (const auto& it : m_EActionList)
+    for (EPAVecIt it = m_EActionList.begin(); it != m_EActionList.end(); it++)
     {
-        F.w_u32(it->type);
-        it->Save(F);
+        F.w_u32((*it)->type);
+        (*it)->Save(F);
     }
     F.close_chunk();
 }

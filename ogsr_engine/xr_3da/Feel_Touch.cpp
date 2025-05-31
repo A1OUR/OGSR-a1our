@@ -2,7 +2,6 @@
 #include "igame_level.h"
 #include "feel_touch.h"
 #include "xr_object.h"
-
 using namespace Feel;
 
 Touch::Touch() : pure_relcase(&Touch::feel_touch_relcase) {}
@@ -35,13 +34,13 @@ void Touch::feel_touch_update(Fvector& C, float R, const std::function<void(CObj
     // Find nearest objects
     q_nearest.clear();
     q_nearest.reserve(feel_touch.size());
-    g_pGameLevel->ObjectSpace.GetNearest(q_nearest, C, R, nullptr);
+    g_pGameLevel->ObjectSpace.GetNearest(q_nearest, C, R, NULL);
     xr_vector<CObject*>::iterator n_begin = q_nearest.begin();
     xr_vector<CObject*>::iterator n_end = q_nearest.end();
     if (n_end != n_begin)
     {
         // Process results (NEW)
-        for (xr_vector<CObject*>::iterator it = n_begin; it != n_end; ++it)
+        for (xr_vector<CObject*>::iterator it = n_begin; it != n_end; it++)
         {
             CObject* O = *it;
             if (O->getDestroy())
@@ -53,8 +52,8 @@ void Touch::feel_touch_update(Fvector& C, float R, const std::function<void(CObj
             {
                 // check for deny
                 BOOL bDeny = FALSE;
-                for (auto& dit : feel_touch_disable)
-                    if (O == dit.O)
+                for (u32 dit = 0; dit < feel_touch_disable.size(); dit++)
+                    if (O == feel_touch_disable[dit].O)
                     {
                         bDeny = TRUE;
                         break;

@@ -1,9 +1,5 @@
 #include "stdafx.h"
-
-#ifdef DX10_FLUID_ENABLE
-
 #include "dx103DFluidVolume.h"
-
 #include "dx103DFluidManager.h"
 
 dx103DFluidVolume::dx103DFluidVolume() {}
@@ -20,7 +16,7 @@ void dx103DFluidVolume::Load(LPCSTR N, IReader* data, u32 dwFlags)
     shader.create("fluid3d_stub", "water\\water_ryaska1");
 
     //	Create debug geom
-    m_Geom.create(FVF::F_LIT, RImplementation.Vertex.Buffer(), RImplementation.QuadIB);
+    m_Geom.create(FVF::F_LIT, RCache.Vertex.Buffer(), RCache.QuadIB);
 
     Type = MT_3DFLUIDVOLUME;
 
@@ -31,8 +27,8 @@ void dx103DFluidVolume::Load(LPCSTR N, IReader* data, u32 dwFlags)
     const Fmatrix& Transform = m_FluidData.GetTransform();
 
     //	Update visibility data
-    vis.box.min = Fvector3().set(-0.5f, -0.5f, -0.5f);
-    vis.box.max = Fvector3().set(0.5f, 0.5f, 0.5f);
+    vis.box.min.set(-0.5f, -0.5f, -0.5f);
+    vis.box.max.set(0.5f, 0.5f, 0.5f);
 
     vis.box.xform(Transform);
 
@@ -40,26 +36,21 @@ void dx103DFluidVolume::Load(LPCSTR N, IReader* data, u32 dwFlags)
     vis.sphere.R = vis.box.getradius();
 }
 
-void dx103DFluidVolume::Render(CBackend& cmd_list, float, bool) // LOD - Level Of Detail  [0.0f - min, 1.0f - max], Ignored ?
+void dx103DFluidVolume::Render(float LOD) // LOD - Level Of Detail  [0.0f - min, 1.0f - max], Ignored ?
 {
     if (!ps_r2_ls_flags.test(R3FLAG_VOLUMETRIC_SMOKE))
         return;
 
-    //	Render debug box
-    //	Do it BEFORE update since update resets shaders and other pipeline settings
-
-    //	FluidManager.RenderFluid( m_FluidData );
-
     u32 dwOffset, dwCount;
 
-    FVF::LIT* pv_start = (FVF::LIT*)RImplementation.Vertex.Lock(6 * 3 * 2, m_Geom->vb_stride, dwOffset);
+    FVF::LIT* pv_start = (FVF::LIT*)RCache.Vertex.Lock(6 * 3 * 2, m_Geom->vb_stride, dwOffset);
     FVF::LIT* pv = pv_start;
 
-    const u32 clr = 0xFFFFFFFF;
+    constexpr u32 clr = 0xFFFFFFFF;
 
     Fbox box;
-    box.min = Fvector3().set(-0.5f, -0.5f, -0.5f);
-    box.max = Fvector3().set(0.5f, 0.5f, 0.5f);
+    box.min.set(-0.5f, -0.5f, -0.5f);
+    box.max.set(0.5f, 0.5f, 0.5f);
 
     //	Prepare box here
     {
@@ -124,30 +115,26 @@ void dx103DFluidVolume::Render(CBackend& cmd_list, float, bool) // LOD - Level O
         pv++;
     }
 
-    cmd_list.set_xform_world(m_FluidData.GetTransform());
+    RCache.set_xform_world(m_FluidData.GetTransform());
 
     dwCount = u32(pv - pv_start);
-    RImplementation.Vertex.Unlock(dwCount, m_Geom->vb_stride);
-    cmd_list.set_Geometry(m_Geom);
+    RCache.Vertex.Unlock(dwCount, m_Geom->vb_stride);
+    RCache.set_Geometry(m_Geom);
 
     //	Render obstacles
     const xr_vector<Fmatrix>& Obstacles = m_FluidData.GetObstaclesList();
-    const int iObstNum = Obstacles.size();
+    int iObstNum = Obstacles.size();
     for (int i = 0; i < iObstNum; ++i)
     {
-        cmd_list.set_xform_world(Obstacles[i]);
+        RCache.set_xform_world(Obstacles[i]);
     }
 
-    // float fTimeStep = Device.fTimeDelta*30*2.0f;
-    const float fTimeStep = 2.0f;
+    constexpr float fTimeStep = 2.0f;
 
-    // FluidManager.Update( m_FluidData, 2.0f);
-    FluidManager.Update(cmd_list, m_FluidData, fTimeStep);
-    FluidManager.RenderFluid(cmd_list, m_FluidData);
+    FluidManager.Update(m_FluidData, fTimeStep);
+    FluidManager.RenderFluid(m_FluidData);
 }
 
 void dx103DFluidVolume::Copy(dxRender_Visual* pFrom) { dxRender_Visual::Copy(pFrom); }
 
 void dx103DFluidVolume::Release() { dxRender_Visual::Release(); }
-
-#endif

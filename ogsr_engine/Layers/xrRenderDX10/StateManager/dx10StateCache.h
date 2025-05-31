@@ -1,3 +1,5 @@
+#ifndef dx10StateCache_included
+#define dx10StateCache_included
 #pragma once
 
 template <class IDeviceState, class StateDecs>
@@ -27,7 +29,7 @@ private:
     };
 
 private:
-    void CreateState(const StateDecs& desc, IDeviceState** ppIState);
+    void CreateState(StateDecs desc, IDeviceState** ppIState);
     IDeviceState* FindState(const StateDecs& desc, u32 StateCRC);
 
     //	Private data
@@ -41,3 +43,5 @@ extern dx10StateCache<ID3DDepthStencilState, D3D_DEPTH_STENCIL_DESC> DSSManager;
 extern dx10StateCache<ID3DBlendState, D3D_BLEND_DESC> BSManager;
 
 #include "dx10StateCacheImpl.h"
+
+#endif //	dx10StateCache_included

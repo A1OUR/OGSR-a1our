@@ -57,12 +57,14 @@ void CWeaponStatMgun::OnShot()
 
     FireBullet(m_fire_pos, m_fire_dir, fireDispersionBase, *m_Ammo, Owner()->ID(), ID(), SendHitAllowed(Owner()));
 
+    StartShotParticles();
+
     if (m_bLightShotEnabled)
         Light_Start();
 
     StartFlameParticles();
-    StartSmokeParticles(m_fire_pos, {});
-    OnShellDrop(m_fire_pos, {});
+    StartSmokeParticles(m_fire_pos, zero_vel);
+    OnShellDrop(m_fire_pos, zero_vel);
 
     bool b_hud_mode = (Level().CurrentEntity() == smart_cast<CObject*>(Owner()));
     HUD_SOUND::PlaySound(sndShot, m_fire_pos, Owner(), b_hud_mode);

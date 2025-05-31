@@ -1,5 +1,6 @@
 
-#pragma once
+#ifndef NV_TRISTRIP_OBJECTS_H
+#define NV_TRISTRIP_OBJECTS_H
 
 #include <assert.h>
 #include "VertexCache.h"
@@ -56,10 +57,10 @@ public:
     {
         m_v0 = v0;
         m_v1 = v1;
-        m_face0 = nullptr;
-        m_face1 = nullptr;
-        m_nextV0 = nullptr;
-        m_nextV1 = nullptr;
+        m_face0 = NULL;
+        m_face1 = NULL;
+        m_nextV0 = NULL;
+        m_nextV1 = NULL;
 
         // we will appear in 2 lists.  this is a good
         // way to make sure we _delete it the second time
@@ -137,7 +138,7 @@ public:
 
     inline bool IsInStrip(const NvFaceInfo* faceInfo) const
     {
-        if (faceInfo == nullptr)
+        if (faceInfo == NULL)
             return false;
 
         return (m_experimentId >= 0 ? faceInfo->m_testStripId == m_stripId : faceInfo->m_stripId == m_stripId);
@@ -152,7 +153,7 @@ public:
     bool Unique(NvFaceInfoVec& faceVec, NvFaceInfo* face);
 
     // mark the triangle as taken by this strip
-    bool IsMarked(NvFaceInfo* faceInfo) const;
+    bool IsMarked(NvFaceInfo* faceInfo);
     void MarkTriangle(NvFaceInfo* faceInfo);
 
     // build the strip
@@ -229,3 +230,5 @@ protected:
     // to these protected stripificaton methods if they want
     friend NvStripInfo;
 };
+
+#endif

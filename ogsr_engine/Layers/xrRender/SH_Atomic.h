@@ -1,5 +1,6 @@
+#ifndef sh_atomicH
+#define sh_atomicH
 #pragma once
-
 #include "../../xrCore/xr_resource.h"
 #include "tss_def.h"
 
@@ -13,7 +14,6 @@
 struct ECORE_API SInputSignature : public xr_resource_flagged
 {
     ID3DBlob* signature;
-
     SInputSignature(ID3DBlob* pBlob);
     ~SInputSignature();
 };
@@ -22,11 +22,9 @@ typedef resptr_core<SInputSignature, resptr_base<SInputSignature>> ref_input_sig
 //////////////////////////////////////////////////////////////////////////
 struct ECORE_API SVS : public xr_resource_named
 {
-    ID3DVertexShader* sh;
+    ID3DVertexShader* vs;
     R_constant_table constants;
-
     ref_input_sign signature;
-
     SVS();
     ~SVS();
 };
@@ -35,7 +33,7 @@ typedef resptr_core<SVS, resptr_base<SVS>> ref_vs;
 //////////////////////////////////////////////////////////////////////////
 struct ECORE_API SPS : public xr_resource_named
 {
-    ID3DPixelShader* sh;
+    ID3DPixelShader* ps;
     R_constant_table constants;
     ~SPS();
 };
@@ -44,7 +42,7 @@ typedef resptr_core<SPS, resptr_base<SPS>> ref_ps;
 //////////////////////////////////////////////////////////////////////////
 struct ECORE_API SGS : public xr_resource_named
 {
-    ID3DGeometryShader* sh;
+    ID3DGeometryShader* gs;
     R_constant_table constants;
     ~SGS();
 };
@@ -74,7 +72,6 @@ struct ECORE_API SCS : public xr_resource_named
 };
 typedef resptr_core<SCS, resptr_base<SCS>> ref_cs;
 
-
 //////////////////////////////////////////////////////////////////////////
 struct ECORE_API SState : public xr_resource_flagged
 {
@@ -98,3 +95,4 @@ struct ECORE_API SDeclaration : public xr_resource_flagged
 typedef resptr_core<SDeclaration, resptr_base<SDeclaration>> ref_declaration;
 
 #pragma pack(pop)
+#endif // sh_atomicH

@@ -1,4 +1,6 @@
 //---------------------------------------------------------------------------
+#ifndef LevelSoundsH
+#define LevelSoundsH
 #pragma once
 
 struct SStaticSound
@@ -54,3 +56,5 @@ public:
     void Unload();
     void Update();
 };
+
+#endif

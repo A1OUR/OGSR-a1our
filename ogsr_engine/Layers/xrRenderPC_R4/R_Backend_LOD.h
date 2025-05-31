@@ -1,17 +1,17 @@
-#pragma once
+#ifndef R_BACKEND_LOD_H_INCLUDED
+#define R_BACKEND_LOD_H_INCLUDED
 
-class R_lod
+class R_LOD
 {
 public:
-    R_constant* c_lod;
+    R_constant* c_LOD;
 
 public:
-    explicit R_lod(CBackend& cmd_list_in);
+    R_LOD();
 
-    void unmap() { c_lod = nullptr; }
-    void set_lod(R_constant* C) { c_lod = C; }
-
-    void set_lod(float lod) const;
-
-    CBackend& cmd_list;
+    void unmap() { c_LOD = 0; }
+    void set_LOD(R_constant* C) { c_LOD = C; }
+    void set_LOD(float LOD);
 };
+
+#endif // #ifndef R_BACKEND_LOD_H_INCLUDED

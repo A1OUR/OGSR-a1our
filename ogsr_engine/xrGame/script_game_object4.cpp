@@ -402,7 +402,7 @@ void CScriptGameObject::OpenInvBox(CScriptGameObject* obj)
 }
 
 #include "script_ini_file.h"
-CInifile* CScriptGameObject::GetVisIni()
+CScriptIniFile* CScriptGameObject::GetVisIni()
 {
     IKinematics* k = smart_cast<IKinematics*>(object().Visual());
     if (!k)
@@ -410,7 +410,7 @@ CInifile* CScriptGameObject::GetVisIni()
         ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError, "IKinematics : cannot access class member GetVisIni!");
         return nullptr;
     }
-    return k->LL_UserData();
+    return reinterpret_cast<CScriptIniFile*>(k->LL_UserData());
 }
 
 CScriptGameObject* CScriptGameObject::ObjectFromInvBox(int _i)

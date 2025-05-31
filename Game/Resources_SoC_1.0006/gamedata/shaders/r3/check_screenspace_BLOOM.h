@@ -1,1 +1,0 @@
-//#define SSFX_BLOOM //Simp: управляется из движка

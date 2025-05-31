@@ -1,6 +1,8 @@
+#ifndef dxUIRender_included
+#define dxUIRender_included
 #pragma once
 
-#include "../../Include/xrRender/UIRender.h"
+#include "..\..\Include\xrRender\UIRender.h"
 
 class dxUIRender : public IUIRender
 {
@@ -13,7 +15,7 @@ public:
     virtual void SetShader(IUIShader& shader);
     virtual void SetAlphaRef(int aref);
 
-    virtual void SetScissor(Irect* rect = nullptr);
+    virtual void SetScissor(Irect* rect = NULL);
     virtual void GetActiveTextureResolution(Fvector2& res);
 
     virtual void PushPoint(float x, float y, float z, u32 C, float u, float v);
@@ -45,3 +47,5 @@ private:
 };
 
 extern dxUIRender UIRenderImpl;
+
+#endif //	dxUIRender_included

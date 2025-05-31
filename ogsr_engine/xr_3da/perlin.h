@@ -1,4 +1,5 @@
-#pragma once
+#ifndef perlinH
+#define perlinH
 
 #define SAMPLE_SIZE 256
 
@@ -77,3 +78,5 @@ public:
     CPerlinNoise3D(int seed) : CPerlinNoiseCustom(seed) {}
     float Get(float x, float y, float z);
 };
+
+#endif

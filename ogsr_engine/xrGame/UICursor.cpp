@@ -5,7 +5,7 @@
 CUICursor::CUICursor()
 {
     InitInternal();
-    Device.seqRender.Add(this, 1);
+    Device.seqRender.Add(this, -3 /*2*/);
 }
 
 CUICursor::~CUICursor() { Device.seqRender.Remove(this); }
@@ -75,13 +75,8 @@ void CUICursor::UpdateCursorPosition(const int _dx, const int _dy)
 
     if (m_b_use_win_cursor)
     {
-        Ivector2 pti{};
-
-        GetCursorPos((LPPOINT)&pti);
-
-        HWND hwnd = Device.m_hWnd;
-        if (hwnd)
-            ScreenToClient(hwnd, (LPPOINT)&pti);
+        Ivector2 pti;
+        IInputReceiver::IR_GetMousePosReal(pti);
 
         vPos.x = (float)pti.x * (UI_BASE_WIDTH / (float)Device.dwWidth);
         vPos.y = (float)pti.y * (UI_BASE_HEIGHT / (float)Device.dwHeight);

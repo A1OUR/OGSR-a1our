@@ -437,10 +437,6 @@ void CAI_Bloodsucker::set_visibility_state(visibility_t new_state)
     {
         start_invisible_predator();
     }
-    else if (m_visibility_state == no_visibility)
-    {
-        start_invisible_predator();
-    }
     else
     {
         sound().play(CAI_Bloodsucker::eChangeVisibility);
@@ -668,12 +664,12 @@ void CAI_Bloodsucker::manual_deactivate()
     setVisible(TRUE);
 }
 
-void CAI_Bloodsucker::renderable_Render(u32 context_id, IRenderable* root)
+void CAI_Bloodsucker::renderable_Render()
 {
-    //--DSR-- HeatVision_start
-    //if (m_visibility_state != no_visibility)
-        inherited::renderable_Render(context_id, root);
-    //--DSR-- HeatVision_end
+    if (m_visibility_state != no_visibility)
+    {
+        inherited::renderable_Render();
+    }
 }
 
 bool CAI_Bloodsucker::done_enough_hits_before_vampire() { return (int)m_hits_before_vampire >= (int)m_sufficient_hits_before_vampire + m_sufficient_hits_before_vampire_random; }
@@ -682,18 +678,6 @@ void CAI_Bloodsucker::on_attack_on_run_hit()
 {
     // Msg("on_attack_on_run_hit");
     ++m_hits_before_vampire;
-}
-
-float CAI_Bloodsucker::GetTransparency()
-{
-    if (m_visibility_state == no_visibility)
-    {
-        return 1.0f;
-    }
-    else
-    {
-        return 0.0f;
-    }
 }
 
 #ifdef DEBUG

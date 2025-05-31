@@ -1,3 +1,5 @@
+#ifndef SH_MATRIX_H
+#define SH_MATRIX_H
 #pragma once
 
 #include "../../xr_3da/WaveForm.h"
@@ -25,18 +27,20 @@ public:
     };
 
 public:
-    Fmatrix xform{};
+    Fmatrix xform;
 
-    u32 dwFrame{0};
-    u32 dwMode{0};
+    u32 dwFrame;
+    u32 dwMode;
     union
     {
-        u32 tcm{0}; // mask for tc-modifiers
+        u32 tcm; // mask for tc-modifiers
         Flags32 tcm_flags;
     };
     WaveForm scaleU, scaleV;
     WaveForm rotate;
     WaveForm scrollU, scrollV;
+
+    CMatrix() { Memory.mem_fill(this, 0, sizeof(CMatrix)); }
 
     IC void tc_trans(Fmatrix& T, float u, float v)
     {
@@ -46,8 +50,7 @@ public:
     }
     void Calculate();
 
-    IC BOOL Similar(CMatrix& M) const
-    // comare by modes and params
+    IC BOOL Similar(CMatrix& M) // comare by modes and params
     {
         if (dwMode != M.dwMode)
             return FALSE;
@@ -67,7 +70,9 @@ public:
     }
 
     void Load(IReader* fs);
-    void Save(IWriter* fs) const;
+    void Save(IWriter* fs);
 };
 
 typedef resptr_core<CMatrix, resptr_base<CMatrix>> ref_matrix;
+
+#endif

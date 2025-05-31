@@ -15,13 +15,12 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Fvisual::Fvisual() : dxRender_Visual() { m_fast = nullptr; }
+Fvisual::Fvisual() : dxRender_Visual() { m_fast = 0; }
 
 Fvisual::~Fvisual()
 {
     HW.stats_manager.decrement_stats_vb(p_rm_Vertices);
     HW.stats_manager.decrement_stats_ib(p_rm_Indices);
-
     xr_delete(m_fast);
 }
 
@@ -31,8 +30,8 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
 {
     dxRender_Visual::Load(N, data, dwFlags);
 
-    auto dcl = xr_vector<D3DVERTEXELEMENT9>(MAXD3DDECLLENGTH + 1);
-    D3DVERTEXELEMENT9* vFormat = nullptr;
+    auto dcl = std::vector<D3DVERTEXELEMENT9>(MAXD3DDECLLENGTH + 1);
+    D3DVERTEXELEMENT9* vFormat = 0;
     dwPrimitives = 0;
     BOOL loaded_v = false;
 
@@ -43,26 +42,24 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
         vBase = data->r_u32();
         vCount = data->r_u32();
 
-        vFormat = RImplementation.getVB_Format(ID);
-
         VERIFY(NULL == p_rm_Vertices);
 
         p_rm_Vertices = RImplementation.getVB(ID);
         p_rm_Vertices->AddRef();
+        vFormat = RImplementation.getVB_Format(ID);
+        loaded_v = true;
 
         // indices
         ID = data->r_u32();
         iBase = data->r_u32();
         iCount = data->r_u32();
-
         dwPrimitives = iCount / 3;
 
         VERIFY(NULL == p_rm_Indices);
         p_rm_Indices = RImplementation.getIB(ID);
         p_rm_Indices->AddRef();
 
-        loaded_v = true;
-
+#if (RENDER == R_R4)
         // check for fast-vertices
         if (data->find_chunk(OGF_FASTPATH))
         {
@@ -73,6 +70,7 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
             m_fast = xr_new<IRender_Mesh>();
 
             // verts
+            D3DVERTEXELEMENT9* fmt = 0;
             ID = def().r_u32();
             m_fast->vBase = def().r_u32();
             m_fast->vCount = def().r_u32();
@@ -80,7 +78,7 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
             VERIFY(NULL == m_fast->p_rm_Vertices);
             m_fast->p_rm_Vertices = RImplementation.getVB(ID, true);
             m_fast->p_rm_Vertices->AddRef();
-            D3DVERTEXELEMENT9* fmt = RImplementation.getVB_Format(ID, true);
+            fmt = RImplementation.getVB_Format(ID, true);
 
             // indices
             ID = def().r_u32();
@@ -95,37 +93,56 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
             // geom
             m_fast->rm_geom.create(fmt, m_fast->p_rm_Vertices, m_fast->p_rm_Indices);
         }
+#endif // (RENDER==R_R4)
     }
 
+    // read vertices
+    if (!loaded_v && (dwFlags & VLOAD_NOVERTICES) == 0)
+    {
+        if (data->find_chunk(OGF_VCONTAINER))
+        {
+            R_ASSERT(0, "pls notify andy about this.");
+
+            u32 ID = data->r_u32();
+            vBase = data->r_u32();
+            vCount = data->r_u32();
+            VERIFY(NULL == p_rm_Vertices);
+            p_rm_Vertices = RImplementation.getVB(ID);
+            p_rm_Vertices->AddRef();
+            vFormat = RImplementation.getVB_Format(ID);
+        }
+        else
+        {
+            R_ASSERT(data->find_chunk(OGF_VERTICES));
+            vBase = 0;
+            u32 fvf = data->r_u32();
+            CHK_DX(FVF::CreateDeclFromFVF(fvf, dcl));
+            vFormat = dcl.data();
+            vCount = data->r_u32();
+            u32 vStride = FVF::ComputeVertexSize(fvf);
+
+            VERIFY(NULL == p_rm_Vertices);
+            R_CHK(dx10BufferUtils::CreateVertexBuffer(&p_rm_Vertices, data->pointer(), vCount * vStride));
+            HW.stats_manager.increment_stats_vb(p_rm_Vertices);
+        }
+    }
+
+    // indices
     if (!loaded_v)
     {
-        // read vertices
-        if ((dwFlags & VLOAD_NOVERTICES) == 0)
-        {
-            if (data->find_chunk(OGF_VCONTAINER))
-            {
-                R_ASSERT(0, "pls notify andy about this.");
-            }
-            else
-            {
-                R_ASSERT(data->find_chunk(OGF_VERTICES));
-                vBase = 0;
-                const u32 fvf = data->r_u32();
-                CHK_DX(FVF::CreateDeclFromFVF(fvf, dcl));
-                vFormat = dcl.data();
-                vCount = data->r_u32();
-                const u32 vStride = FVF::ComputeVertexSize(fvf);
-
-                VERIFY(NULL == p_rm_Vertices);
-                R_CHK(dx10BufferUtils::CreateVertexBuffer(&p_rm_Vertices, data->pointer(), vCount * vStride));
-                HW.stats_manager.increment_stats_vb(p_rm_Vertices);
-            }
-        }
-
-        // read indices
+        dwPrimitives = 0;
         if (data->find_chunk(OGF_ICONTAINER))
         {
             R_ASSERT(0, "pls notify andy about this.");
+
+            u32 ID = data->r_u32();
+            iBase = data->r_u32();
+            iCount = data->r_u32();
+            dwPrimitives = iCount / 3;
+            VERIFY(NULL == p_rm_Indices);
+            p_rm_Indices = RImplementation.getIB(ID);
+            p_rm_Indices->AddRef();
+
         }
         else
         {
@@ -142,36 +159,34 @@ void Fvisual::Load(const char* N, IReader* data, u32 dwFlags)
 
     if (dwFlags & VLOAD_NOVERTICES)
         return;
-
-    rm_geom.create(vFormat, p_rm_Vertices, p_rm_Indices);
+    else
+        rm_geom.create(vFormat, p_rm_Vertices, p_rm_Indices);
 }
 
-
-void Fvisual::Render(CBackend& cmd_list, float, bool use_fast_geo)
+void Fvisual::Render(float)
 {
-    ZoneScoped;
-
-    if (m_fast && use_fast_geo && !cmd_list.is_TessEnabled())
+#if (RENDER == R_R4)
+    if (m_fast && RImplementation.phase == CRender::PHASE_SMAP && !RCache.is_TessEnabled())
     {
-        cmd_list.set_Geometry(m_fast->rm_geom);
-        cmd_list.Render(D3DPT_TRIANGLELIST, m_fast->vBase, 0, m_fast->vCount, m_fast->iBase, m_fast->dwPrimitives);
-        cmd_list.stat.r.s_static.add(m_fast->vCount);
+        RCache.set_Geometry(m_fast->rm_geom);
+        RCache.Render(D3DPT_TRIANGLELIST, m_fast->vBase, 0, m_fast->vCount, m_fast->iBase, m_fast->dwPrimitives);
+        RCache.stat.r.s_static.add(m_fast->vCount);
     }
     else
     {
-        cmd_list.set_Geometry(rm_geom);
-        cmd_list.Render(D3DPT_TRIANGLELIST, vBase, 0, vCount, iBase, dwPrimitives);
-        cmd_list.stat.r.s_static.add(vCount);
+        RCache.set_Geometry(rm_geom);
+        RCache.Render(D3DPT_TRIANGLELIST, vBase, 0, vCount, iBase, dwPrimitives);
+        RCache.stat.r.s_static.add(vCount);
     }
+#endif // (RENDER==R_R4)
 }
 
 #define PCOPY(a) a = pFrom->a
-
 void Fvisual::Copy(dxRender_Visual* pSrc)
 {
     dxRender_Visual::Copy(pSrc);
 
-    const Fvisual* pFrom = dynamic_cast<Fvisual*>(pSrc);
+    Fvisual* pFrom = dynamic_cast<Fvisual*>(pSrc);
 
     PCOPY(rm_geom);
 

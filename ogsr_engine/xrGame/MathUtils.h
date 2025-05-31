@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MATH_UTILS_H
+#define MATH_UTILS_H
 
 constexpr float phInfinity = std::numeric_limits<float>::infinity();
 
@@ -555,4 +556,5 @@ const float DET_CHECK_EPS = 0.15f; // scale -35%  !? ;)
     };
 #else
 #define VERIFY_RMATRIX(M)
+#endif
 #endif

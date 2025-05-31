@@ -1,3 +1,5 @@
+#ifndef WeaponMountedH
+#define WeaponMountedH
 #pragma once
 
 #include "holder_custom.h"
@@ -72,7 +74,7 @@ public:
     virtual void UpdateCL();
     virtual void shedule_Update(u32 dt);
 
-    virtual void renderable_Render(u32 context_id, IRenderable* root) override;
+    virtual void renderable_Render();
 
     virtual BOOL UsedAI_Locations() { return FALSE; }
 
@@ -95,3 +97,4 @@ public:
 
     virtual CCameraBase* Camera();
 };
+#endif // WeaponMountedH

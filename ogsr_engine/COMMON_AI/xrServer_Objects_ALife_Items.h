@@ -6,7 +6,8 @@
 //	Description : Server objects items for ALife simulator
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef xrServer_Objects_ALife_ItemsH
+#define xrServer_Objects_ALife_ItemsH
 
 #include "xrServer_Objects_ALife.h"
 #include "PHSynchronize.h"
@@ -297,3 +298,5 @@ public:
 //#define script_type_list save_type_list(CSE_InventoryContainer)
 
 #pragma warning(pop)
+
+#endif

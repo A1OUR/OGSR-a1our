@@ -1,6 +1,8 @@
+#ifndef dxStatsRender_included
+#define dxStatsRender_included
 #pragma once
 
-#include "../../Include/xrRender/StatsRender.h"
+#include "..\..\Include\xrRender\StatsRender.h"
 
 class dxStatsRender : public IStatsRender
 {
@@ -17,3 +19,5 @@ public:
 
 private:
 };
+
+#endif //	dxStatsRender_included

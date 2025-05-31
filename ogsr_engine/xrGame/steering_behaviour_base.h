@@ -6,7 +6,8 @@
 //	Description : steering behaviour base class
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef STEERING_BEHAVIOUR_BASE_H_INCLUDED
+#define STEERING_BEHAVIOUR_BASE_H_INCLUDED
 
 class CAI_Rat;
 
@@ -35,3 +36,5 @@ private:
 } // namespace steering_behaviour
 
 #include "steering_behaviour_base_inline.h"
+
+#endif // STEERING_BEHAVIOUR_BASE_H_INCLUDED

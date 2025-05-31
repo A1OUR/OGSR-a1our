@@ -2,14 +2,13 @@
 
 #include "Environment.h"
 #include "IGame_ObjectPool.h"
-#include "Render.h"
-#include "../xrCDB/ISpatial.h"
+
+#include "ShadersExternalData.h" //--#SM+#--
 
 class IRenderVisual;
 class IMainMenu;
-class ScriptWallmarksManager;
-class CPS_Instance;
-
+class ENGINE_API CPS_Instance;
+//-----------------------------------------------------------------------------------------------------------
 class ENGINE_API IGame_Persistent : public DLL_Pure, public pureAppStart, public pureAppEnd, public pureAppActivate, public pureAppDeactivate, public pureFrame
 {
 public:
@@ -23,26 +22,20 @@ public:
             string256 m_new_or_load;
             u32 m_e_game_type;
         };
-
         string256 m_params[4];
-
         params() { reset(); }
-
         void reset()
         {
-            for (auto& m_param : m_params)
-                strcpy_s(m_param, "");
+            for (int i = 0; i < 4; ++i)
+                strcpy_s(m_params[i], "");
         }
-
         void parse_cmd_line(LPCSTR cmd_line)
         {
             reset();
-
             int n = _min(4, _GetItemCount(cmd_line, '/'));
             for (int i = 0; i < n; ++i)
             {
                 _GetItem(cmd_line, i, m_params[i], '/');
-
                 strlwr(m_params[i]);
             }
         }
@@ -51,7 +44,6 @@ public:
 
     xr_set<CPS_Instance*> ps_active, ps_destroy;
     xr_vector<CPS_Instance*> ps_needtoplay;
-    xr_vector<CPS_Instance*> ps_needtocreate;
 
     enum GrassBenders_Anim : s8
     {
@@ -68,14 +60,13 @@ public:
     void GrassBendersAddShot(const u16 id, const Fvector& position, const Fvector3& dir, const float fade, const float speed, const float intensity, const float radius);
     void GrassBendersRemoveById(const u16 id);
     void GrassBendersRemoveByIndex(size_t& idx);
-    static float GrassBenderToValue(float& current, const float go_to, const float intensity, const bool use_easing);
+    float GrassBenderToValue(float& current, const float go_to, const float intensity, const bool use_easing);
     void GrassBendersUpdate(const u16 id, size_t& data_idx, u32& data_frame, const Fvector& position, const float init_radius, const float init_str);
     void GrassBendersReset(const size_t idx);
-    static void GrassBendersSet(const size_t idx, const u16 id, const Fvector& position, const Fvector3& dir, const float fade, const float speed, const float intensity, const float radius, const GrassBenders_Anim anim, const bool resetTime);
-
+    void GrassBendersSet(const size_t idx, const u16 id, const Fvector& position, const Fvector3& dir, const float fade, const float speed, const float intensity, const float radius, const GrassBenders_Anim anim, const bool resetTime);
     CPerlinNoise1D* PerlinNoise1D{};
 
-    static bool IsActorInHideout();
+    bool IsActorInHideout() const;
     void UpdateHudRaindrops() const;
     void UpdateRainGloss() const;
 
@@ -86,11 +77,16 @@ public:
     virtual void Disconnect();
 
     IGame_ObjectPool ObjectPool;
-    IMainMenu* m_pMainMenu{};
+    IMainMenu* m_pMainMenu;
 
-    //virtual ScriptWallmarksManager& GetWallmarksManager() const = 0;
+    CEnvironment* pEnvironment;
+    CEnvironment& Environment() { return *pEnvironment; };
 
-    CEnvironment& Environment() const { return *pEnvironment; };
+    ShadersExternalData m_pGShaderConstants; //--#SM+#--
+
+    virtual bool OnRenderPPUI_query() { return FALSE; }; // should return true if we want to have second function called
+    virtual void OnRenderPPUI_main(){};
+    virtual void OnRenderPPUI_PP(){};
 
     virtual void OnAppStart();
     virtual void OnAppEnd();
@@ -104,7 +100,7 @@ public:
 
     virtual void UpdateGameType(){};
 
-    virtual void OnSectorChanged(IRender_Sector::sector_id_t sector){};
+    virtual void OnSectorChanged(int sector){};
 
     virtual void RegisterModel(IRenderVisual* V) = 0;
     virtual float MtlTransparent(u32 mtl_idx) = 0;
@@ -117,14 +113,8 @@ public:
     virtual void LoadTitle(const char* title_name) = 0;
     virtual void SetTip() = 0;
 
+    virtual bool CanBePaused() { return true; }
     virtual	void models_savePrefetch();
-
- //   virtual bool CreateAmbientParticle(const CEnvAmbient::SEffect* effect) = 0;
-
-private:
-    CEnvironment* pEnvironment{};
-
-    void ProcessParticlesCreate();
 };
 
 class IMainMenu
@@ -135,12 +125,8 @@ public:
     virtual bool IsActive() = 0;
     virtual bool CanSkipSceneRendering() = 0;
     virtual void DestroyInternal(bool bForce) = 0;
-
-    virtual void Screenshot(IRender_interface::ScreenshotMode mode = IRender_interface::SM_NORMAL, LPCSTR name = nullptr) = 0;
-    //virtual void ScreenshotEnd() = 0;
 };
 
-ENGINE_API extern IGame_Persistent* g_pGamePersistent;
+extern ENGINE_API IGame_Persistent* g_pGamePersistent;
 ENGINE_API extern bool IsMainMenuActive();
-
 ENGINE_API extern BOOL g_prefetch;

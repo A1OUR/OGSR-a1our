@@ -18,9 +18,7 @@ LPCSTR get_section_name(const CSE_Abstract* abstract) { return (abstract->name()
 
 LPCSTR get_name(const CSE_Abstract* abstract) { return (abstract->name_replace()); }
 
-void script_set_name(CSE_Abstract* abstract, LPCSTR name) { abstract->set_name_replace(name);  }
-
-CInifile* get_spawn_ini(CSE_Abstract* abstract) { return ((CInifile*)&abstract->spawn_ini()); }
+CScriptIniFile* get_spawn_ini(CSE_Abstract* abstract) { return ((CScriptIniFile*)&abstract->spawn_ini()); }
 
 void save_spawn_ini(CSE_Abstract* abstract)
 {
@@ -71,7 +69,7 @@ struct CWrapperBase : public T, public luabind::wrap_base
     }
 };
 
-
+#pragma optimize("s", on)
 void CPureServerObject::script_register(lua_State* L)
 {
     module(L)[class_<IPureLoadableObject<IReader>>("ipure_alife_load_object"), class_<IPureSavableObject<IWriter>>("ipure_alife_save_object"),
@@ -93,7 +91,6 @@ void CSE_Abstract::script_register(lua_State* L)
                   .def_readwrite("angle", &BaseType::o_Angle)
                   .def("section_name", &get_section_name)
                   .def("name", &get_name)
-                  .def("set_name", &script_set_name)
                   .def("clsid", &BaseType::script_clsid)
                   .def("spawn_ini", &get_spawn_ini)
                   .def("STATE_Read", &BaseType::STATE_Read, &WrapType::STATE_Read_static)

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PH_ISLAND_H
+#define PH_ISLAND_H
 
 #pragma warning(disable : 4995)
 #include "ode/src/objects.h"
@@ -214,4 +215,8 @@ public:
     void Step(dReal step);
     void Enable();
     void Repair();
+
+protected:
+private:
 };
+#endif

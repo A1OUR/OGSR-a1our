@@ -33,10 +33,9 @@ CDialogHolder::CDialogHolder()
 
 CDialogHolder::~CDialogHolder()
 {
-    shedule_unregister(true);
+    shedule_unregister();
     Device.seqFrame.Remove(this);
 }
-
 #include "HUDManager.h"
 
 void CDialogHolder::StartMenu(CUIDialogWnd* pDialog, bool bDoHideIndicators)
@@ -112,15 +111,15 @@ void CDialogHolder::StopMenu(CUIDialogWnd* pDialog)
                 HUD().GetUI()->HideGameIndicators();
         }
         RemoveDialogToRender(pDialog);
-        SetMainInputReceiver(nullptr, false);
-        pDialog->SetHolder(nullptr);
+        SetMainInputReceiver(NULL, false);
+        pDialog->SetHolder(NULL);
         pDialog->Hide();
     }
     else
     {
         RemoveDialogToRender(pDialog);
         SetMainInputReceiver(pDialog, true);
-        pDialog->SetHolder(nullptr);
+        pDialog->SetHolder(NULL);
         pDialog->Hide();
     }
 
@@ -166,7 +165,7 @@ CUIDialogWnd* CDialogHolder::MainInputReceiver()
 {
     if (!m_input_receivers.empty())
         return m_input_receivers.back().m_item;
-    return nullptr;
+    return NULL;
 };
 
 void CDialogHolder::SetMainInputReceiver(CUIDialogWnd* ir, bool _find_remove, const Flags8 flags)

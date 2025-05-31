@@ -310,11 +310,12 @@ void attachable_hud_item::setup_firedeps(firedeps& fd)
 
 bool attachable_hud_item::need_renderable() { return m_parent_hud_item->need_renderable(); }
 
-void attachable_hud_item::render(u32 context_id, IRenderable* root)
+void attachable_hud_item::render()
 {
-    ::Render->add_Visual(context_id, root, m_model->dcast_RenderVisual(), m_item_transform);
+    ::Render->set_Transform(&m_item_transform);
+    ::Render->add_Visual(m_model->dcast_RenderVisual());
     debug_draw_firedeps();
-    m_parent_hud_item->render_hud_mode(context_id, root);
+    m_parent_hud_item->render_hud_mode();
 }
 
 bool attachable_hud_item::render_item_ui_query() { return m_parent_hud_item->render_item_3d_ui_query(); }
@@ -573,7 +574,6 @@ void attachable_hud_item::load(const shared_str& sect_name)
 
     ::Render->hud_loading = true;
     m_model = smart_cast<IKinematics*>(::Render->model_Create(m_visual_name.c_str()));
-    m_model->dcast_RenderVisual()->MarkAsHot(false);
     ::Render->hud_loading = false;
 
     m_attach_place_idx = READ_IF_EXISTS(pSettings, r_u16, sect_name, "attach_place_idx", 0);
@@ -797,11 +797,14 @@ void player_hud::load(const shared_str& player_hud_sect, bool force)
     m_model->dcast_PKinematics()->LL_SetBoneVisible(l_arm, FALSE, TRUE);
     m_model_2->dcast_PKinematics()->LL_SetBoneVisible(r_arm, FALSE, TRUE);
 
-    m_ancors.clear();
-    for (const auto& [key, _bone] : pSettings->r_section(player_hud_sect).Data)
+    const auto& _sect = pSettings->r_section(player_hud_sect);
+    auto _b = _sect.Data.cbegin();
+    auto _e = _sect.Data.cend();
+    for (; _b != _e; ++_b)
     {
-        if (strstr(key.c_str(), "ancor_") == key.c_str())
+        if (strstr(_b->first.c_str(), "ancor_") == _b->first.c_str())
         {
+            const shared_str& _bone = _b->second;
             m_ancors.push_back(m_model->dcast_PKinematics()->LL_BoneID(_bone));
         }
     }
@@ -825,9 +828,6 @@ void player_hud::load(const shared_str& player_hud_sect, bool force)
     m_model->dcast_PKinematics()->CalculateBones(TRUE);
     m_model_2->dcast_PKinematics()->CalculateBones_Invalidate();
     m_model_2->dcast_PKinematics()->CalculateBones(TRUE);
-
-    m_model->dcast_RenderVisual()->MarkAsHot(true);
-    m_model_2->dcast_RenderVisual()->MarkAsHot(true);
 }
 
 bool player_hud::render_item_ui_query()
@@ -844,21 +844,14 @@ bool player_hud::render_item_ui_query()
 
 void player_hud::render_item_ui()
 {
-    IUIRender::ePointType bk = UI()->m_currentPointType;
-    UI()->m_currentPointType = IUIRender::pttLIT;
-    UIRender->CacheSetCullMode(IUIRender::cmNONE);
-
     if (m_attached_items[0])
         m_attached_items[0]->render_item_ui();
 
     if (m_attached_items[1])
         m_attached_items[1]->render_item_ui();
-
-    UIRender->CacheSetCullMode(IUIRender::cmCCW);
-    UI()->m_currentPointType = bk;
 }
 
-void player_hud::render_hud(u32 context_id, IRenderable* root)
+void player_hud::render_hud()
 {
     //if (!m_attached_items[0] && !m_attached_items[1])
     //    return;
@@ -874,25 +867,28 @@ void player_hud::render_hud(u32 context_id, IRenderable* root)
 
     if (b_has_hands || script_anim_part != u8(-1))
     {
-        ::Render->add_Visual(context_id, root, m_model->dcast_RenderVisual(), m_transform);
+        ::Render->set_Transform(&m_transform);
+        ::Render->add_Visual(m_model->dcast_RenderVisual());
 
-        ::Render->add_Visual(context_id, root, m_model_2->dcast_RenderVisual(), m_transform_2);
+        ::Render->set_Transform(&m_transform_2);
+        ::Render->add_Visual(m_model_2->dcast_RenderVisual());
     }
 
     if (!script_override_item) // можно скрывать предметы в руках во время скриптовой анимаии, но выглядит кривовато
     {
         if (m_attached_items[0])
-            m_attached_items[0]->render(context_id, root);
+            m_attached_items[0]->render();
 
         if (m_attached_items[1])
-            m_attached_items[1]->render(context_id, root);
+            m_attached_items[1]->render();
     }
 
     if (b_has_hands)
     {
         if (script_anim_item_model)
         {
-            ::Render->add_Visual(context_id, root, script_anim_item_model->dcast_RenderVisual(), m_item_pos);
+            ::Render->set_Transform(&m_item_pos);
+            ::Render->add_Visual(script_anim_item_model->dcast_RenderVisual());
         }
     }
 }
@@ -1373,7 +1369,7 @@ void player_hud::calc_transform(u16 attach_slot_idx, const Fmatrix& offset, Fmat
     if (hasHands || script_anim_item_model)
     {
         IKinematics* kin = (attach_slot_idx == 0) ? m_model->dcast_PKinematics() : m_model_2->dcast_PKinematics();
-        Fmatrix ancor_m = kin->LL_GetTransform(m_ancors.at(attach_slot_idx));
+        Fmatrix ancor_m = kin->LL_GetTransform(m_ancors[attach_slot_idx]);
         result.mul((attach_slot_idx == 0) ? m_transform : m_transform_2, ancor_m);
         result.mulB_43(offset);
     }
@@ -1675,7 +1671,7 @@ u32 player_hud::script_anim_play(u8 hand, LPCSTR hud_section, LPCSTR anm_name, b
         if (!M2.valid())
             M2 = script_anim_item_model->ID_Cycle_Safe("idle");
 
-        R_ASSERT(M2.valid(), "model %s has no motion [idle] ", pSettings->r_string(hud_section, "item_visual"));
+        R_ASSERT3(M2.valid(), "model %s has no motion [idle] ", pSettings->r_string(m_sect_name, "item_visual"));
 
         u16 root_id = script_anim_item_model->dcast_PKinematics()->LL_GetBoneRoot();
         CBoneInstance& root_binst = script_anim_item_model->dcast_PKinematics()->LL_GetBoneInstance(root_id);

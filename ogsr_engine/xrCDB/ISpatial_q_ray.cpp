@@ -308,7 +308,7 @@ public:
         float c_R = n_R / 2;
         for (u32 octant = 0; octant < 8; octant++)
         {
-            if (nullptr == N->children[octant])
+            if (0 == N->children[octant])
                 continue;
             Fvector c_C;
             c_C.mad(n_C, c_spatial_offset[octant], c_R);
@@ -319,10 +319,8 @@ public:
     }
 };
 
-void ISpatial_DB::q_ray(xr_vector<ISpatial*>& R, u32 _o, u32 _mask, const Fvector& _start, const Fvector& _dir, float _range)
+void ISpatial_DB::q_ray(xr_vector<ISpatial*>& R, u32 _o, u32 _mask_and, const Fvector& _start, const Fvector& _dir, float _range)
 {
-    ZoneScoped;
-
     cs.Enter();
     q_result = &R;
     q_result->clear();
@@ -332,12 +330,12 @@ void ISpatial_DB::q_ray(xr_vector<ISpatial*>& R, u32 _o, u32 _mask, const Fvecto
         {
             if (_o & O_ONLYNEAREST)
             {
-                walker<true, true, true> W(this, _mask, _start, _dir, _range);
+                walker<true, true, true> W(this, _mask_and, _start, _dir, _range);
                 W.walk(m_root, m_center, m_bounds);
             }
             else
             {
-                walker<true, true, false> W(this, _mask, _start, _dir, _range);
+                walker<true, true, false> W(this, _mask_and, _start, _dir, _range);
                 W.walk(m_root, m_center, m_bounds);
             }
         }
@@ -345,12 +343,12 @@ void ISpatial_DB::q_ray(xr_vector<ISpatial*>& R, u32 _o, u32 _mask, const Fvecto
         {
             if (_o & O_ONLYNEAREST)
             {
-                walker<true, false, true> W(this, _mask, _start, _dir, _range);
+                walker<true, false, true> W(this, _mask_and, _start, _dir, _range);
                 W.walk(m_root, m_center, m_bounds);
             }
             else
             {
-                walker<true, false, false> W(this, _mask, _start, _dir, _range);
+                walker<true, false, false> W(this, _mask_and, _start, _dir, _range);
                 W.walk(m_root, m_center, m_bounds);
             }
         }
@@ -361,12 +359,12 @@ void ISpatial_DB::q_ray(xr_vector<ISpatial*>& R, u32 _o, u32 _mask, const Fvecto
         {
             if (_o & O_ONLYNEAREST)
             {
-                walker<false, true, true> W(this, _mask, _start, _dir, _range);
+                walker<false, true, true> W(this, _mask_and, _start, _dir, _range);
                 W.walk(m_root, m_center, m_bounds);
             }
             else
             {
-                walker<false, true, false> W(this, _mask, _start, _dir, _range);
+                walker<false, true, false> W(this, _mask_and, _start, _dir, _range);
                 W.walk(m_root, m_center, m_bounds);
             }
         }
@@ -374,12 +372,12 @@ void ISpatial_DB::q_ray(xr_vector<ISpatial*>& R, u32 _o, u32 _mask, const Fvecto
         {
             if (_o & O_ONLYNEAREST)
             {
-                walker<false, false, true> W(this, _mask, _start, _dir, _range);
+                walker<false, false, true> W(this, _mask_and, _start, _dir, _range);
                 W.walk(m_root, m_center, m_bounds);
             }
             else
             {
-                walker<false, false, false> W(this, _mask, _start, _dir, _range);
+                walker<false, false, false> W(this, _mask_and, _start, _dir, _range);
                 W.walk(m_root, m_center, m_bounds);
             }
         }

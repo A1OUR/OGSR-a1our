@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef PH_WORLD_H
+#define PH_WORLD_H
 #include "Physics.h"
 
 // refs
@@ -112,3 +112,4 @@ public:
 add_to_type_list(CPHWorld)
 #undef script_type_list
 #define script_type_list save_type_list(CPHWorld)
+#endif

@@ -6,7 +6,8 @@
 //	Description : encircle state
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef GROUP_STATE_ADAPTER_H_INCLUDED
+#define GROUP_STATE_ADAPTER_H_INCLUDED
 
 #include "../state.h"
 #include "../basemonster/base_monster.h"
@@ -50,3 +51,5 @@ public:
 private:
     CMonsterStateInterface* m_impl;
 };
+
+#endif // GROUP_STATE_ADAPTER_H_INCLUDED

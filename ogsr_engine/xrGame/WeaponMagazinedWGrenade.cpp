@@ -24,7 +24,6 @@
 #include "script_game_object.h"
 #include "alife_registry_wrappers.h"
 #include "alife_simulator_header.h"
-#include "../xr_3da/x_ray.h"
 
 constexpr const char* grenade_launcher_def_bone_cop = "grenade";
 
@@ -393,7 +392,7 @@ void CWeaponMagazinedWGrenade::SwitchState(u32 S)
         d.normalize();
         d.mul(CRocketLauncher::m_fLaunchSpeed);
         VERIFY2(_valid(launch_matrix), "CWeaponMagazinedWGrenade::SwitchState. Invalid launch_matrix!");
-        CRocketLauncher::LaunchRocket(launch_matrix, d, {});
+        CRocketLauncher::LaunchRocket(launch_matrix, d, zero_vel);
 
         CExplosiveRocket* pGrenade = smart_cast<CExplosiveRocket*>(getCurrentRocket() /*m_pRocket*/);
         VERIFY(pGrenade);
@@ -820,14 +819,14 @@ void CWeaponMagazinedWGrenade::PlayAnimShoot()
         //анимация стрельбы из подствольника
         string128 guns_shoot_anm;
         xr_strconcat(guns_shoot_anm, "anm_shoot", (IsZoomed() && !IsRotatingToZoom()) ? "_aim" : "", IsMisfire() ? "_jammed" : (iAmmoElapsed2 == 0 ? "_empty" : ""), "_g");
-        PlayHUDMotion({guns_shoot_anm, "anim_shoot_g", "anm_shots_g"}, IS_OGSR_GA, GetState());
+        PlayHUDMotion({guns_shoot_anm, "anim_shoot_g", "anm_shots_g"}, false, GetState());
     }
     else if (IsGrenadeLauncherAttached())
     {
         string128 guns_shoot_anm;
         xr_strconcat(guns_shoot_anm, "anm_shoot", (IsZoomed() && !IsRotatingToZoom()) ? (IsScopeAttached() ? "_aim_scope" : "_aim") : "",
                      IsMisfire() ? "_jammed" : (iAmmoElapsed == 1 ? "_last" : ""), IsSilencerAttached() ? "_sil" : "", "_w_gl");
-        PlayHUDMotion({guns_shoot_anm, "anim_shoot_gl", "anm_shots_w_gl"}, IS_OGSR_GA, GetState());
+        PlayHUDMotion({guns_shoot_anm, "anim_shoot_gl", "anm_shots_w_gl"}, false, GetState());
     }
     else
         inherited::PlayAnimShoot();

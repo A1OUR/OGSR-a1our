@@ -10,9 +10,10 @@ public:
     {
         struct
         {
-            u16 idx : 16;
-            u16 slot : 16;
+            u16 idx : 16; // 14
+            u16 slot : 16; // 2
         };
+        //.		u16			val;
         u32 val;
     };
 
@@ -37,5 +38,6 @@ public:
             return &MotionID::get;
         else
             return 0;
+        //		return(!valid()?0:&MotionID::get);
     }
 };

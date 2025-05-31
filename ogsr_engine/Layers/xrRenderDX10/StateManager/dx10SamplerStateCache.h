@@ -1,3 +1,5 @@
+#ifndef dx10SamplerStateCache_included
+#define dx10SamplerStateCache_included
 #pragma once
 
 class dx10SamplerStateCache
@@ -20,15 +22,18 @@ public:
 
     SHandle GetState(D3D_SAMPLER_DESC& desc);
 
-    void VSApplySamplers(u32 context_id, const HArray& samplers) const;
-    void PSApplySamplers(u32 context_id, const HArray& samplers) const;
-    void GSApplySamplers(u32 context_id, const HArray& samplers) const;
-    void HSApplySamplers(u32 context_id, const HArray& samplers) const;
-    void DSApplySamplers(u32 context_id, const HArray& samplers) const;
-    void CSApplySamplers(u32 context_id, const HArray& samplers) const;
+    void VSApplySamplers(HArray& samplers);
+    void PSApplySamplers(HArray& samplers);
+    void GSApplySamplers(HArray& samplers);
+    void HSApplySamplers(HArray& samplers);
+    void DSApplySamplers(HArray& samplers);
+    void CSApplySamplers(HArray& samplers);
 
     void SetMaxAnisotropy(u32 uiMaxAniso);
     void SetMipLODBias(float uiMipLODBias);
+
+    //	Marks all device sample as unused
+    void ResetDeviceState();
 
     //	Private declarations
 private:
@@ -42,18 +47,28 @@ private:
     };
 
 private:
-    void CreateState(const StateDecs& desc, IDeviceState** ppIState);
-    SHandle FindState(const StateDecs& desc, u32 StateCRC) const;
+    void CreateState(StateDecs desc, IDeviceState** ppIState);
+    SHandle FindState(const StateDecs& desc, u32 StateCRC);
 
-    void PrepareSamplerStates(const HArray& samplers, ID3DSamplerState* pSS[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT]) const;
+    void PrepareSamplerStates(HArray& samplers, ID3DSamplerState* pSS[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT], SHandle pCurrentState[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT], u32& uiMin,
+                              u32& uiMax) const;
 
     //	Private data
 private:
     //	This must be cleared on device destroy
     xr_vector<StateRecord> m_StateArray;
 
+    SHandle m_aPSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+    SHandle m_aVSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+    SHandle m_aGSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+    SHandle m_aHSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+    SHandle m_aDSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+    SHandle m_aCSSamplers[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
+
     u32 m_uiMaxAnisotropy;
     float m_uiMipLODBias;
 };
 
 extern dx10SamplerStateCache SSManager;
+
+#endif //	dx10SamplerStateCache_included

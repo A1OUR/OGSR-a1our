@@ -69,6 +69,7 @@ public:
     bool operator==(ClientID const&) = delete;
 };
 
+class CServerInfo;
 
 class ENGINE_API IPureServer
 {

@@ -20,8 +20,10 @@ CUICellItem::CUICellItem()
 {
     m_pParentList = NULL;
     m_pData = NULL;
+    m_custom_draw = NULL;
     m_b_already_drawn = false;
     SetAccelerator(0);
+    m_b_destroy_childs = true;
     if (Core.Features.test(xrCore::Feature::show_inv_item_condition))
     {
         m_text = NULL;
@@ -37,13 +39,18 @@ CUICellItem::CUICellItem()
 
 CUICellItem::~CUICellItem()
 {
-    delete_data(m_childs);
+    if (m_b_destroy_childs)
+        delete_data(m_childs);
+
+    delete_data(m_custom_draw);
 }
 
 void CUICellItem::Draw()
 {
     m_b_already_drawn = true;
     inherited::Draw();
+    if (m_custom_draw)
+        m_custom_draw->OnDraw(this);
 };
 
 bool CUICellItem::OnMouse(float x, float y, EUIMessages mouse_action)
@@ -57,10 +64,9 @@ bool CUICellItem::OnMouse(float x, float y, EUIMessages mouse_action)
     }
     else if (mouse_action == WINDOW_MOUSE_MOVE)
     {
-        if (pInput->iGetAsyncKeyState(MOUSE_1) && m_mouse_selected_item && m_mouse_selected_item == this)
+        if (pInput->iGetAsyncBtnState(0) && m_mouse_selected_item && m_mouse_selected_item == this)
         {
-            if (pInput->iGetAsyncKeyState(MOUSE_1, true))
-                GetMessageTarget()->SendMessage(this, DRAG_DROP_ITEM_DRAG, NULL);
+            GetMessageTarget()->SendMessage(this, DRAG_DROP_ITEM_DRAG, NULL);
             return true;
         }
     }
@@ -124,9 +130,7 @@ u32 CUICellItem::ChildsCount() { return m_childs.size(); }
 void CUICellItem::PushChild(CUICellItem* c)
 {
     R_ASSERT(c->ChildsCount() == 0);
-    R_ASSERT(!c->GetParent());
-    R_ASSERT(this != c);
-
+    VERIFY(this != c);
     m_childs.push_back(c);
     UpdateItemText();
 }
@@ -136,14 +140,9 @@ CUICellItem* CUICellItem::PopChild()
     CUICellItem* itm = m_childs.back();
     m_childs.pop_back();
     std::swap(itm->m_pData, m_pData);
-
+    UpdateItemText();
     R_ASSERT(itm->ChildsCount() == 0);
-    R_ASSERT(!itm->GetParent());
-    R_ASSERT(this != itm);
- 
-    itm->SetOwnerList(nullptr);
-    itm->SetParent(nullptr);
-
+    itm->SetOwnerList(NULL);
     return itm;
 }
 
@@ -175,6 +174,13 @@ void CUICellItem::UpdateItemText()
 
         SetText(str);
     }
+}
+
+void CUICellItem::SetCustomDraw(ICustomDrawCell* c)
+{
+    if (m_custom_draw)
+        xr_delete(m_custom_draw);
+    m_custom_draw = c;
 }
 
 void CUICellItem::init()
@@ -324,7 +330,7 @@ void CUICellItem::Update()
 
 void CUICellItem::ColorizeItems(std::initializer_list<CUIDragDropListEx*> args)
 {
-    auto inventoryitem = static_cast<CInventoryItem*>(this->m_pData);
+    auto inventoryitem = reinterpret_cast<CInventoryItem*>(this->m_pData);
     if (!inventoryitem)
         return;
 
@@ -352,9 +358,9 @@ void CUICellItem::ColorizeItems(std::initializer_list<CUIDragDropListEx*> args)
             if (CellItem->GetTextureColor() == Color)
             {
                 if (CellItem->m_select_untradable)
-                    ProcessColorize(CellItem, static_cast<CInventoryItem*>(CellItem->m_pData)->ClrUntradable);
+                    ProcessColorize(CellItem, reinterpret_cast<CInventoryItem*>(CellItem->m_pData)->ClrUntradable);
                 else if (CellItem->m_select_equipped)
-                    ProcessColorize(CellItem, static_cast<CInventoryItem*>(CellItem->m_pData)->ClrEquipped);
+                    ProcessColorize(CellItem, reinterpret_cast<CInventoryItem*>(CellItem->m_pData)->ClrEquipped);
                 else
                     ProcessColorize(CellItem, 0xffffffff);
             }
@@ -386,7 +392,7 @@ void CUICellItem::ColorizeItems(std::initializer_list<CUIDragDropListEx*> args)
             for (u32 i = 0, item_count = DdListEx->ItemsCount(); i < item_count; ++i)
             {
                 CUICellItem* CellItem = DdListEx->GetItemIdx(i);
-                auto invitem = static_cast<CInventoryItem*>(CellItem->m_pData);
+                auto invitem = reinterpret_cast<CInventoryItem*>(CellItem->m_pData);
                 if (invitem && std::find(ColorizeSects.begin(), ColorizeSects.end(), invitem->object().cNameSect()) != ColorizeSects.end())
                 {
                     CellItem->m_select_armament = true;
@@ -405,7 +411,7 @@ void CUICellItem::ColorizeItems(std::initializer_list<CUIDragDropListEx*> args)
             for (u32 i = 0, item_count = DdListEx->ItemsCount(); i < item_count; ++i)
             {
                 CUICellItem* CellItem = DdListEx->GetItemIdx(i);
-                auto invitem = static_cast<CInventoryItem*>(CellItem->m_pData);
+                auto invitem = reinterpret_cast<CInventoryItem*>(CellItem->m_pData);
                 if (invitem)
                 {
                     if (auto Wpn = smart_cast<CWeaponMagazined*>(invitem))

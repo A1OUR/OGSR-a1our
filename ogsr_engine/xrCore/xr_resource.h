@@ -1,39 +1,44 @@
 #pragma once
 
 // resource itself, the base class for all derived resources
-struct xr_resource
+class XRCORE_API xr_resource
 {
-    xr_resource() = default;
-    virtual ~xr_resource() = default;
-
-    xr_resource(xr_resource const& other) { *this = other; }
-    xr_resource& operator=(xr_resource const& other)
-    {
-        ref_count.exchange(other.ref_count);
-        return *this;
-    }
-
-    std::atomic<u32> ref_count{0};
-};
-struct xr_resource_flagged : public xr_resource
-{
+public:
     enum
     {
         RF_REGISTERED = 1 << 0
     };
 
-    u32 dwFlags{0};
+public:
+    u32 dwReference;
+    xr_resource() : dwReference(0) {}
 };
 
-struct xr_resource_named : public xr_resource_flagged
+class XRCORE_API xr_resource_flagged : public xr_resource
 {
-    shared_str cName{0};
+public:
+    enum
+    {
+        RF_REGISTERED = 1 << 0
+    };
+
+public:
+    u32 dwFlags;
+    xr_resource_flagged() : dwFlags(0) {}
+};
+
+class XRCORE_API xr_resource_named : public xr_resource_flagged
+{
+public:
+    shared_str cName;
 
     const char* set_name(const char* name)
     {
         cName = name;
         return *cName;
     }
+    xr_resource_named() : cName(0) {}
+    ~xr_resource_named() {}
 };
 
 // resptr_BASE
@@ -49,14 +54,14 @@ protected:
     {
         if (0 == p_)
             return;
-        ++p_->ref_count;
+        p_->dwReference++;
     }
     void _dec()
     {
         if (0 == p_)
             return;
-        --p_->ref_count;
-        if (0 == p_->ref_count)
+        p_->dwReference--;
+        if (0 == p_->dwReference)
             xr_delete(p_);
     }
 
@@ -64,7 +69,7 @@ public:
     ICF void _set(T* rhs)
     {
         if (0 != rhs)
-            ++rhs->ref_count;
+            rhs->dwReference++;
         _dec();
         p_ = rhs;
     }
@@ -118,7 +123,12 @@ public:
     bool operator!() const { return !C::p_; }
 
     // fast swapping
-    void swap(self& rhs) { std::swap(this->p_, rhs.p_); }
+    void swap(self& rhs)
+    {
+        T* tmp = C::p_;
+        C::p_ = rhs.p_;
+        rhs.p_ = tmp;
+    }
 };
 
 // res_ptr == res_ptr

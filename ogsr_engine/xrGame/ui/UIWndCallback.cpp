@@ -33,8 +33,6 @@ void CUIWndCallback::OnEvent(CUIWindow* pWnd, s16 msg, void* pData)
 
 SCallbackInfo* CUIWndCallback::NewCallback() { return &m_callbacks.emplace_back(); }
 
-CUIWndCallback::~CUIWndCallback() { ClearCallbacks(); }
-
 void CUIWndCallback::AddCallback(LPCSTR control_id, s16 event, const void_function& f)
 {
     SCallbackInfo* c = NewCallback();
@@ -43,10 +41,10 @@ void CUIWndCallback::AddCallback(LPCSTR control_id, s16 event, const void_functi
     c->m_event = event;
 }
 
-void CUIWndCallback::ClearCallbacks()
+void CUIWndCallback::AddCallback(const shared_str& control_id, s16 event, const void_function& f)
 {
-    for (auto& cb : m_callbacks)
-        cb.m_callback.clear();
-
-    m_callbacks.clear();
+    SCallbackInfo* c = NewCallback();
+    c->m_cpp_callback = f;
+    c->m_controlName = control_id;
+    c->m_event = event;
 }

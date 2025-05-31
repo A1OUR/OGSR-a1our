@@ -92,8 +92,6 @@ BOOL CHangingLamp::net_Spawn(CSE_Abstract* DC)
         ambient_bone = K->LL_BoneID(*lamp->light_ambient_bone);
         VERIFY(ambient_bone != BI_NONE);
         collidable.model = xr_new<CCF_Skeleton>(this);
-
-        m_animated = !lamp->startup_animation.empty();
     }
     fBrightness = lamp->brightness;
     clr.set(lamp->color);
@@ -109,7 +107,7 @@ BOOL CHangingLamp::net_Spawn(CSE_Abstract* DC)
     light_render->set_texture(*lamp->light_texture);
     light_render->set_virtual_size(lamp->m_virtual_size);
 
-// todo("адаптировать под новый рендер!")
+#pragma todo("KRodin: адаптировать под новый рендер!")
     // light_render->set_flare(!!lamp->flags.is(CSE_ALifeObjectHangingLamp::flUseFlare));
     // light_render->set_lsf_params(lamp->m_speed, lamp->m_amount, lamp->m_smap_jitter);
 
@@ -219,7 +217,7 @@ void CHangingLamp::UpdateCL()
     if (light_render->get_active())
     {
         if (Visual())
-            PKinematics(Visual())->CalculateBones(m_animated);
+            PKinematics(Visual())->CalculateBones();
 
         // update T&R from light (main) bone
         Fmatrix xf;
@@ -388,7 +386,7 @@ void CHangingLamp::CreateBody(CSE_ALifeObjectHangingLamp* lamp)
 
     /////////////////////////////////////////////////////////////////////////////
     BONE_P_PAIR_IT i = bone_map.begin(), e = bone_map.end();
-    for (; i != e; ++i)
+    for (; i != e; i++)
     {
         CPhysicsElement* fixed_element = i->second.element;
         /// R_ASSERT2(fixed_element,"fixed bone has no physics");
@@ -410,11 +408,11 @@ BOOL CHangingLamp::UsedAI_Locations() { return (FALSE); }
 
 void CHangingLamp::SetLSFParams(float _speed, float _amount, float _jit)
 {
-// todo("адаптировать под новый рендер!")
+#pragma todo("KRodin: адаптировать под новый рендер!")
     // light_render->set_lsf_params(_speed, _amount, _jit);
 }
 
-
+#pragma optimize("s", on)
 void CHangingLamp::script_register(lua_State* L)
 {
     luabind::module(L)[luabind::class_<CHangingLamp, CGameObject>("hanging_lamp")

@@ -105,7 +105,7 @@ bool CLevel::net_start_client5()
         // HUD
 
         // Textures
-        HUD().Load();
+        pHUD->Load();
         g_pGamePersistent->LoadTitle("st_loading_textures");
         Device.m_pRender->DeferredLoad(FALSE);
         Device.m_pRender->ResourcesDeferredUpload();

@@ -1,3 +1,5 @@
+#ifndef DebugRender_included
+#define DebugRender_included
 #pragma once
 
 //#ifdef DEBUG
@@ -30,8 +32,8 @@ public:
     virtual void ZEnable(bool bEnable) = 0;
     virtual void OnFrameEnd() = 0;
     virtual void SetShader(const debug_shader& shader) = 0;
-    virtual void CacheSetXformWorld(const Fmatrix& M) = 0;
-    virtual void CacheSetCullMode(CullMode) = 0;
+    //virtual void CacheSetXformWorld(const Fmatrix& M) = 0;
+    //virtual void CacheSetCullMode(CullMode) = 0;
     virtual void SetAmbient(u32 colour) = 0;
 
     // Shaders
@@ -42,3 +44,5 @@ public:
 };
 
 //#endif // DEBUG
+
+#endif //	DebugRender_included

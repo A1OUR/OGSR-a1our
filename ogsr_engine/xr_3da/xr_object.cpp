@@ -15,12 +15,7 @@
 void CObject::MakeMeCrow_internal() { g_pGameLevel->Objects.o_crow(this); }
 
 void CObject::cName_set(shared_str N) { NameObject = N; }
-void CObject::cNameSect_set(shared_str N)
-{
-    NameSection = N;
-
-    spatial.dbg_name = NameSection;
-}
+void CObject::cNameSect_set(shared_str N) { NameSection = N; }
 
 //#include "SkeletonCustom.h"
 void CObject::cNameVisual_set(shared_str N)
@@ -38,7 +33,7 @@ void CObject::cNameVisual_set(shared_str N)
         NameVisual = N;
         renderable.visual = Render->model_Create(*N);
 
-        IKinematics* old_k = old_v ? old_v->dcast_PKinematics() : nullptr;
+        IKinematics* old_k = old_v ? old_v->dcast_PKinematics() : NULL;
         IKinematics* new_k = renderable.visual->dcast_PKinematics();
 
         /*
@@ -58,7 +53,7 @@ void CObject::cNameVisual_set(shared_str N)
     else
     {
         ::Render->model_Delete(renderable.visual);
-        NameVisual = nullptr;
+        NameVisual = 0;
     }
     OnChangeVisual();
 }
@@ -66,14 +61,14 @@ void CObject::cNameVisual_set(shared_str N)
 // flagging
 void CObject::processing_activate()
 {
-    VERIFY(255 != Props.bActiveCounter, "Invalid sequence of processing enable/disable calls: overflow", *cName());
+    VERIFY3(255 != Props.bActiveCounter, "Invalid sequence of processing enable/disable calls: overflow", *cName());
     Props.bActiveCounter++;
     if (0 == (Props.bActiveCounter - 1))
         g_pGameLevel->Objects.o_activate(this);
 }
 void CObject::processing_deactivate()
 {
-    VERIFY(0 != Props.bActiveCounter, "Invalid sequence of processing enable/disable calls: underflow", *cName());
+    VERIFY3(0 != Props.bActiveCounter, "Invalid sequence of processing enable/disable calls: underflow", *cName());
     Props.bActiveCounter--;
     if (0 == Props.bActiveCounter)
         g_pGameLevel->Objects.o_sleep(this);
@@ -130,16 +125,14 @@ const Fbox& CObject::BoundingBox() const
 //----------------------------------------------------------------------
 CObject::CObject() : ISpatial(g_SpatialSpace)
 {
-    spatial.dbg_name = "CObject";
-
     // Transform
     Props.storage = 0;
 
-    Parent = nullptr;
+    Parent = NULL;
 
-    NameObject = nullptr;
-    NameSection = nullptr;
-    NameVisual = nullptr;
+    NameObject = NULL;
+    NameSection = NULL;
+    NameVisual = NULL;
 
 #ifdef DEBUG
     dbg_update_shedule = u32(-1) / 2;
@@ -149,9 +142,9 @@ CObject::CObject() : ISpatial(g_SpatialSpace)
 
 CObject::~CObject()
 {
-    cNameVisual_set(nullptr);
-    cName_set(nullptr);
-    cNameSect_set(nullptr);
+    cNameVisual_set(0);
+    cName_set(0);
+    cNameSect_set(0);
 }
 
 void CObject::Load(LPCSTR section)
@@ -181,18 +174,18 @@ BOOL CObject::net_Spawn(CSE_Abstract* data)
 
     VERIFY(_valid(renderable.xform));
 
-    if (nullptr == Visual() && pSettings->line_exist(cNameSect(), "visual"))
+    if (0 == Visual() && pSettings->line_exist(cNameSect(), "visual"))
     {
         shared_str visual_name = pSettings->r_string(cNameSect(), "visual");
         Msg("! [%s]: zero Visual() in %s found, use %s instead", __FUNCTION__, cName().c_str(), visual_name.c_str());
         cNameVisual_set(visual_name);
     }
 
-    if (nullptr == collidable.model)
+    if (0 == collidable.model)
     {
         if (pSettings->line_exist(cNameSect(), "cform"))
         {
-            VERIFY(*NameVisual, "Model isn't assigned for object, but cform requisted", *cName());
+            VERIFY3(*NameVisual, "Model isn't assigned for object, but cform requisted", *cName());
             collidable.model = xr_new<CCF_Skeleton>(this);
         }
     }
@@ -221,13 +214,12 @@ void CObject::net_Destroy()
     spatial_unregister();
     //	setDestroy					(true);
     // remove visual
-    cNameVisual_set(nullptr);
+    cNameVisual_set(0);
 }
 
 //////////////////////////////////////////////////////////////////////////
 const float base_spu_epsP = 0.05f;
 const float base_spu_epsR = 0.05f;
-
 void CObject::spatial_update(float eps_P, float eps_R)
 {
     //
@@ -293,17 +285,17 @@ void CObject::UpdateCL()
 {
     // consistency check
 #ifdef DEBUG
-    VERIFY(_valid(renderable.xform), *cName());
+    VERIFY2(_valid(renderable.xform), *cName());
 
     if (Device.dwFrame == dbg_update_cl)
-        FATAL("'UpdateCL' called twice per frame for %s", *cName());
+        Debug.fatal(DEBUG_INFO, "'UpdateCL' called twice per frame for %s", *cName());
     dbg_update_cl = Device.dwFrame;
 
     if (Parent && spatial.node_ptr)
-        FATAL("Object %s has parent but is still registered inside spatial DB", *cName());
+        Debug.fatal(DEBUG_INFO, "Object %s has parent but is still registered inside spatial DB", *cName());
 
     if ((0 == collidable.model) && (spatial.type & STYPE_COLLIDEABLE))
-        FATAL("Object %s registered as 'collidable' but has no collidable model", *cName());
+        Debug.fatal(DEBUG_INFO, "Object %s registered as 'collidable' but has no collidable model", *cName());
 #endif
 
     spatial_update(base_spu_epsP * 5, base_spu_epsR * 5);
@@ -325,8 +317,6 @@ void CObject::UpdateCL()
 
 void CObject::shedule_Update(u32 T)
 {
-    ZoneScoped;
-
     // consistency check
     // Msg						("-SUB-:[%x][%s] CObject::shedule_Update",dynamic_cast<void*>(this),*cName());
     ISheduled::shedule_Update(T);
@@ -361,11 +351,7 @@ CObject::SavedPosition CObject::ps_Element(u32 ID) const
     return PositionStack[ID];
 }
 
-void CObject::renderable_Render(u32 /*context_id*/, IRenderable* /*root*/)
-{
-    if (Device.OnMainThread() || TTAPI->on_pool_thread()) // hack to avoid issues with sun render
-        MakeMeCrow();
-}
+void CObject::renderable_Render() { MakeMeCrow(); }
 
 CObject* CObject::H_SetParent(CObject* new_parent, bool just_before_destroy)
 {
@@ -374,10 +360,10 @@ CObject* CObject::H_SetParent(CObject* new_parent, bool just_before_destroy)
 
     CObject* old_parent = Parent;
 
-    VERIFY((new_parent == 0) || (old_parent == 0), "Before set parent - execute H_SetParent(0)");
+    VERIFY2((new_parent == 0) || (old_parent == 0), "Before set parent - execute H_SetParent(0)");
 
     // if (Parent) Parent->H_ChildRemove	(this);
-    if (nullptr == old_parent)
+    if (0 == old_parent)
         OnH_B_Chield(); // before attach
     else
         OnH_B_Independent(just_before_destroy); // before detach
@@ -386,7 +372,7 @@ CObject* CObject::H_SetParent(CObject* new_parent, bool just_before_destroy)
     else
         spatial_register();
     Parent = new_parent;
-    if (nullptr == old_parent)
+    if (0 == old_parent)
         OnH_A_Chield(); // after attach
     else
         OnH_A_Independent(); // after detach

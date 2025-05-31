@@ -19,5 +19,4 @@ public:
     virtual void Load(const char* N, IReader* data, u32 dwFlags);
     virtual void Copy(dxRender_Visual* pFrom);
     virtual void Release();
-    virtual void MarkAsHot(bool is_hot);
 };

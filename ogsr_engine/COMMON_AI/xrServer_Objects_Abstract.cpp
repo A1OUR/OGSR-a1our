@@ -8,6 +8,8 @@
 
 #include "stdafx.h"
 
+#pragma pack(push, 4)
+
 #include "../xr_3da/NET_Server_Trash/net_utils.h"
 #include "xrServer_Objects_Abstract.h"
 #include "xrMessages.h"
@@ -70,3 +72,5 @@ void CSE_Motion::set_motion(LPCSTR name) { motion_name = name; }
 void CSE_Motion::motion_read(NET_Packet& tNetPacket) { tNetPacket.r_stringZ(motion_name); }
 
 void CSE_Motion::motion_write(NET_Packet& tNetPacket) { tNetPacket.w_stringZ(motion_name); }
+
+#pragma pack(pop)

@@ -1,9 +1,8 @@
 #include "stdafx.h"
 
 #include "ResourceManager.h"
-#include "blenders/Blender_Recorder.h"
-#include "blenders/Blender.h"
-
+#include "blenders\Blender_Recorder.h"
+#include "blenders\Blender.h"
 #include "dxRenderDeviceRender.h"
 
 void CBlender_Compile::r_Pass(LPCSTR _vs, LPCSTR _ps, bool bFog, BOOL bZtest, BOOL bZwrite, BOOL bABlend, D3DBLEND abSRC, D3DBLEND abDST, BOOL aTest, u32 aRef)
@@ -23,9 +22,9 @@ void CBlender_Compile::r_Pass(LPCSTR _vs, LPCSTR _ps, bool bFog, BOOL bZtest, BO
     // Create shaders
     SPS* ps = DEV->_CreatePS(_ps);
     SVS* vs = DEV->_CreateVS(_vs);
-    SGS* gs = DEV->_CreateGS("null");
     dest.ps = ps;
     dest.vs = vs;
+    SGS* gs = DEV->_CreateGS("null");
     dest.gs = gs;
     dest.hs = DEV->_CreateHS("null");
     dest.ds = DEV->_CreateDS("null");
@@ -42,10 +41,10 @@ void CBlender_Compile::r_Pass(LPCSTR _vs, LPCSTR _ps, bool bFog, BOOL bZtest, BO
     }
 }
 
-void CBlender_Compile::r_Constant(LPCSTR name, R_constant_setup* s) const
+void CBlender_Compile::r_Constant(LPCSTR name, R_constant_setup* s)
 {
     R_ASSERT(s);
-    const ref_constant C = ctable.get(name);
+    ref_constant C = ctable.get(name);
     if (C)
         C->handler = s;
 }

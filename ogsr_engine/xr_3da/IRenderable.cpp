@@ -7,8 +7,8 @@
 IRenderable::IRenderable()
 {
     renderable.xform.identity();
-    renderable.visual = nullptr;
-    renderable.pROS = nullptr;
+    renderable.visual = NULL;
+    renderable.pROS = NULL;
     renderable.pROS_Allowed = TRUE;
     ISpatial* self = dynamic_cast<ISpatial*>(this);
     if (self)
@@ -22,13 +22,13 @@ IRenderable::~IRenderable()
     Render->model_Delete(renderable.visual);
     if (renderable.pROS)
         Render->ros_destroy(renderable.pROS);
-    renderable.visual = nullptr;
-    renderable.pROS = nullptr;
+    renderable.visual = NULL;
+    renderable.pROS = NULL;
 }
 
 IRender_ObjectSpecific* IRenderable::renderable_ROS()
 {
-    if (nullptr == renderable.pROS && renderable.pROS_Allowed)
+    if (0 == renderable.pROS && renderable.pROS_Allowed)
         renderable.pROS = Render->ros_create(this);
     return renderable.pROS;
 }

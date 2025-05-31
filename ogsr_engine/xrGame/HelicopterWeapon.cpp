@@ -145,12 +145,13 @@ void CHelicopter::OnShot()
 
     FireBullet(fire_pos, fire_dir, fireDispersionBase, m_CurrentAmmo, ID(), ID(), TRUE);
 
+    StartShotParticles();
     if (m_bLightShotEnabled)
         Light_Start();
 
     StartFlameParticles();
-    StartSmokeParticles(fire_pos, {});
-    OnShellDrop(fire_pos, {});
+    StartSmokeParticles(fire_pos, zero_vel);
+    OnShellDrop(fire_pos, zero_vel);
 
     HUD_SOUND::PlaySound(m_sndShot, fire_pos, this, false);
 }
@@ -328,7 +329,7 @@ void CHelicopter::startRocket(u16 idx)
         Fvector::generate_orthonormal_basis(xform.k, xform.j, xform.i);
         xform.c = rocketXFORM.c;
         VERIFY2(_valid(xform), "CHelicopter::startRocket. Invalid xform");
-        LaunchRocket(xform, vel, {});
+        LaunchRocket(xform, vel, zero_vel);
 
         NET_Packet P;
         u_EventGen(P, GE_LAUNCH_ROCKET, ID());

@@ -128,10 +128,10 @@ void CEatableItemObject::load(IReader& packet)
     CEatableItem::load(packet);
 }
 
-void CEatableItemObject::renderable_Render(u32 context_id, IRenderable* root)
+void CEatableItemObject::renderable_Render()
 {
-    CPhysicItem::renderable_Render(context_id, root);
-    CEatableItem::renderable_Render(context_id, root);
+    CPhysicItem::renderable_Render();
+    CEatableItem::renderable_Render();
 }
 
 void CEatableItemObject::reload(LPCSTR section)

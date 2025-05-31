@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef PH_STATIC_GEOM_SHELL_H
+#define PH_STATIC_GEOM_SHELL_H
 #include "PHGeometryOwner.h"
 #include "PHObject.h"
 
@@ -23,3 +23,4 @@ public:
 CPHStaticGeomShell* P_BuildStaticGeomShell(CGameObject* obj, ObjectContactCallbackFun* object_contact_callback);
 CPHStaticGeomShell* P_BuildStaticGeomShell(CGameObject* obj, ObjectContactCallbackFun* object_contact_callback, Fobb& b);
 void P_BuildStaticGeomShell(CPHStaticGeomShell* shell, CGameObject* obj, ObjectContactCallbackFun* object_contact_callback, Fobb& b);
+#endif

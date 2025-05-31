@@ -1,5 +1,6 @@
 //---------------------------------------------------------------------------
-#pragma once
+#ifndef particle_managerH
+#define particle_managerH
 //---------------------------------------------------------------------------
 #include "particle_actions.h"
 
@@ -51,3 +52,5 @@ public:
     virtual u32 LoadActions(int alist_id, IReader& R, bool copFormat);
 };
 }; // namespace PAPI
+//---------------------------------------------------------------------------
+#endif

@@ -7,38 +7,58 @@
 
 class occTri;
 
-class CHOM : public pureRender
+class CHOM
+#ifdef DEBUG
+    : public pureRender
+#endif
 {
 private:
     xrXRC xrc;
     CDB::MODEL* m_pModel;
     occTri* m_pTris;
-
+    BOOL bEnabled;
     Fmatrix m_xform;
     Fmatrix m_xform_01;
-
+#ifdef DEBUG
     u32 tris_in_frame_visible;
     u32 tris_in_frame;
+#endif
+
+    xrCriticalSection MT;
+    volatile u32 MT_frame_rendered{};
 
     void Render_DB(CFrustum& base);
 
 public:
     void Load();
     void Unload();
+    void Render(CFrustum& base);
+    void Render_ZB();
+    //	void					Debug		();
 
-    void DispatchRender();
+    void occlude(Fbox2& space) {}
+    void Disable();
+    void Enable();
+
+    void MT_RENDER();
+    ICF void MT_SYNC()
+    {
+        if (g_pGamePersistent->m_pMainMenu && g_pGamePersistent->m_pMainMenu->IsActive())
+            return;
+
+        MT_RENDER();
+    }
 
     BOOL visible(vis_data& vis);
-    //BOOL visible(Fbox3& B);
+    BOOL visible(Fbox3& B);
     BOOL visible(sPoly& P);
-    BOOL visible(Fbox2& B, float depth) const; // viewport-space (0..1)
-
-    bool Allowed() const { return !ps_r2_ls_flags_ext.test(R2FLAGEXT_DISABLE_HOM) && m_pModel; }
+    BOOL visible(Fbox2& B, float depth); // viewport-space (0..1)
 
     CHOM();
     ~CHOM();
 
+#ifdef DEBUG
     virtual void OnRender();
-
     void stats();
+#endif
 };

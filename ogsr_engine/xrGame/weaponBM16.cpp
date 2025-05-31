@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "weaponBM16.h"
-#include "../xr_3da/x_ray.h"
 
 CWeaponBM16::~CWeaponBM16() 
 { 
@@ -51,13 +50,8 @@ void CWeaponBM16::OnShot()
         Fvector vel;
         PHGetLinearVell(vel);
         OnShellDrop(get_LastSP(), vel);
-
-        if (ShouldPlayFlameParticles())
-        {
-            StartFlameParticles();
-            ForceUpdateFireParticles();
-        }
-
+        StartFlameParticles();
+        ForceUpdateFireParticles();
         StartSmokeParticles(get_LastFP(), vel);
     }
 }
@@ -72,15 +66,15 @@ void CWeaponBM16::PlayAnimShoot()
                  std::to_string(m_magazine.size()).c_str());
     if (AnimationExist(guns_shoot_anm))
     {
-        PlayHUDMotion(guns_shoot_anm, IS_OGSR_GA, GetState());
+        PlayHUDMotion(guns_shoot_anm, false, GetState());
         return;
     }
 
     switch (m_magazine.size())
     {
-    case 1: PlayHUDMotion({"anim_shoot_1", "anm_shot_1"}, IS_OGSR_GA, GetState()); break;
-    case 2: PlayHUDMotion({"anim_shoot", "anm_shot_2"}, IS_OGSR_GA, GetState()); break;
-    default: PlayHUDMotion({"anim_shoot", "anm_shots"}, IS_OGSR_GA, GetState()); break; // А что, у БМ бывает больше двух патронов?...
+    case 1: PlayHUDMotion({"anim_shoot_1", "anm_shot_1"}, false, GetState()); break;
+    case 2: PlayHUDMotion({"anim_shoot", "anm_shot_2"}, false, GetState()); break;
+    default: PlayHUDMotion({"anim_shoot", "anm_shots"}, false, GetState()); break; // А что, у БМ бывает больше двух патронов?...
     }
 }
 

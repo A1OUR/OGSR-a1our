@@ -159,8 +159,6 @@ BOOL CAI_Crow::net_Spawn(CSE_Abstract* DC)
         CreateSkeleton();
     }
 
-    renderable.visual->ignore_optimization = true;
-
     return R;
 }
 
@@ -294,17 +292,13 @@ void CAI_Crow::UpdateCL()
         XFORM().set(m_pPhysicsShell->mXFORM);
     }
 }
-void CAI_Crow::renderable_Render(u32 context_id, IRenderable* root)
+void CAI_Crow::renderable_Render()
 {
-    if (o_workload_rframe != Device.dwFrame)
-    {
-        // CAI_Crow::renderable_Render вызывается только для ВИДИМЫХ В ЭТОМ КАДРЕ объектов --#SM+#--
-        // из-за этого вороны, видимые в мире, но не видимые в зуме, замедляются - fDeltaTime для кадров линзы не учитывается
-        UpdateWorkload(Device.fTimeDelta * (Device.dwFrame - o_workload_frame));
-        o_workload_rframe = Device.dwFrame;
-    }
-
-    inherited::renderable_Render(context_id, root);
+    // CAI_Crow::renderable_Render вызывается только для ВИДИМЫХ В ЭТОМ КАДРЕ объектов --#SM+#--
+    //из-за этого вороны, видимые в мире, но не видимые в зуме, замедляются - fDeltaTime для кадров линзы не учитывается
+    UpdateWorkload(Device.fTimeDelta * (Device.dwFrame - o_workload_frame));
+    inherited::renderable_Render();
+    o_workload_rframe = Device.dwFrame;
 }
 void CAI_Crow::shedule_Update(u32 DT)
 {

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ANTI_AIM_ABILITY_H_INCLUDED
+#define ANTI_AIM_ABILITY_H_INCLUDED
 
 #include "ai_monster_defs.h"
 #include "control_combase.h"
@@ -59,3 +60,4 @@ private:
     void start_camera_effector();
 };
 
+#endif // ANTI_AIM_ABILITY_H_INCLUDED

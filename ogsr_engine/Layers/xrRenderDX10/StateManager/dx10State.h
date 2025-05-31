@@ -1,3 +1,5 @@
+#ifndef dx10State_included
+#define dx10State_included
 #pragma once
 
 class SimulatorStates;
@@ -14,7 +16,7 @@ public:
     static dx10State* Create(SimulatorStates& state_code);
 
     //	DX9 unified interface
-    HRESULT Apply(CBackend& cmd_list) const;
+    HRESULT Apply();
     void Release();
 
     //	DX10 specific
@@ -47,3 +49,5 @@ private:
     //	Private data
 private:
 };
+
+#endif //	dx10State_included

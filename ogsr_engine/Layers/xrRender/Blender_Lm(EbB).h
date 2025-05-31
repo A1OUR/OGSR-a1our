@@ -2,6 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#if !defined(AFX_BLENDERDEFAULT_H__C12F64EE_43E7_4483_9AC3_29272E0401E7__INCLUDED_2)
+#define AFX_BLENDERDEFAULT_H__C12F64EE_43E7_4483_9AC3_29272E0401E7__INCLUDED_2
 #pragma once
 
 class CBlender_LmEbB : public IBlenderXr
@@ -25,3 +27,5 @@ public:
     CBlender_LmEbB();
     virtual ~CBlender_LmEbB();
 };
+
+#endif // !defined(AFX_BLENDERDEFAULT_H__C12F64EE_43E7_4483_9AC3_29272E0401E7__INCLUDED_2)

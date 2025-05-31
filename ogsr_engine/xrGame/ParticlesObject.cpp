@@ -9,22 +9,23 @@
 #include "..\xr_3da\render.h"
 #include "..\xr_3da\IGame_Persistent.h"
 
-CParticlesObject::CParticlesObject(LPCSTR p_name, BOOL bAutoRemove, bool destroy_on_game_load) : inherited(destroy_on_game_load)
-{
-    Init(p_name, IRender_Sector::INVALID_SECTOR_ID, bAutoRemove);
-}
+const Fvector zero_vel = {0.f, 0.f, 0.f};
 
-void CParticlesObject::Init(LPCSTR p_name, IRender_Sector::sector_id_t sector_id, BOOL bAutoRemove)
+CParticlesObject::CParticlesObject(LPCSTR p_name, BOOL bAutoRemove, bool destroy_on_game_load) : inherited(destroy_on_game_load) { Init(p_name, 0, bAutoRemove); }
+
+void CParticlesObject::Init(LPCSTR p_name, IRender_Sector* S, BOOL bAutoRemove)
 {
     m_bLooped = false;
+    m_bStopping = false;
     m_bAutoRemove = bAutoRemove;
+    float time_limit = 0.0f;
 
     // create visual
     renderable.visual = Render->model_CreateParticles(p_name);
     VERIFY(renderable.visual);
     IParticleCustom* V = smart_cast<IParticleCustom*>(renderable.visual);
     VERIFY(V);
-    const float time_limit = V->GetTimeLimit();
+    time_limit = V->GetTimeLimit();
 
     if (time_limit > 0.f)
     {
@@ -45,7 +46,7 @@ void CParticlesObject::Init(LPCSTR p_name, IRender_Sector::sector_id_t sector_id
 
     // spatial
     spatial.type = 0;
-    spatial.sector_id = sector_id;
+    spatial.sector = S;
 
     // sheduled
     shedule.t_min = 20;
@@ -53,13 +54,16 @@ void CParticlesObject::Init(LPCSTR p_name, IRender_Sector::sector_id_t sector_id
     shedule_register();
 
     dwLastTime = Device.dwTimeGlobal;
+    mt_dt = 0;
 }
 
 //----------------------------------------------------
 CParticlesObject::~CParticlesObject()
 {
+    VERIFY(0 == mt_dt);
+
     //	we do not need this since CPS_Instance does it
-    //	shedule_unregister(true);
+    //	shedule_unregister		();
 }
 
 void CParticlesObject::UpdateSpatial()
@@ -104,31 +108,28 @@ const shared_str CParticlesObject::Name()
 //----------------------------------------------------
 void CParticlesObject::Play(BOOL hudMode)
 {
-    dwLastTime = Device.dwTimeGlobal - 33ul;
-    market = Device.dwFrame - 1;
-
     IParticleCustom* V = smart_cast<IParticleCustom*>(renderable.visual);
     VERIFY(V);
     V->SetHudMode(hudMode);
     V->Play();
-
-    DoWork();
+    dwLastTime = Device.dwTimeGlobal - 33ul;
+    mt_dt = 0;
+    PerformAllTheWork(0);
+    m_bStopping = false;
 }
 
 void CParticlesObject::play_at_pos(const Fvector& pos, BOOL xform)
 {
-    dwLastTime = Device.dwTimeGlobal - 33ul;
-    market = Device.dwFrame - 1;
-
-    Fmatrix m;
-    m.translate(pos);
-
     IParticleCustom* V = smart_cast<IParticleCustom*>(renderable.visual);
     VERIFY(V);
-    V->UpdateParent(m, {}, xform);
+    Fmatrix m;
+    m.translate(pos);
+    V->UpdateParent(m, zero_vel, xform);
     V->Play();
-
-    DoWork();
+    dwLastTime = Device.dwTimeGlobal - 33ul;
+    mt_dt = 0;
+    PerformAllTheWork(0);
+    m_bStopping = false;
 }
 
 void CParticlesObject::Stop(BOOL bDefferedStop)
@@ -136,54 +137,65 @@ void CParticlesObject::Stop(BOOL bDefferedStop)
     IParticleCustom* V = smart_cast<IParticleCustom*>(renderable.visual);
     VERIFY(V);
     V->Stop(bDefferedStop);
+    m_bStopping = true;
 }
 
 void CParticlesObject::shedule_Update(u32 _dt)
 {
     inherited::shedule_Update(_dt);
 
-    if (market < Device.dwFrame - (30 + Random.randI(60))) // если не рендерили на прошлом кадре - ГГ не видит
-    {
-        DoWork();
-    }
-}
-
-void CParticlesObject::DoWork()
-{
     // Update
     if (m_bDead)
         return;
-
-    if (market != Device.dwFrame)
+    u32 dt = Device.dwTimeGlobal - dwLastTime;
+    if (dt)
     {
-        market = Device.dwFrame;
-
-        ZoneScoped;
-
-        const u32 dt = Device.dwTimeGlobal - dwLastTime;
-        if (dt)
+        if constexpr (false)
+        { //. AlexMX comment this line// NO UNCOMMENT - DON'T WORK PROPERLY
+            mt_dt = dt;
+            Device.add_to_seq_parallel(fastdelegate::MakeDelegate(this, &CParticlesObject::PerformAllTheWork_mt));
+        }
+        else
         {
+            mt_dt = 0;
             IParticleCustom* V = smart_cast<IParticleCustom*>(renderable.visual);
             VERIFY(V);
             V->OnFrame(dt);
-
-            dwLastTime = Device.dwTimeGlobal;
         }
-
-        UpdateSpatial();
+        dwLastTime = Device.dwTimeGlobal;
     }
+    UpdateSpatial();
 }
 
-void CParticlesObject::PerformFrame()
+void CParticlesObject::PerformAllTheWork(u32 _dt)
 {
-    DoWork();
+    // Update
+    u32 dt = Device.dwTimeGlobal - dwLastTime;
+    if (dt)
+    {
+        IParticleCustom* V = smart_cast<IParticleCustom*>(renderable.visual);
+        VERIFY(V);
+        V->OnFrame(dt);
+        dwLastTime = Device.dwTimeGlobal;
+    }
+    UpdateSpatial();
+}
+
+void CParticlesObject::PerformAllTheWork_mt()
+{
+    if (0 == mt_dt)
+        return; //???
+    IParticleCustom* V = smart_cast<IParticleCustom*>(renderable.visual);
+    VERIFY(V);
+    V->OnFrame(mt_dt);
+    mt_dt = 0;
 }
 
 void CParticlesObject::SetXFORM(const Fmatrix& m)
 {
     IParticleCustom* V = smart_cast<IParticleCustom*>(renderable.visual);
     VERIFY(V);
-    V->UpdateParent(m, {}, TRUE);
+    V->UpdateParent(m, zero_vel, TRUE);
     renderable.xform.set(m);
     UpdateSpatial();
 }
@@ -200,13 +212,20 @@ Fvector& CParticlesObject::Position() { return renderable.visual->getVisData().s
 
 float CParticlesObject::shedule_Scale() { return Device.vCameraPosition.distance_to(Position()) / 200.f; }
 
-void CParticlesObject::renderable_Render(u32 context_id, IRenderable* root)
+void CParticlesObject::renderable_Render()
 {
-    R_ASSERT(renderable.visual);
-
-    ::Render->add_Visual(context_id, root, renderable.visual, renderable.xform);
+    VERIFY(renderable.visual);
+    u32 dt = Device.dwTimeGlobal - dwLastTime;
+    if (dt)
+    {
+        IParticleCustom* V = smart_cast<IParticleCustom*>(renderable.visual);
+        VERIFY(V);
+        V->OnFrame(dt);
+        dwLastTime = Device.dwTimeGlobal;
+    }
+    ::Render->set_Transform(&renderable.xform);
+    ::Render->add_Visual(renderable.visual);
 }
-
 bool CParticlesObject::IsAutoRemove()
 {
     if (m_bAutoRemove)
@@ -216,7 +235,7 @@ bool CParticlesObject::IsAutoRemove()
 }
 void CParticlesObject::SetAutoRemove(bool auto_remove)
 {
-    VERIFY(!IsLooped());
+    VERIFY(/*m_bStopping || */ !IsLooped());
     m_bAutoRemove = auto_remove;
 }
 

@@ -1,3 +1,5 @@
+#ifndef StatsRender_included
+#define StatsRender_included
 #pragma once
 
 class CGameFont;
@@ -16,3 +18,5 @@ public:
     virtual void GuardDrawCalls(CGameFont& F) = 0;
     virtual void SetDrawParams(IRenderDeviceRender* pRender) = 0;
 };
+
+#endif //	StatsRender_included

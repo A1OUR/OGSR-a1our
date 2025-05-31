@@ -12,8 +12,6 @@
 #include "lmodel.h"
 #include "hmodel.h"
 
-#include "ogse_functions.h"
-
 #include "screenspace_common_noise.h"
 #include "screenspace_common_ripples.h"
 

@@ -6,7 +6,8 @@
 //	Description : steering behaviour classes
 ////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef STEERING_BEHAVIOUR_INCLUDED
+#define STEERING_BEHAVIOUR_INCLUDED
 
 //----------------------------------------------------------
 // Steering Behaviour Namespace
@@ -305,3 +306,5 @@ protected:
 };
 
 } // namespace steering_behaviour
+
+#endif

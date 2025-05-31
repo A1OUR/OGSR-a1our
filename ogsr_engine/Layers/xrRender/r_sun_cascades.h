@@ -24,6 +24,8 @@ struct cascade
     float bias;
     bool reset_chain;
 
+    CSector* cull_sector{};
+
     CFrustum cull_frustum{};
     Fmatrix cull_xform{};
     Fvector3 cull_COP{};

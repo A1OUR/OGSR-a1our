@@ -30,7 +30,8 @@
 
  */
 
-#pragma once
+#ifndef _EQNH
+#define _EQNH
 
 #include "aint.h"
 
@@ -130,3 +131,5 @@ struct PsiEquation
     //
     // int partition(float y, AngleIntList &above,  AngleIntList &below) const;
 };
+
+#endif

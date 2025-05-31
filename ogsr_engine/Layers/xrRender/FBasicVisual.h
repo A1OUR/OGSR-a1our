@@ -1,3 +1,5 @@
+#ifndef FBasicVisualH
+#define FBasicVisualH
 #pragma once
 
 #include "../../xr_3da/vis_common.h"
@@ -25,13 +27,12 @@ struct IRender_Mesh
     ID3DIndexBuffer* p_rm_Indices;
     u32 iBase;
     u32 iCount;
-
     u32 dwPrimitives;
 
     IRender_Mesh()
     {
-        p_rm_Vertices = nullptr;
-        p_rm_Indices = nullptr;
+        p_rm_Vertices = 0;
+        p_rm_Indices = 0;
     }
     virtual ~IRender_Mesh();
 
@@ -44,45 +45,25 @@ private:
 class ECORE_API dxRender_Visual : public IRenderVisual
 {
 public:
-    virtual shared_str getDebugName() const { return dbg_name; }
-    virtual shared_str getDebugInfo() const;
+    shared_str dbg_name;
+    virtual shared_str _BCL getDebugName() { return dbg_name; }
 
     // Common data for rendering
     u32 Type; // visual's type
+    vis_data vis; // visibility-data
     ref_shader shader; // pipe state, shared
     bool IsHudVisual{};
 
-    bool is_level_static{};
-
-    // Simp: параметры для рендера деревьев добавил сюда, чтобы не делать множество dynamic_cast
-    u32 base_crc{};
-    u32 crc[R__NUM_CONTEXTS]{};
-
-    FloraVertData tree_data{};
-
     /************************* Add by Zander *******************************/
-protected:
-    bool _renderFlag{true}; // if false, don`t push this to render / add by Zander
-
-    shared_str dbg_name;
-
-    shared_str dbg_shader_name;
-    shared_str dbg_texture_name;
-
-    u16 dbg_shader_id; // should not be ZERO
-    
-    vis_data vis; // visibility-data
-
+private:
+    bool renderFlag{true}; // if false, don`t push this to render / add by Zander
 public:
-    inline bool getRZFlag() const { return _renderFlag; }
-    inline void setRZFlag(const bool f) { _renderFlag = f; }
+    inline bool getRZFlag() const { return renderFlag; }
+    inline void setRZFlag(const bool f) { renderFlag = f; }
     /************************* End add *************************************/
 
-    virtual void Render(CBackend& cmd_list, float lod, bool use_fast_geo) {} // LOD - Level Of Detail  [0..1], Ignored
-    virtual void RenderInstanced(CBackend& cmd_list, const xr_vector<FloraVertData*>& data) {}
 
-    virtual void select_lod_id(float lod, u32 context_id) {};
-
+    virtual void Render(float LOD){}; // LOD - Level Of Detail  [0..1], Ignored
     virtual void Load(const char* N, IReader* data, u32 dwFlags);
     virtual void Release(); // Shared memory release
     virtual void Copy(dxRender_Visual* from);
@@ -93,11 +74,11 @@ public:
     //	virtual	CKinematicsAnimated*dcast_PKinematicsAnimated	()				{ return 0;	}
     //	virtual IParticleCustom*	dcast_ParticleCustom		()				{ return 0;	}
 
-    virtual vis_data& getVisData() { return vis; }
+    virtual vis_data& _BCL getVisData() { return vis; }
     virtual u32 getType() { return Type; }
 
     dxRender_Visual();
     virtual ~dxRender_Visual();
-
-    virtual void MarkAsHot(bool is_hot);
 };
+
+#endif // !FBasicVisualH

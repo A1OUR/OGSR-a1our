@@ -293,8 +293,6 @@ public:
 
 void COLLIDER::box_query(u32 box_mode, const MODEL* m_def, const Fvector& b_center, const Fvector& b_dim)
 {
-    ZoneScoped;
-
     m_def->syncronize();
 
     // Get nodes

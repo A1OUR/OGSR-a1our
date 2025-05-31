@@ -22,7 +22,6 @@ class CUIEventsWnd : public CUIWindow, public CUIWndCallback
         eActiveTask = 0,
         eAccomplishedTask,
         eFailedTask,
-        eSkipedTask,
         //.						eOwnTask,
         eMaxTask
     };
