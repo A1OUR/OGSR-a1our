@@ -20,7 +20,7 @@
 #include "graph_engine.h"
 #include "../xr_3da/x_ray.h"
 #include "restriction_space.h"
-#include "profiler.h"
+
 #include "mt_config.h"
 #include "gamepersistent.h"
 
@@ -64,7 +64,7 @@ CALifeUpdateManager::CALifeUpdateManager(xrServer* server, LPCSTR section)
 
 CALifeUpdateManager::~CALifeUpdateManager()
 {
-    shedule_unregister();
+    shedule_unregister(true);
     Device.remove_from_seq_parallel(fastdelegate::MakeDelegate(this, &CALifeUpdateManager::update));
 }
 

@@ -183,7 +183,7 @@ protected:
     xr_string m_game_name;
 
 public:
-    virtual void renderable_Render();
+    virtual void renderable_Render(u32 context_id, IRenderable* root) override;
     virtual void OnItemTake(CInventoryItem* inventory_item);
 
     virtual void OnItemBelt(CInventoryItem* inventory_item, EItemPlace previous_place);
