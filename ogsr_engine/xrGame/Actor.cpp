@@ -441,6 +441,7 @@ void CActor::Load(LPCSTR section)
 
     m_news_to_show = READ_IF_EXISTS(pSettings, r_u32, section, "news_to_show", NEWS_TO_SHOW);
     m_SafeRadius = pSettings->r_float(section, "safe_radius");
+    falloff_k = READ_IF_EXISTS(pSettings, r_float, section, "falloff_k", 0);
 }
 
 void CActor::PHHit(SHit& H) { m_pPhysics_support->in_Hit(H, !g_Alive()); }
@@ -1642,7 +1643,7 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
 {
     float base_protection = 0.0f;
     float sum_protection = 0.0f;
-    u32 max_belt = inventory().GetMaxBelt();
+    //u32 max_belt = inventory().GetMaxBelt();
     for (TIItemContainer::iterator it = inventory().m_belt.begin(); inventory().m_belt.end() != it; ++it)
     {
         CArtefact* artefact = smart_cast<CArtefact*>(*it);
@@ -1674,16 +1675,9 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
     //    }
     //}
 
-    //res_hit_power_k -= _af_count;
-    float protection_rest = sum_protection - base_protection;
-    if ((protection_rest != 0.0f) && ((max_belt-1) > 0))
-    {
-        float max_bonus_prot = base_protection * _min((1.0f - log(base_protection)) / 4.5f, (1 - base_protection) * 0.7f);
-        float bonus_prot_k = pow((log((protection_rest / (base_protection * (max_belt - 1))) * 100) / 5), 2);
-        base_protection += max_bonus_prot*bonus_prot_k;
-    }
+    base_protection = base_protection != 0 ? (base_protection * (1-pow(falloff_k, sum_protection/base_protection))) / (1 - falloff_k) : 0;
     float res_hit_power_k = 1.0f - base_protection;
-    return res_hit_power_k > 0 ? res_hit_power_k * hit_power : 0;
+    return res_hit_power_k > 0 ? (res_hit_power_k * hit_power) : (0.01f * hit_power); // резист больше 100 - наносим 1 процент от урона
 }
 
 Fvector CActor::GetMissileOffset() const { return m_vMissileOffset; }
