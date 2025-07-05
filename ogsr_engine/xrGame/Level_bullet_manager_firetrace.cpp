@@ -57,6 +57,7 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
                 if (actor /* || stalker*/)
                 {
                     // попали в актера или сталкера
+                    Msg("Popali1");
                     Fsphere S = cform->getSphere();
                     entity->XFORM().transform_tiny(S.P);
                     float dist = rd.range;
@@ -71,6 +72,7 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
                         CObject* initiator = Level().Objects.net_Find(bullet->parent_id);
                         if (actor)
                         {
+                            Msg("Popali2");
                             // попали в актера
                             float hpf = 1.f;
                             float ahp = actor->HitProbability();
@@ -94,27 +96,30 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
                             }
 
                             ahp = dist_factor * game_difficulty_hit_probability + (1.f - dist_factor) * 1.f;
-                            if (Random.randF(0.f, 1.f) > (ahp * hpf))
+                            //if (Random.randF(0.f, 1.f) > (ahp * hpf))
+                            //{
+                            //    Msg("NePopali1");
+                            //    bRes = FALSE; // don't hit actor
+                            //    play_whine = true; // play whine sound
+                            //}
+                            //else
+                            //{
+                                // real test actor CFORM
+                            bullet_manager.m_rq_results.r_clear();
+
+                            if (cform->RayQuery(bullet_manager.m_rq_results, rd))
                             {
-                                bRes = FALSE; // don't hit actor
-                                play_whine = true; // play whine sound
+                                Msg("Popali3");
+                                bRes = TRUE; // hit actor
+                                play_whine = false; // don't play whine sound
                             }
                             else
                             {
-                                // real test actor CFORM
-                                Level().BulletManager().m_rq_results.r_clear();
-
-                                if (cform->_RayQuery(rd, Level().BulletManager().m_rq_results))
-                                {
-                                    bRes = TRUE; // hit actor
-                                    play_whine = false; // don't play whine sound
-                                }
-                                else
-                                {
-                                    bRes = FALSE; // don't hit actor
-                                    play_whine = true; // play whine sound
-                                }
+                                Msg("NePopali2");
+                                bRes = FALSE; // don't hit actor
+                                play_whine = true; // play whine sound
                             }
+                            //}
                         }
                         // play whine sound
                         if (play_whine)
