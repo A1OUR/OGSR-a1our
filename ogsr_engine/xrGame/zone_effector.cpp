@@ -31,6 +31,8 @@ void CZoneEffector::Activate()
     m_pActor = smart_cast<CActor*>(Level().CurrentEntity());
     if (!m_pActor)
         return;
+    if (!m_pActor->g_Alive())
+        return;
 
     if (!m_pp_effector && m_pp_fname != nullptr)
     {
