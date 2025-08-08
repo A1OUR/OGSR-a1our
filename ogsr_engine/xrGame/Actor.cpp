@@ -433,7 +433,7 @@ void CActor::Load(LPCSTR section)
     CurrentHeight = CameraHeight();
 
     m_news_to_show = READ_IF_EXISTS(pSettings, r_u32, section, "news_to_show", NEWS_TO_SHOW);
-    m_SafeRadius = pSettings->r_float(section, "safe_radius");
+    m_SafeRadius = READ_IF_EXISTS(pSettings, r_float, section, "safe_radius", 0);
     falloff_k = READ_IF_EXISTS(pSettings, r_float, section, "falloff_k", 0);
 }
 
