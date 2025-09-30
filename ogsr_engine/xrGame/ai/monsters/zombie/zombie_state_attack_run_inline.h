@@ -26,7 +26,6 @@ TEMPLATE_SPECIALIZATION
 void CStateZombieAttackRunAbstract::execute()
 {
     float dist = object->EnemyMan.get_enemy()->Position().distance_to(object->Position());
-
     object->path().set_try_min_time(false);
 
     // установка параметров функциональных блоков
@@ -91,29 +90,25 @@ bool CStateZombieAttackRunAbstract::check_start_conditions()
     return false;
 }
 
-#define CHANGE_ACTION_FROM_RUN 10000
+#define CHANGE_ACTION_FROM_RUN 30000
 
 TEMPLATE_SPECIALIZATION
 void CStateZombieAttackRunAbstract::choose_action()
 {
     // for test
-    action = object->HitMemory.is_hit() ? ACT_RUN : ACT_WALK_FWD;
-
     //// check if its a strong monster
     // if (object->Rank() > 50) {
     //	action = object->HitMemory.is_hit() ?  ACT_RUN : ACT_WALK_FWD;
     //	return;
     // }
     //
-    // if ((action == ACT_RUN) && (m_time_action_change + CHANGE_ACTION_FROM_RUN > time())) return;
+    action = ((object->HitMemory.is_hit() || (object->EnemyMan.get_enemy() && ((object->EnemyMan.get_enemy_time_last_seen() + CHANGE_ACTION_FROM_RUN) > time())))) ? ACT_RUN : ACT_WALK_FWD;
 
     //// установка параметров функциональных блоков
     // if (object->HitMemory.is_hit() && (object->conditions().GetHealth() < 0.5f))
     //	action = ACT_RUN;
     // else
     //	action = ACT_WALK_FWD;
-
-    // m_time_action_change = time();
 }
 
 #undef TEMPLATE_SPECIALIZATION
