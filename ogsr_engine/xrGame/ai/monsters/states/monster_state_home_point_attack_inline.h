@@ -144,8 +144,8 @@ void CStateMonsterAttackMoveToHomePointAbstract::critical_finalize()
 TEMPLATE_SPECIALIZATION
 bool CStateMonsterAttackMoveToHomePointAbstract::check_start_conditions()
 {
-    if (!object->at_home())
-        return true;
+    /*if (!object->at_home())
+        return true;*/
 
     if (!object->run_home_point_when_enemy_inaccessible())
         return false;

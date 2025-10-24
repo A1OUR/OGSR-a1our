@@ -84,10 +84,10 @@ bool CStateGroupAttackMoveToHomePointAbstract::enemy_inaccessible()
     {
         return true;
     }
-    if (!object->Home->at_home(enemy_pos))
-    {
-        return true;
-    }
+    //if (!object->Home->at_home(enemy_pos))
+    //{
+    //    return true;
+    //}
 
     if (!ai().level_graph().valid_vertex_position(enemy_pos))
     {
@@ -105,10 +105,10 @@ bool CStateGroupAttackMoveToHomePointAbstract::enemy_inaccessible()
 TEMPLATE_SPECIALIZATION
 bool CStateGroupAttackMoveToHomePointAbstract::check_start_conditions()
 {
-    if (!object->Home->at_home())
+    /*if (!object->Home->at_home())
     {
         return true;
-    }
+    }*/
 
     if (enemy_inaccessible())
     {

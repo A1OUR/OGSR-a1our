@@ -226,8 +226,8 @@ static bool enemy_inaccessible(CBaseMonster* const object)
     if (xz_dist_to_vertex >= 1.2f || y_dist_to_vertex >= 1.2f)
         return true;
 
-    if (!object->Home->at_home(enemy_pos))
-        return true;
+    /*if (!object->Home->at_home(enemy_pos))
+        return true;*/
 
     if (!accessible_epsilon(object, enemy_pos, 1.5f))
         return true;
@@ -266,7 +266,10 @@ void CBaseMonster::update_enemy_accessible_and_at_home_info()
     if (!Home->at_home())
     {
         if (!m_first_tick_object_not_at_home)
+        {
             m_first_tick_object_not_at_home = Device.dwTimeGlobal;
+            //Msg("Not at home");
+        }
     }
     else
         m_first_tick_object_not_at_home = 0;
@@ -280,6 +283,7 @@ void CBaseMonster::update_enemy_accessible_and_at_home_info()
 
     if (::enemy_inaccessible(this))
     {
+        //Msg("Enemy just got inaccessible");
         if (!m_first_tick_enemy_inaccessible)
             m_first_tick_enemy_inaccessible = Device.dwTimeGlobal;
 
