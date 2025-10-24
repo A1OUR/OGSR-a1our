@@ -2,7 +2,7 @@
 
 #include "xrRender_console.h"
 #include "dxRenderDeviceRender.h"
-#include <..\NVIDIA_DLSS\include\nvsdk_ngx.h>
+#include <..\NVIDIA_DLSS\DLSS\include\nvsdk_ngx.h>
 
 u32 r2_SmapSize = 2048;
 constexpr xr_token SmapSizeToken[] = {{"1536x1536", 1536},
@@ -141,14 +141,13 @@ Flags64 ps_r2_ls_flags = {
     R3FLAG_DYN_WET_SURF |
     R3FLAG_VOLUMETRIC_SMOKE |
     R2FLAG_DETAIL_BUMP | 
-    R2FLAG_DOF | 
     R2FLAG_SSFX_HEIGHT_FOG |
     R2FLAG_SSFX_BLOOM |
     R2FLAG_STEEP_PARALLAX | 
     R2FLAG_TONEMAP | 
     R2FLAG_VOLUMETRIC_LIGHTS |
     R2FLAG_EXP_MT_RAIN |
-    // R2FLAG_EXP_MT_SUN |
+    R2FLAG_EXP_MT_SUN |
     R2FLAG_EXP_MT_PARTICLES |
     R2FLAG_EXP_MT_LIGHTS |
     R2FLAG_EXP_MT_BONES |
@@ -267,12 +266,6 @@ BOOL ps_ssfx_terrain_grass_align{TRUE}; // Grass align
 float ps_ssfx_terrain_grass_slope{1.0f}; // Grass slope limit
 
 float ps_ssfx_wpn_dof_2 = 0.5f;
-
-//	x - min (0), y - focus (1.4), z - max (100)
-Fvector3 ps_r2_dof = Fvector3().set(-1.25f, 1.4f, 600.f);
-
-float ps_r2_dof_sky = 30; //	distance to sky
-float ps_r2_dof_kernel_size = 5.0f; //	7.0f
 
 int ps_r3_dyn_wet_surf_opt = 1;
 float ps_r3_dyn_wet_surf_near = 5.f; // 10.0f
@@ -673,7 +666,7 @@ public:
                                 range2 = range * range;
                             }*/
 
-                            dxRender_Visual* dx_vis = (dxRender_Visual*)vis;
+                            dxRender_Visual* dx_vis = smart_cast<dxRender_Visual*>(vis);
 
                             list.emplace_back(dx_vis, _sqrt(distSQ));
 
