@@ -73,6 +73,7 @@ add_to_type_list(CSE_ALifeInventoryItem)
 #define script_type_list save_type_list(CSE_ALifeInventoryItem)
 
     SERVER_ENTITY_DECLARE_BEGIN2(CSE_ALifeItem, CSE_ALifeDynamicObjectVisual, CSE_ALifeInventoryItem) bool m_physics_disabled;
+bool m_needs_random_name;
 
 CSE_ALifeItem(LPCSTR caSection);
 virtual ~CSE_ALifeItem();

@@ -173,7 +173,11 @@ u32 CSE_ALifeInventoryItem::update_rate() const { return (1000); }
 ////////////////////////////////////////////////////////////////////////////
 // CSE_ALifeItem
 ////////////////////////////////////////////////////////////////////////////
-CSE_ALifeItem::CSE_ALifeItem(LPCSTR caSection) : CSE_ALifeDynamicObjectVisual(caSection), CSE_ALifeInventoryItem(caSection) { m_physics_disabled = false; }
+CSE_ALifeItem::CSE_ALifeItem(LPCSTR caSection) : CSE_ALifeDynamicObjectVisual(caSection), CSE_ALifeInventoryItem(caSection) 
+{ 
+    m_needs_random_name = READ_IF_EXISTS(pSettings, r_bool, caSection, "m_needs_random_name", false);
+    m_physics_disabled = false; 
+}
 
 CSE_ALifeItem::~CSE_ALifeItem() {}
 

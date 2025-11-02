@@ -69,6 +69,7 @@ void CMincer::net_Destroy()
 void CMincer::feel_touch_new(CObject* O)
 {
     inherited::feel_touch_new(O);
+
     if (m_eZoneState == eZoneStateBlowout && (m_dwBlowoutExplosionTime > (u32)m_iStateTime))
     {
         CPhysicsShellHolder* GO = smart_cast<CPhysicsShellHolder*>(O);

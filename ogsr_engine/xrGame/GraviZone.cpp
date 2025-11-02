@@ -131,6 +131,9 @@ void CBaseGraviZone ::Affect(SZoneObjectInfo* O)
     if (!GO)
         return;
 
+    if (O->zone_ignore)
+        return;
+
     //////////////////////////////////////////////////////////////////////////
     //	затягиваем объет по направлению к центру зоны
 
@@ -204,6 +207,7 @@ void CBaseGraviZone ::AffectPullDead(CPhysicsShellHolder* GO, const Fvector& thr
 }
 void CBaseGraviZone ::AffectThrow(SZoneObjectInfo* O, CPhysicsShellHolder* GO, const Fvector& throw_in_dir, float dist)
 {
+    
     Fvector position_in_bone_space;
 
     float power = Power(dist); // Power(GO->Position().distance_to(zone_center));

@@ -101,10 +101,22 @@ CSE_Abstract* CALifeSimulatorBase::spawn_item(LPCSTR section, const Fvector& pos
         strcat_s(s_name_replace, "0");
     string16 S1;
     strcat_s(s_name_replace, itoa(abstract->ID, S1, 10));
-    abstract->set_name_replace(s_name_replace);
 
     CSE_ALifeDynamicObject* dynamic_object = smart_cast<CSE_ALifeDynamicObject*>(abstract);
     VERIFY(dynamic_object);
+
+    CSE_ALifeItem* item = smart_cast<CSE_ALifeItem*>(dynamic_object);
+    if (item)
+    {
+        if (item->m_needs_random_name == true)
+        {
+            strcat_s(s_name_replace, "rand");
+            string16 S2;
+            strcat_s(s_name_replace, itoa(Random.randI(0, 9999), S2, 10));
+        }
+    }
+
+    abstract->set_name_replace(s_name_replace);
 
     //оружие спавним с полным магазинои
     CSE_ALifeItemWeapon* weapon = smart_cast<CSE_ALifeItemWeapon*>(dynamic_object);
