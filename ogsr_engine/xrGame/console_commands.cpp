@@ -496,7 +496,6 @@ bool valid_file_name(LPCSTR file_name)
 }
 
 #include "UIGameCustom.h"
-#include "HUDManager.h"
 
 class CCC_ALifeSave : public IConsole_Command
 {

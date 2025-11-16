@@ -19,9 +19,13 @@
 
 #include "HudManager.h"
 #include "UIGameSP.h"
+#include "string_table.h"
+#include "ui/UIMainIngameWnd.h"
 
 #include "patrol_path.h"
 #include "patrol_path_storage.h"
+
+
 
 xr_vector<CLevelChanger*> g_lchangers;
 
@@ -106,12 +110,48 @@ void CLevelChanger::shedule_Update(u32 dt)
 
 extern bool g_block_all_except_movement;
 
+
+#include "UIGameCustom.h"
+
 void CLevelChanger::feel_touch_new(CObject* tpObject)
 {
     CActor* l_tpActor = smart_cast<CActor*>(tpObject);
     VERIFY(l_tpActor);
     if (!l_tpActor->g_Alive())
         return;
+
+    if (m_ini_file && m_ini_file->section_exist("lc_blocked"))
+    {
+        LPCSTR info = m_ini_file->r_string("lc_blocked", "infop");
+        if (!Actor()->HasInfo(info))
+        {
+            LPCSTR message;
+            if (m_ini_file->line_exist("lc_blocked", "message"))
+            {
+                message = m_ini_file->r_string("lc_blocked", "message");
+            }
+            else
+            {
+                message = *CStringTable().translate("st_lc_blocked_default");
+            }
+
+            SDrawStaticStruct* _s = HUD().GetUI()->UIGame()->AddCustomStatic("lc_blocked", true);
+            _s->m_endTime = Device.fTimeGlobal + 3.0f; // 3sec
+            _s->wnd()->SetText(message);
+
+            Fvector p, r;
+            if (get_reject_pos(p, r))
+            {
+                Actor()->MoveActor(p, r);
+                return;
+            }
+            else
+            {
+                Msg("! [%s]: [%s] pt_move_if_reject not found", __FUNCTION__, cName().c_str());
+                return;
+            }
+        }
+    }
 
     if (m_SilentMode || g_block_all_except_movement)
     {
@@ -128,6 +168,7 @@ void CLevelChanger::feel_touch_new(CObject* tpObject)
                 Msg("! [%s]: [%s] pt_move_if_reject not found: m_SilentMode[%u]", __FUNCTION__, cName().c_str(), m_SilentMode);
             }
         }
+
         NET_Packet p;
         p.w_begin(M_CHANGE_LEVEL);
         p.w(&m_game_vertex_id, sizeof(m_game_vertex_id));
