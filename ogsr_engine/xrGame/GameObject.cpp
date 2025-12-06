@@ -490,6 +490,7 @@ void CGameObject::spawn_supplies()
 
     if (!spawn_ini()->section_exist("spawn"))
         return;
+    Msg("gameobject");
 
     LPCSTR N, V;
     float p;

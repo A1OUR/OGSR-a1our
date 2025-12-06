@@ -113,7 +113,7 @@ CSE_Abstract* CALifeSimulatorBase::spawn_item(LPCSTR section, const Fvector& pos
         {
             strcat_s(s_name_replace, "rand");
             string16 S2;
-            strcat_s(s_name_replace, itoa(Random.randI(0, 9999), S2, 10));
+            strcat_s(s_name_replace, _itoa(Random.randI(0, 9999), S2, 10));
         }
     }
 

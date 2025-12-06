@@ -153,6 +153,15 @@ void CLevelChanger::feel_touch_new(CObject* tpObject)
         }
     }
 
+    bool hasinfo = false;
+    LPCSTR infop = "";
+
+    if (m_ini_file && m_ini_file->section_exist("lc_en_passant"))
+    {
+        infop = m_ini_file->r_string("lc_en_passant", "infop");
+        hasinfo = true;
+    }
+
     if (m_SilentMode || g_block_all_except_movement)
     {
         if (m_SilentMode == 2 || g_block_all_except_movement)
@@ -168,6 +177,8 @@ void CLevelChanger::feel_touch_new(CObject* tpObject)
                 Msg("! [%s]: [%s] pt_move_if_reject not found: m_SilentMode[%u]", __FUNCTION__, cName().c_str(), m_SilentMode);
             }
         }
+
+        if (hasinfo) { Actor()->TransferInfo(infop, true); }
 
         NET_Packet p;
         p.w_begin(M_CHANGE_LEVEL);
@@ -242,10 +253,20 @@ void CLevelChanger::ChangeLevel()
     Fvector p, r;
     bool b = get_reject_pos(p, r);
     CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(HUD().GetUI()->UIGame());
+
+
+    bool b2 = false;
+    LPCSTR i = "";
+    if (m_ini_file && m_ini_file->section_exist("lc_en_passant"))
+    {
+        i = m_ini_file->r_string("lc_en_passant", "infop");
+        b2 = true;
+    }
+
     if (pGameSP)
     {
         Actor()->callback(GameObject::eLevelChangerAction)(lua_game_object(), (CUIWindow*)pGameSP->UIChangeLevelWnd);
-        pGameSP->ChangeLevel(m_game_vertex_id, m_level_vertex_id, m_position, m_angles, p, r, b);
+        pGameSP->ChangeLevel(m_game_vertex_id, m_level_vertex_id, m_position, m_angles, p, r, b, i, b2);
     }
 }
 

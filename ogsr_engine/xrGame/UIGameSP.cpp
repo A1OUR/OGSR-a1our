@@ -206,7 +206,7 @@ void CUIGameSP::ReInitShownUI()
 
 extern ENGINE_API BOOL bShowPauseString;
 
-void CUIGameSP::ChangeLevel(GameGraph::_GRAPH_ID game_vert_id, u32 level_vert_id, Fvector pos, Fvector ang, Fvector pos2, Fvector ang2, bool b)
+void CUIGameSP::ChangeLevel(GameGraph::_GRAPH_ID game_vert_id, u32 level_vert_id, Fvector pos, Fvector ang, Fvector pos2, Fvector ang2, bool b, LPCSTR infop, bool b2)
 {
     if (!MainInputReceiver() || MainInputReceiver() != UIChangeLevelWnd)
     {
@@ -217,6 +217,8 @@ void CUIGameSP::ChangeLevel(GameGraph::_GRAPH_ID game_vert_id, u32 level_vert_id
         UIChangeLevelWnd->m_position_cancel = pos2;
         UIChangeLevelWnd->m_angles_cancel = ang2;
         UIChangeLevelWnd->m_b_position_cancel = b;
+        UIChangeLevelWnd->infop = infop;
+        UIChangeLevelWnd->m_b_give_infop = b2;
         m_game->StartStopMenu(UIChangeLevelWnd, true);
     }
 }
@@ -271,6 +273,7 @@ void CChangeLevelWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 
 void CChangeLevelWnd::OnOk()
 {
+    if (m_b_give_infop) { Actor()->TransferInfo(infop, true); }
     Game().StartStopMenu(this, true);
     NET_Packet p;
     p.w_begin(M_CHANGE_LEVEL);
