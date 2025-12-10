@@ -22,7 +22,7 @@ void CSE_ALifeObject::spawn_supplies(LPCSTR ini_string)
         return;
 
     //Msg("alifeobject");
-    Msg("! Full supplies string: [%s]", ini_string);
+    //Msg("! Full supplies string: [%s]", ini_string);
 
     IReader r((void*)(ini_string), strlen(ini_string));
     CInifile ini(&r, FS.get_path("$game_config$")->m_Path);
@@ -40,7 +40,7 @@ void CSE_ALifeObject::spawn_supplies(LPCSTR ini_string)
         {
             if (!N || xr_strlen(N) == 0) continue;
 
-            Msg("* Parsing line: [%s]", N);
+            //Msg("* Parsing line: [%s]", N);
             if (strchr(N, ':'))
             {
                 if (0 == strncmp(N, "group", 5))
@@ -48,7 +48,7 @@ void CSE_ALifeObject::spawn_supplies(LPCSTR ini_string)
                     const char* colon = strchr(N, ':');
                     if (colon)
                     {
-                        Msg("! New group: %s", N);
+                        //Msg("! New group: %s", N);
                         group_total = (u32)atol(colon + 1);
                         group_r = ::Random.randI(group_total);
                         group_chosen = false;

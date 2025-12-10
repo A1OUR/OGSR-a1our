@@ -57,7 +57,7 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
                 if (actor /* || stalker*/)
                 {
                     // попали в актера или сталкера
-                    Msg("Popali1");
+                    //Msg("Popali1");
                     Fsphere S = cform->getSphere();
                     entity->XFORM().transform_tiny(S.P);
                     float dist = rd.range;
@@ -73,7 +73,7 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
                         CBulletManager& bullet_manager = Level().BulletManager();
                         if (actor)
                         {
-                            Msg("Popali2");
+                            //Msg("Popali2");
                             // попали в актера
                             float hpf = 1.f;
                             float ahp = actor->HitProbability();
@@ -110,13 +110,13 @@ BOOL CBulletManager::test_callback(const collide::ray_defs& rd, CObject* object,
 
                             if (cform->RayQuery(bullet_manager.m_rq_results, rd))
                             {
-                                Msg("Popali3");
+                                //Msg("Popali3");
                                 bRes = TRUE; // hit actor
                                 play_whine = false; // don't play whine sound
                             }
                             else
                             {
-                                Msg("NePopali2");
+                                //Msg("NePopali2");
                                 bRes = FALSE; // don't hit actor
                                 play_whine = true; // play whine sound
                             }

@@ -749,34 +749,58 @@ bool CAI_Stalker::fire_make_sense()
     // if we do not have an enemy
     const CEntityAlive* enemy = memory().enemy().selected();
     if (!enemy)
+    {
+        Msg("[%s] fire_make_sense: no enemy selected", *cName());
         return (false);
+    }
 
     if ((pick_distance() + PRECISE_DISTANCE) < Position().distance_to(enemy->Position()))
+    {
+        Msg("[%s] fire_make_sense: enemy too far (beyond effective fire range)", *cName());
         return (false);
+    }
 
     if (_abs(Position().y - enemy->Position().y) > FLOOR_DISTANCE)
+    {
+        Msg("[%s] fire_make_sense: vertical distance too large (different floors?)", *cName());
         return (false);
+    }
 
     if (pick_distance() < NEAR_DISTANCE)
+    {
+        Msg("[%s] fire_make_sense: too close to enemy (melee range, not shooting)", *cName());
         return (false);
+    }
 
     if (memory().visual().visible_right_now(enemy))
         return (true);
 
     u32 last_time_seen = memory().visual().visible_object_time_last_seen(enemy);
     if (last_time_seen == u32(-1))
+    {
+        Msg("[%s] fire_make_sense: enemy never seen", *cName());
         return (false);
+    }
 
     if (Device.dwTimeGlobal > last_time_seen + FIRE_MAKE_SENSE_INTERVAL)
+    {
+        Msg("[%s] fire_make_sense: enemy not seen for too long (> %d ms)", *cName(), FIRE_MAKE_SENSE_INTERVAL);
         return (false);
+    }
 
     // if we do not have a weapon
     if (!best_weapon())
+    {
+        Msg("[%s] fire_make_sense: no best weapon available", *cName());
         return (false);
+    }
 
     // if we do not have automatic weapon
     if (best_weapon()->object().ef_weapon_type() != 6)
+    {
+        Msg("[%s] fire_make_sense: best weapon is not automatic (type=%d, expected=6)", *cName(), best_weapon()->object().ef_weapon_type());
         return (false);
+    }
 
     return (true);
 }
