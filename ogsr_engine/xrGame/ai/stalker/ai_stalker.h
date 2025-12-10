@@ -243,6 +243,7 @@ public:
 public:
     virtual void OnItemTake(CInventoryItem* inventory_item);
     virtual void OnItemDrop(CInventoryItem* inventory_item);
+    float simple_weapon_efectiveness(u32 type, float dist);
     bool item_to_kill();
     bool item_can_kill();
     bool remember_item_to_kill();
