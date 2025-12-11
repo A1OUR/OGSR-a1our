@@ -346,20 +346,25 @@ void CAI_Stalker::OnItemDrop(CInventoryItem* inventory_item)
 
     brain().CStalkerPlanner::m_storage.set_property(StalkerDecisionSpace::eWorldPropertyCriticallyWounded, false);
 }
-
-float CAI_Stalker::simple_weapon_efectiveness(u32 type, float dist)
+// never switch from full to empty
+float CAI_Stalker::simple_weapon_efectiveness(u32 type, float dist, int ammo)
 {
-    int range = (dist <= 10.0f) ? 0 : 1; // 0 = близко, 1 = далеко
+    int range_idx = (dist <= 7.0f) ? 0 : (dist <= 20.0f) ? 1 : (dist <= 35.0f) ? 2 : 3;
 
-    switch (type)
-    {
-    case 5: return (range == 0) ? 3.0f : 2.0f;
-    case 6: return (range == 0) ? 4.0f : 3.0f;
-    case 7: return (range == 0) ? 5.0f : 1.0f;
-    case 8: return (range == 0) ? 2.0f : 4.0f;
-    case 9: return (range == 0) ? 1.0f : 5.0f;
-    default: return 0.0f;
-    }
+    float full_bonus = 0.0f;
+    if (!(ammo == 0))
+        full_bonus = 5.0f;
+
+    static const float efectiveness[5][4] = {
+        {3.0f, 2.0f, 1.0f, 2.0f}, // pistol
+        {4.0f, 4.0f, 2.0f, 3.0f}, // rifle
+        {5.0f, 5.0f, 3.0f, 1.0f}, // shotgun
+        {2.0f, 3.0f, 4.0f, 4.0f}, // sniper
+        {1.0f, 1.0f, 5.0f, 5.0f}  // rpg
+    };
+
+    if (type >= 10 || type < 5) return 0.0f;
+    return efectiveness[type-5][range_idx]+ full_bonus;
 }
 
 void CAI_Stalker::update_best_item_info()
@@ -375,7 +380,8 @@ void CAI_Stalker::update_best_item_info()
         float dist = Position().distance_to(enemy->Position());
 
         float value;
-        value = simple_weapon_efectiveness(m_best_item_to_kill->object().ef_weapon_type(), dist);
+        CWeapon* weapon = smart_cast<CWeapon*>(m_best_item_to_kill);
+        value = simple_weapon_efectiveness(m_best_item_to_kill->object().ef_weapon_type(), dist, weapon->GetAmmoElapsed());
         if (fsimilar(value, m_best_item_value))
             return;
     }
@@ -401,7 +407,8 @@ void CAI_Stalker::update_best_item_info()
                 {
                     const CEntityAlive* enemy = memory().enemy().selected();
                     float dist = Position().distance_to(enemy->Position());
-                    value = simple_weapon_efectiveness((*I)->object().ef_weapon_type(), dist);
+                    CWeapon* weapon = smart_cast<CWeapon*>(*I);
+                    value = simple_weapon_efectiveness((*I)->object().ef_weapon_type(), dist, weapon->GetAmmoElapsed());
                 }
                 else
                     value = (float)(*I)->object().ef_weapon_type();
