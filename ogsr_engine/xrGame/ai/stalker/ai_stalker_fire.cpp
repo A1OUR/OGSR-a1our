@@ -373,21 +373,21 @@ void CAI_Stalker::update_best_item_info()
 
     if (m_item_actuality && m_best_item_to_kill && m_best_item_to_kill->can_kill())
     {
+        float value;
         if (!memory().enemy().selected())
         {
-            return;
+            float dist = 30.0f;
+            value = simple_weapon_efectiveness(m_best_item_to_kill->object().ef_weapon_type(), dist, 0);
         }
         else
         {
             const CEntityAlive* enemy = memory().enemy().selected();
             float dist = Position().distance_to(enemy->Position());
-
-            float value;
             CWeapon* weapon = smart_cast<CWeapon*>(m_best_item_to_kill);
             value = simple_weapon_efectiveness(m_best_item_to_kill->object().ef_weapon_type(), dist, weapon->GetAmmoElapsed());
-            if (fsimilar(value, m_best_item_value))
-                return;
         }
+        if (fsimilar(value, m_best_item_value))
+            return;
     }
 
     // initialize parameters
