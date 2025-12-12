@@ -358,9 +358,9 @@ float CAI_Stalker::simple_weapon_efectiveness(u32 type, float dist, int ammo)
     static const float efectiveness[5][4] = {
         {3.0f, 2.0f, 1.0f, 2.0f}, // pistol
         {4.0f, 4.0f, 2.0f, 3.0f}, // rifle
-        {5.0f, 5.0f, 3.0f, 1.0f}, // shotgun
+        {5.0f, 5.0f, 3.0f, -4.0f}, // shotgun
         {2.0f, 3.0f, 4.0f, 4.0f}, // sniper
-        {1.0f, 1.0f, 5.0f, 5.0f}  // rpg
+        {-4.0f, -4.0f, 5.0f, 5.0f}  // rpg
     };
 
     if (type >= 10 || type < 5) return 0.0f;
@@ -374,16 +374,20 @@ void CAI_Stalker::update_best_item_info()
     if (m_item_actuality && m_best_item_to_kill && m_best_item_to_kill->can_kill())
     {
         if (!memory().enemy().selected())
+        {
             return;
+        }
+        else
+        {
+            const CEntityAlive* enemy = memory().enemy().selected();
+            float dist = Position().distance_to(enemy->Position());
 
-        const CEntityAlive* enemy = memory().enemy().selected();
-        float dist = Position().distance_to(enemy->Position());
-
-        float value;
-        CWeapon* weapon = smart_cast<CWeapon*>(m_best_item_to_kill);
-        value = simple_weapon_efectiveness(m_best_item_to_kill->object().ef_weapon_type(), dist, weapon->GetAmmoElapsed());
-        if (fsimilar(value, m_best_item_value))
-            return;
+            float value;
+            CWeapon* weapon = smart_cast<CWeapon*>(m_best_item_to_kill);
+            value = simple_weapon_efectiveness(m_best_item_to_kill->object().ef_weapon_type(), dist, weapon->GetAmmoElapsed());
+            if (fsimilar(value, m_best_item_value))
+                return;
+        }
     }
 
     // initialize parameters
@@ -411,7 +415,10 @@ void CAI_Stalker::update_best_item_info()
                     value = simple_weapon_efectiveness((*I)->object().ef_weapon_type(), dist, weapon->GetAmmoElapsed());
                 }
                 else
-                    value = (float)(*I)->object().ef_weapon_type();
+                {
+                    float dist = 30.0f;
+                    value = simple_weapon_efectiveness((*I)->object().ef_weapon_type(), dist, 0);
+                }
 
                 if (!fsimilar(value, m_best_item_value) && (value < m_best_item_value))
                     continue;
@@ -424,8 +431,8 @@ void CAI_Stalker::update_best_item_info()
                 }
 
                 VERIFY(fsimilar(value, m_best_item_value));
-                if (m_best_item_to_kill && ((*I)->object().ef_weapon_type() <= m_best_item_to_kill->object().ef_weapon_type()))
-                    continue;
+                //if (m_best_item_to_kill && ((*I)->object().ef_weapon_type() <= m_best_item_to_kill->object().ef_weapon_type()))
+                //    continue;
 
                 m_best_item_value = value;
                 m_best_item_to_kill = *I;
