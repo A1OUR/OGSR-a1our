@@ -329,6 +329,9 @@ protected:
     virtual void LoadFireParams(LPCSTR section, LPCSTR prefix);
 
 public:
+
+    void ApplyUpgrades(LPCSTR flags);
+
     IC const Fvector& get_LastFP()
     {
         UpdateFireDependencies_internal();

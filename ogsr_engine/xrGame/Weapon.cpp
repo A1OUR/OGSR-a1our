@@ -662,6 +662,34 @@ void CWeapon::LoadFireParams(LPCSTR section, LPCSTR prefix)
     CShootingObject::LoadFireParams(section, prefix);
 }
 
+void CWeapon::ApplyUpgrades(LPCSTR flags)
+{
+    if (!flags)
+        return;
+
+    char flags_copy[33];
+    xr_strcpy(flags_copy, sizeof(flags_copy), flags);
+
+    size_t len = xr_strlen(flags_copy);
+    if (len == 0)
+        return;
+
+    Msg("Parsing upgrade flags: [%s]", flags_copy);
+    for (size_t i = 0; i < len; ++i)
+    {
+        char c = flags_copy[i];
+        if (c == '0' || c == '1')
+        {
+            Msg("  Flag[%d] = %s", (int)i, (c == '1') ? "true" : "false");
+        }
+        else
+        {
+            Msg("  Flag[%d] = INVALID CHAR '%c'", (int)i, c);
+        }
+    }
+
+}
+
 BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
 {
     BOOL bResult = inherited::net_Spawn(DC);
@@ -671,17 +699,17 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
     const CALifeSimulator* sim = ai().get_alife();
     if (sim)
     {
-        //string512 S;
-        //Msg("ns");
-        //Msg(_itoa(this->ID(), S, 10));
         const CSE_ALifeDynamicObject* obj = sim->objects().object(this->ID(), true);
         if (obj)
         {
-            Msg(obj->name_replace());
-            //Msg(*obj->s_name);
-            if (NULL != strstr(obj->name_replace(), "my_cool_weapon_upgrade"))
+            /*Msg(obj->name_replace());*/
+            LPCSTR item_name = obj->name_replace();
+            const char* marker = "_upgradefl";
+            const char* p = strstr(item_name, marker);
+            if (NULL != p)
             {
-                fTimeToFire = 60.f / 1200.f;
+                ApplyUpgrades(p + xr_strlen(marker));
+                /*fTimeToFire = 60.f / 1200.f;
                 camDispersion = 0.0f;
                 camDispersion = deg2rad(camDispersion);
                 fireDispersionBase = 0.0f;
@@ -689,17 +717,11 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
                 camMaxAngleHorz = 0.0f;
                 camMaxAngleHorz = deg2rad(camMaxAngleHorz);
                 camMaxAngle = 0.0f;
-                camMaxAngle = deg2rad(camMaxAngle);
+                camMaxAngle = deg2rad(camMaxAngle);*/
+                //m_weight
             }
         }
     }
-    //auto se_obj = alife_object();
-    //if (se_obj)
-    //{
-    //    auto W = smart_cast<CSE_ALifeItemWeapon*>(se_obj);
-    //    /*Msg(se_obj->name_replace());*/
-    //    Msg(*W->s_name);
-    //}
 
     // iAmmoCurrent					= E->a_current;
     iAmmoElapsed = E->a_elapsed;
