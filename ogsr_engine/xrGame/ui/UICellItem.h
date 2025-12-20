@@ -24,6 +24,7 @@ protected:
     CUIProgressBar* m_pConditionState;
     bool m_condition_auto_width;
     CUIStatic* m_text;
+    CUIStatic* m_shild;
     void init();
 
 public:

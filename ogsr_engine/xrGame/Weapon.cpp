@@ -696,31 +696,26 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
 
     auto E = smart_cast<CSE_ALifeItemWeapon*>(DC);
 
-    const CALifeSimulator* sim = ai().get_alife();
-    if (sim)
+
+    /*Msg(cName().c_str());
+    Msg(cNameSect().c_str());*/
+
+    LPCSTR item_name = cName().c_str(); //obj->name_replace();
+    const char* marker = "_upgradefl";
+    const char* p = strstr(item_name, marker);
+    if (NULL != p)
     {
-        const CSE_ALifeDynamicObject* obj = sim->objects().object(this->ID(), true);
-        if (obj)
-        {
-            /*Msg(obj->name_replace());*/
-            LPCSTR item_name = obj->name_replace();
-            const char* marker = "_upgradefl";
-            const char* p = strstr(item_name, marker);
-            if (NULL != p)
-            {
-                ApplyUpgrades(p + xr_strlen(marker));
-                /*fTimeToFire = 60.f / 1200.f;
-                camDispersion = 0.0f;
-                camDispersion = deg2rad(camDispersion);
-                fireDispersionBase = 0.0f;
-                fireDispersionBase = deg2rad(fireDispersionBase);
-                camMaxAngleHorz = 0.0f;
-                camMaxAngleHorz = deg2rad(camMaxAngleHorz);
-                camMaxAngle = 0.0f;
-                camMaxAngle = deg2rad(camMaxAngle);*/
-                //m_weight
-            }
-        }
+        ApplyUpgrades(p + xr_strlen(marker));
+        /*fTimeToFire = 60.f / 1200.f;
+        camDispersion = 0.0f;
+        camDispersion = deg2rad(camDispersion);
+        fireDispersionBase = 0.0f;
+        fireDispersionBase = deg2rad(fireDispersionBase);
+        camMaxAngleHorz = 0.0f;
+        camMaxAngleHorz = deg2rad(camMaxAngleHorz);
+        camMaxAngle = 0.0f;
+        camMaxAngle = deg2rad(camMaxAngle);*/
+        //m_weight
     }
 
     // iAmmoCurrent					= E->a_current;

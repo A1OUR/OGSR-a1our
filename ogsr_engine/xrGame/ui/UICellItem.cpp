@@ -25,6 +25,7 @@ CUICellItem::CUICellItem()
     if (Core.Features.test(xrCore::Feature::show_inv_item_condition))
     {
         m_text = NULL;
+        m_shild = NULL;
         m_pConditionState = NULL;
         m_condition_auto_width = false;
         init();

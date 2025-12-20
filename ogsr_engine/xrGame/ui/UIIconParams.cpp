@@ -16,6 +16,12 @@ void CIconParams::Load(const shared_str& item_section)
     loaded = true;
 }
 
+void CIconParams::UpdateGroup(const u32 new_icon_group)
+{
+    icon_group = new_icon_group;
+    loaded = true;
+}
+
 ui_shader& CIconParams::get_shader() const { return InventoryUtilities::GetEquipmentIconsShader(icon_group); }
 
 Frect& CIconParams::original_rect() const

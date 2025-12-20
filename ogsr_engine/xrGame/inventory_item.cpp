@@ -169,6 +169,11 @@ void CInventoryItem::ChangeCondition(float fDeltaCondition)
     }
 }
 
+void CInventoryItem::UpdateIconGroup(u32 new_icon_group)
+{
+    m_icon_params.UpdateGroup(new_icon_group);
+}
+
 void CInventoryItem::SetSlot(u8 slot)
 {
     if (GetSlotsCount() == 0 && slot < (u8)NO_ACTIVE_SLOT)

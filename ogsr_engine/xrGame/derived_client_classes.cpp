@@ -175,6 +175,8 @@ void CInventoryScript::script_register(lua_State* L)
             .def_readwrite("psy_health_restore_speed", &CInventoryItem::m_fPsyHealthRestoreSpeed)
             .def_readwrite("radiation_restore_speed", &CInventoryItem::m_fRadiationRestoreSpeed)
 
+            .def("update_icon_group", &CInventoryItem::UpdateIconGroup)
+
             //.property("class_name"						,			&get_lua_class_name)
             .property("inv_name", &get_item_name, &set_item_name)
             .property("inv_name_short", &get_item_name_short, &set_item_name_short)

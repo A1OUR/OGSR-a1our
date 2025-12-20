@@ -16,6 +16,7 @@ public:
     CIconParams(const shared_str& section) { Load(section); }
 
     void Load(const shared_str& item_section);
+    void UpdateGroup(const u32 new_icon_group);
     ui_shader& get_shader() const;
     Frect& original_rect() const;
     void set_shader(CUIStatic*);

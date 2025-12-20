@@ -167,6 +167,8 @@ public:
 
     void ChangeCondition(float fDeltaCondition);
 
+    void UpdateIconGroup(u32 new_icon_group);
+
     virtual void SetCondition(float fNewCondition)
     {
         m_fCondition = fNewCondition;
