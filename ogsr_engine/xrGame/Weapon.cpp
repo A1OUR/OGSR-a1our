@@ -223,11 +223,28 @@ constexpr const char* wpn_silencer_def_bone = "wpn_silencer";
 constexpr const char* wpn_launcher_def_bone_shoc = "wpn_launcher";
 constexpr const char* wpn_launcher_def_bone_cop = "wpn_grenade_launcher";
 
+#include "alife_simulator.h"
+#include "alife_object_registry.h"
+
 void CWeapon::Load(LPCSTR section)
 {
     inherited::Load(section);
     CShootingObject::Load(section);
 
+    /*const CALifeSimulator* sim = ai().get_alife();
+    if (sim)
+    {   
+        string512 S;
+        Msg("l");
+        Msg(_itoa(this->ID(),S,10));
+        const CSE_ALifeDynamicObject* obj = sim->objects().object(this->ID(), true);
+        if (obj)
+        {
+            Msg(obj->name());
+            Msg(*obj->s_name);
+        }
+    }*/
+    
     if (pSettings->line_exist(section, "flame_particles_2"))
         m_sFlameParticles2 = pSettings->r_string(section, "flame_particles_2");
 
@@ -651,6 +668,39 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
 
     auto E = smart_cast<CSE_ALifeItemWeapon*>(DC);
 
+    const CALifeSimulator* sim = ai().get_alife();
+    if (sim)
+    {
+        //string512 S;
+        //Msg("ns");
+        //Msg(_itoa(this->ID(), S, 10));
+        const CSE_ALifeDynamicObject* obj = sim->objects().object(this->ID(), true);
+        if (obj)
+        {
+            Msg(obj->name_replace());
+            //Msg(*obj->s_name);
+            if (NULL != strstr(obj->name_replace(), "my_cool_weapon_upgrade"))
+            {
+                fTimeToFire = 60.f / 1200.f;
+                camDispersion = 0.0f;
+                camDispersion = deg2rad(camDispersion);
+                fireDispersionBase = 0.0f;
+                fireDispersionBase = deg2rad(fireDispersionBase);
+                camMaxAngleHorz = 0.0f;
+                camMaxAngleHorz = deg2rad(camMaxAngleHorz);
+                camMaxAngle = 0.0f;
+                camMaxAngle = deg2rad(camMaxAngle);
+            }
+        }
+    }
+    //auto se_obj = alife_object();
+    //if (se_obj)
+    //{
+    //    auto W = smart_cast<CSE_ALifeItemWeapon*>(se_obj);
+    //    /*Msg(se_obj->name_replace());*/
+    //    Msg(*W->s_name);
+    //}
+
     // iAmmoCurrent					= E->a_current;
     iAmmoElapsed = E->a_elapsed;
 
@@ -678,7 +728,7 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
         // нож автоматически заряжается двумя патронами, хотя
         // размер магазина у него 0. Что бы зря не ругаться, проверим
         // что в конфиге размер магазина не нулевой.
-        if (iMagazineSize && iAmmoElapsed > (iMagazineSize + 1))
+        /*if (iMagazineSize && iAmmoElapsed > (iMagazineSize + 1))
         {
             Msg("! [%s]: %s: wrong iAmmoElapsed[%u/%u]", __FUNCTION__, cName().c_str(), iAmmoElapsed, iMagazineSize);
             iAmmoElapsed = iMagazineSize;
@@ -688,7 +738,7 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
                 auto W = smart_cast<CSE_ALifeItemWeapon*>(se_obj);
                 W->a_elapsed = iAmmoElapsed;
             }
-        }
+        }*/
         m_fCurrentCartirdgeDisp = m_DefaultCartridge.m_kDisp;
         for (int i = 0; i < iAmmoElapsed; ++i)
             m_magazine.push_back(m_DefaultCartridge);

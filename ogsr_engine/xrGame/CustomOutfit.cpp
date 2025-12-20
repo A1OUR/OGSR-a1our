@@ -47,7 +47,7 @@ void CCustomOutfit::net_Export(CSE_Abstract* E)
 void CCustomOutfit::Load(LPCSTR section)
 {
     inherited::Load(section);
-
+    Msg("[%s] is an outfit", *cName());
     m_HitTypeProtection[ALife::eHitTypeBurn] = pSettings->r_float(section, "burn_protection");
     m_HitTypeProtection[ALife::eHitTypeStrike] = pSettings->r_float(section, "strike_protection");
     m_HitTypeProtection[ALife::eHitTypeShock] = pSettings->r_float(section, "shock_protection");

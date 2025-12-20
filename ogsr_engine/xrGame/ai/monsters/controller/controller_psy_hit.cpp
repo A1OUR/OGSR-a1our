@@ -59,7 +59,7 @@ bool CControllerPsyHit::check_start_conditions()
 
     if (m_man->is_captured_pure())
     {
-        return false;;
+        return false;
     }
 
     if (Actor()->Cameras().GetCamEffector(eCEControllerPsyHit))
