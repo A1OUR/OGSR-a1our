@@ -674,13 +674,45 @@ void CWeapon::ApplyUpgrades(LPCSTR flags)
     if (len == 0)
         return;
 
+    UpdateIconGroup(9);
+
     Msg("Parsing upgrade flags: [%s]", flags_copy);
+
+    LPCSTR section_name = cNameSect().c_str();
+
+    u32 base_m_cost = pSettings->r_u32(section_name, "cost");
+    float base_m_weight = pSettings->r_float(section_name, "inv_weight");
+    float base_fTimeToFire = pSettings->r_float(section_name, "rpm");
+    float base_camMaxAngleHorz = pSettings->r_float(section_name, "cam_max_angle_horz");
+    float base_camMaxAngle = pSettings->r_float(section_name, "cam_max_angle");
+
+    u32 add_m_cost = 0;
+    float add_m_weight = 0;
+    float add_fTimeToFire = 0.0f;
+    float add_camMaxAngleHorz = 0.0f;
+    float add_camMaxAngle = 0.0f;
+
     for (size_t i = 0; i < len; ++i)
     {
         char c = flags_copy[i];
         if (c == '0' || c == '1')
         {
-            Msg("  Flag[%d] = %s", (int)i, (c == '1') ? "true" : "false");
+            string128 upgrade_section;
+            xr_strcpy(upgrade_section, sizeof(upgrade_section), section_name);
+            xr_strcat(upgrade_section, sizeof(upgrade_section), "_upgrade_");
+            string16 id_str;
+            _itoa((int)i, id_str, 10);
+            xr_strcat(upgrade_section, sizeof(upgrade_section), id_str);
+            LPCSTR final_name = upgrade_section;
+            Msg("  Flag[%d] = %s, final: %s", (int)i, (c == '1') ? "true" : "false", final_name);
+            if (pSettings && pSettings->section_exist(final_name))
+            {
+                add_m_cost += READ_IF_EXISTS(pSettings, r_u32, final_name, "cost", 0);
+                add_m_weight += READ_IF_EXISTS(pSettings, r_float, final_name, "inv_weight", 0.0f);
+                add_fTimeToFire += READ_IF_EXISTS(pSettings, r_float, final_name, "rpm", 0.0f);
+                add_camMaxAngleHorz += READ_IF_EXISTS(pSettings, r_float, final_name, "cam_max_angle_horz", 0.0f);
+                add_camMaxAngle += READ_IF_EXISTS(pSettings, r_float, final_name, "cam_max_angle", 0.0f);
+            }
         }
         else
         {
@@ -688,6 +720,19 @@ void CWeapon::ApplyUpgrades(LPCSTR flags)
         }
     }
 
+    /*camDispersion = 0.0f;
+    camDispersion = deg2rad(camDispersion);
+    fireDispersionBase = 0.0f;
+    fireDispersionBase = deg2rad(fireDispersionBase);*/
+    m_cost = base_m_cost + add_m_cost;
+
+    m_weight = base_m_weight + add_m_weight;
+
+    fTimeToFire = 60.f / (base_fTimeToFire + add_fTimeToFire);
+
+    camMaxAngleHorz = deg2rad(base_camMaxAngleHorz - add_camMaxAngleHorz);
+
+    camMaxAngle = deg2rad(base_camMaxAngle - add_camMaxAngle);
 }
 
 BOOL CWeapon::net_Spawn(CSE_Abstract* DC)

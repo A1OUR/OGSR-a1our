@@ -120,6 +120,9 @@ void CLevelChanger::feel_touch_new(CObject* tpObject)
     if (!l_tpActor->g_Alive())
         return;
 
+    if (!m_ini_file)
+        return;
+
     if (m_ini_file && m_ini_file->section_exist("lc_blocked"))
     {
         LPCSTR info = m_ini_file->r_string("lc_blocked", "infop");

@@ -392,6 +392,7 @@ protected:
     virtual void OnShot(){};
     virtual void AddShotEffector();
     virtual void RemoveShotEffector();
+public:
     virtual void ClearShotEffector();
 
 public:

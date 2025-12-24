@@ -396,7 +396,7 @@ void CAI_Stalker::update_best_item_info()
     m_best_ammo = 0;
     m_best_found_item_to_kill = 0;
     m_best_found_ammo = 0;
-    m_best_item_value = 0.f;
+    m_best_item_value = -100.f;
 
     // try to find the best item which can kill
     {
