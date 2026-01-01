@@ -46,7 +46,6 @@ public:
     IC BOOL IsWorking() const { return bWorking; }
     virtual bool ParentIsActor() const { return false; }
 
-protected:
     // Weapon fires now
     bool bWorking;
 
@@ -150,6 +149,9 @@ public:
     float m_fPredBulletTime;
     float m_fTimeToAim;
     BOOL m_bUseAimBullet;
+    float base_fireDispersionBase;
+    float add_fireDispersionBase;
+    bool upgrades_loaded = false;
 
 protected:
     //имя пратиклов для огня

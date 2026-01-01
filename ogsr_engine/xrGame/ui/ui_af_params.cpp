@@ -25,6 +25,8 @@ LPCSTR af_item_sect_names[] = {
     "psy_health_restore_speed",
     "additional_inventory_weight",
     "additional_inventory_weight2",
+    "hit_power_koef",
+    "actual_rpm",
 
     "burn_immunity",
     "strike_immunity",
@@ -47,6 +49,8 @@ LPCSTR af_item_param_names[] = {
     "ui_inv_psy_health",
     "ui_inv_additional_weight",
     "ui_inv_additional_weight2",
+    "hit_power_koef",
+    "actual_rpm",
 
     "ui_inv_outfit_burn_protection", // "(burn_imm)",
     "ui_inv_outfit_strike_protection", // "(strike_imm)",
@@ -86,8 +90,12 @@ void CUIArtefactParams::InitFromXml(CUIXml& xml_doc)
 
 bool CUIArtefactParams::Check(const shared_str& af_section) { return !!pSettings->line_exist(af_section, "af_actor_properties"); }
 #include "../string_table.h"
-void CUIArtefactParams::SetInfo(const shared_str& af_section)
+#include "../Inventory_Item.h"
+#include "../PhysicsShellHolder.h"
+#include "Weapon.h"
+void CUIArtefactParams::SetInfo(CInventoryItem* pInvItem)
 {
+    const shared_str& af_section = pInvItem->object().cNameSect();
     string128 _buff;
     float _h = 0.0f;
     DetachAll();
@@ -99,6 +107,7 @@ void CUIArtefactParams::SetInfo(const shared_str& af_section)
             continue;
 
         float _val;
+        CWeapon* pWpn = pInvItem->cast_weapon();
         if (i == _item_additional_inventory_weight)
         {
             _val = READ_IF_EXISTS(pSettings, r_float, af_section, af_item_sect_names[i], 0.f);
@@ -114,6 +123,51 @@ void CUIArtefactParams::SetInfo(const shared_str& af_section)
             if (fis_zero(_val))
                 continue;
         }
+        else if (i == _item_hit_power_koef)
+        {
+            if (!pWpn)
+                continue;
+            _val = (pInvItem->cast_weapon())->fvHitPower[egdMaster] * 100.f;
+            if (fis_zero(_val))
+                continue;
+        }
+        else if (i == _item_actual_rpm)
+        {
+            if (!pWpn)
+                continue;
+            float _base = pWpn->base_fTimeToFire;
+            float _add = pWpn->add_fTimeToFire;
+            _val = _base + _add;
+
+            if (fis_zero(_val))
+                continue;
+
+            LPCSTR _color = "%c[green]";
+            if (fis_zero(_add))
+            {
+                sprintf_s(_buff, "%s %s %.0f",
+                    CStringTable().translate(af_item_param_names[i]).c_str(),
+                    _color,
+                    _base);
+            }
+            else
+            {
+                sprintf_s(_buff, "%s %s %.0f (%.0f %s %.0f)",
+                    CStringTable().translate(af_item_param_names[i]).c_str(),
+                    _color,
+                    _val,
+                    _base,
+                    (_add >= 0 ? "+" : "-"),
+                    abs(_add));
+            }
+
+            _s->SetText(_buff);
+            _s->SetWndPos(_s->GetWndPos().x, _h);
+            _h += _s->GetWndSize().y;
+            AttachChild(_s);
+
+            continue;
+        }
         else if (i < _max_item_index1)
         {
             float _actor_val = pSettings->r_float("actor_condition", af_actor_param_names[i]);
@@ -126,6 +180,8 @@ void CUIArtefactParams::SetInfo(const shared_str& af_section)
         }
         else
         {
+            if (pInvItem->cast_weapon())
+                continue;
             shared_str _sect = pSettings->r_string(af_section, "hit_absorbation_sect");
             _val = pSettings->r_float(_sect, af_item_sect_names[i]);
             if (fsimilar(_val, 1.0f))
@@ -134,6 +190,8 @@ void CUIArtefactParams::SetInfo(const shared_str& af_section)
             _val *= 100.0f;
         }
         LPCSTR _sn = "%";
+        LPCSTR _fmt = "%s %s %+.0f%s";
+
         if (i == _item_radiation_restore_speed || i == _item_power_restore_speed)
         {
             _val /= 100.0f;
@@ -141,6 +199,11 @@ void CUIArtefactParams::SetInfo(const shared_str& af_section)
         }
         else if (i == _item_additional_inventory_weight || i == _item_additional_inventory_weight2)
             _sn = "";
+        else if (i == _item_hit_power_koef || i == _item_actual_rpm)
+        {
+            _sn = "";
+            _fmt = "%s %s %.0f%s";
+        }
 
         LPCSTR _color = (_val > 0) ? "%c[green]" : "%c[red]";
 
@@ -150,7 +213,9 @@ void CUIArtefactParams::SetInfo(const shared_str& af_section)
         if (i == _item_bleeding_restore_speed || i == _item_radiation_restore_speed)
             _color = (_val > 0) ? "%c[red]" : "%c[green]";
 
-        sprintf_s(_buff, "%s %s %+.0f%s", CStringTable().translate(af_item_param_names[i]).c_str(), _color, _val, _sn);
+
+
+        sprintf_s(_buff, _fmt, CStringTable().translate(af_item_param_names[i]).c_str(), _color, _val, _sn);
         _s->SetText(_buff);
         _s->SetWndPos(_s->GetWndPos().x, _h);
         _h += _s->GetWndSize().y;

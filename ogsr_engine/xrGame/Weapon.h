@@ -411,10 +411,18 @@ public:
     //отдача при стрельбе
     float camMaxAngle;
     float camRelaxSpeed;
+    float base_camRelaxSpeed;
+    float add_camRelaxSpeed;
     float camRelaxSpeed_AI;
     float camDispersion;
+    float base_camDispersion;
+    float add_camDispersion;
     float camDispersionInc;
+    float base_camDispersionInc;
+    float add_camDispersionInc;
     float camDispertionFrac;
+    float base_camDispertionFrac;
+    float add_camDispertionFrac;
     float camMaxAngleHorz;
     float camStepAngleHorz;
 
@@ -700,5 +708,34 @@ private:
 
 public:
     void update_visual_bullet_textures(const bool forced = false);
+    u32 base_m_cost;
+    float base_m_weight;
+    float base_fTimeToFire;
+    float base_camMaxAngleHorz;
+    float base_camMaxAngle;
+    
+    float base_camStepAngleHorz;
+
+    float base_fireDispersionConditionFactor;
+    float base_misfireProbability;
+    float base_misfireConditionK;
+    float base_conditionDecreasePerShot;
+
+    u32 base_iMagazineSize;
+
+    u32 add_m_cost;
+    float add_m_weight;
+    float add_fTimeToFire;
+    float add_camMaxAngleHorz;
+    float add_camMaxAngle;
+    
+    float add_camStepAngleHorz;
+
+    float add_fireDispersionConditionFactor;
+    float add_misfireProbability;
+    float add_misfireConditionK;
+    float add_conditionDecreasePerShot;
+
+    u32 add_iMagazineSize;
 
 };

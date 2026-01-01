@@ -217,19 +217,19 @@ void CAI_Stalker::Hit(SHit* pHDS)
     if (HDS.ignore_flag)
         return;
     //хит может меняться в зависимости от ранга (новички получают больше хита, чем ветераны)
-    HDS.power *= m_fRankImmunity;
+    // HDS.power *= m_fRankImmunity; // hehe 1
     if (m_boneHitProtection && HDS.hit_type == ALife::eHitTypeFireWound)
     {
-#ifdef APPLY_ARMOR_PIERCING_TO_NPC
-        float BoneArmour = m_boneHitProtection->getBoneArmour(HDS.bone()) * (1 - pHDS->ap);
-#else
-        float BoneArmour = m_boneHitProtection->getBoneArmour(HDS.bone());
-#endif // APPLY_ARMOR_PIERCING_TO_NPC
-        float NewHitPower = HDS.damage() - BoneArmour;
-        if (NewHitPower < HDS.power * m_boneHitProtection->m_fHitFrac)
-            HDS.power = HDS.power * m_boneHitProtection->m_fHitFrac;
-        else
-            HDS.power = NewHitPower;
+//#ifdef APPLY_ARMOR_PIERCING_TO_NPC // hehe 2
+//        float BoneArmour = m_boneHitProtection->getBoneArmour(HDS.bone()) * (1 - pHDS->ap);
+//#else
+//        float BoneArmour = m_boneHitProtection->getBoneArmour(HDS.bone());
+//#endif // APPLY_ARMOR_PIERCING_TO_NPC
+//        float NewHitPower = HDS.damage() - BoneArmour;
+//        if (NewHitPower < HDS.power * m_boneHitProtection->m_fHitFrac)
+//            HDS.power = HDS.power * m_boneHitProtection->m_fHitFrac;
+//        else
+//            HDS.power = NewHitPower;
 
         if (wounded())
             HDS.power = 1000.f;

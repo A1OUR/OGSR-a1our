@@ -1,5 +1,6 @@
 #pragma once
 #include "UIWindow.h"
+#include "../Inventory_Item.h"
 
 class CUIXml;
 class CUIStatic;
@@ -11,7 +12,7 @@ public:
     virtual ~CUIArtefactParams();
     void InitFromXml(CUIXml& xml_doc);
     bool Check(const shared_str& af_section);
-    void SetInfo(const shared_str& af_section);
+    void SetInfo(CInventoryItem* pInvItem);
 
 protected:
     enum
@@ -29,7 +30,10 @@ protected:
 
         _max_item_index1,
 
-        _item_burn_immunity = _max_item_index1,
+        _item_hit_power_koef = _max_item_index1,
+        _item_actual_rpm,
+
+        _item_burn_immunity,
         _item_strike_immunity,
         _item_shock_immunity,
         _item_wound_immunity,

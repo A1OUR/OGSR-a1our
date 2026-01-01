@@ -98,8 +98,15 @@ void CShootingObject::LoadFireParams(LPCSTR section, LPCSTR prefix)
     string32 buffer;
     shared_str s_sHitPower;
     //базовая дисперсия оружия
-    fireDispersionBase = pSettings->r_float(section, "fire_dispersion_base");
-    fireDispersionBase = deg2rad(fireDispersionBase);
+    if (upgrades_loaded)
+    {
+        fireDispersionBase = deg2rad(base_fireDispersionBase + add_fireDispersionBase);
+    }
+    else
+    {
+        fireDispersionBase = pSettings->r_float(section, "fire_dispersion_base");
+        fireDispersionBase = deg2rad(fireDispersionBase);
+    }
     constDeviation.pitch = READ_IF_EXISTS(pSettings, r_float, section, "const_deviation_pitch", 0);
     constDeviation.yaw = READ_IF_EXISTS(pSettings, r_float, section, "const_deviation_yaw", 0);
 

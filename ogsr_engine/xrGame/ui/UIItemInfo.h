@@ -32,7 +32,7 @@ public:
     void InitItem(CInventoryItem* pInvItem);
 
     void TryAddWpnInfo(CPhysicsShellHolder& obj);
-    void TryAddArtefactInfo(const shared_str& af_section);
+    void TryAddArtefactInfo(CInventoryItem* pInvItem);
     void TryAddCustomInfo(CPhysicsShellHolder& obj);
 
     virtual void Draw();

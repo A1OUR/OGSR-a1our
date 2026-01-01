@@ -648,16 +648,25 @@ void CWeapon::Load(LPCSTR section)
 
 void CWeapon::LoadFireParams(LPCSTR section, LPCSTR prefix)
 {
-    camDispersion = pSettings->r_float(section, "cam_dispersion");
-    camDispersion = deg2rad(camDispersion);
-
-    if (pSettings->line_exist(section, "cam_dispersion_inc"))
+    if (upgrades_loaded)
     {
-        camDispersionInc = pSettings->r_float(section, "cam_dispersion_inc");
-        camDispersionInc = deg2rad(camDispersionInc);
+        camDispersion = deg2rad(base_camDispersion + add_camDispersion);
+
+        camDispersionInc = deg2rad(base_camDispersionInc + add_camDispersionInc);
     }
     else
-        camDispersionInc = 0;
+    {
+        camDispersion = pSettings->r_float(section, "cam_dispersion");
+        camDispersion = deg2rad(camDispersion);
+
+        if (pSettings->line_exist(section, "cam_dispersion_inc"))
+        {
+            camDispersionInc = pSettings->r_float(section, "cam_dispersion_inc");
+            camDispersionInc = deg2rad(camDispersionInc);
+        }
+        else
+            camDispersionInc = 0;
+    }
 
     CShootingObject::LoadFireParams(section, prefix);
 }
@@ -680,17 +689,24 @@ void CWeapon::ApplyUpgrades(LPCSTR flags)
 
     LPCSTR section_name = cNameSect().c_str();
 
-    u32 base_m_cost = pSettings->r_u32(section_name, "cost");
-    float base_m_weight = pSettings->r_float(section_name, "inv_weight");
-    float base_fTimeToFire = pSettings->r_float(section_name, "rpm");
-    float base_camMaxAngleHorz = pSettings->r_float(section_name, "cam_max_angle_horz");
-    float base_camMaxAngle = pSettings->r_float(section_name, "cam_max_angle");
+    add_m_cost = 0;
+    add_m_weight = 0;
+    add_fTimeToFire = 0.0f;
+    add_camMaxAngleHorz = 0.0f;
+    add_camMaxAngle = 0.0f;
+    add_camRelaxSpeed = 0.0f;
+    add_camDispersion = 0.0f;
+    add_camDispersionInc = 0.0f;
+    add_camDispertionFrac = 0.0f;
+    add_fireDispersionBase = 0.0f;
+    add_camStepAngleHorz = 0.0f;
 
-    u32 add_m_cost = 0;
-    float add_m_weight = 0;
-    float add_fTimeToFire = 0.0f;
-    float add_camMaxAngleHorz = 0.0f;
-    float add_camMaxAngle = 0.0f;
+    add_fireDispersionConditionFactor = 0.0f;
+    add_misfireProbability = 0.0f;
+    add_misfireConditionK = 0.0f;
+    add_conditionDecreasePerShot = 0.0f;
+
+    add_iMagazineSize = 0;
 
     for (size_t i = 0; i < len; ++i)
     {
@@ -712,6 +728,20 @@ void CWeapon::ApplyUpgrades(LPCSTR flags)
                 add_fTimeToFire += READ_IF_EXISTS(pSettings, r_float, final_name, "rpm", 0.0f);
                 add_camMaxAngleHorz += READ_IF_EXISTS(pSettings, r_float, final_name, "cam_max_angle_horz", 0.0f);
                 add_camMaxAngle += READ_IF_EXISTS(pSettings, r_float, final_name, "cam_max_angle", 0.0f);
+
+                add_camRelaxSpeed += READ_IF_EXISTS(pSettings, r_float, final_name, "cam_relax_speed", 0.0f);
+                add_camDispersion += READ_IF_EXISTS(pSettings, r_float, final_name, "cam_dispersion", 0.0f);
+                add_camDispersionInc += READ_IF_EXISTS(pSettings, r_float, final_name, "cam_dispersion_inc", 0.0f);
+                add_camDispertionFrac += READ_IF_EXISTS(pSettings, r_float, final_name, "cam_dispertion_frac", 0.0f);
+                add_fireDispersionBase += READ_IF_EXISTS(pSettings, r_float, final_name, "fire_dispersion_base", 0.0f);
+                add_camStepAngleHorz += READ_IF_EXISTS(pSettings, r_float, final_name, "cam_step_angle_horz", 0.0f);
+
+                add_fireDispersionConditionFactor += READ_IF_EXISTS(pSettings, r_float, final_name, "fire_dispersion_condition_factor", 0.0f);
+                add_misfireProbability += READ_IF_EXISTS(pSettings, r_float, final_name, "misfire_probability", 0.0f);
+                add_misfireConditionK += READ_IF_EXISTS(pSettings, r_float, final_name, "misfire_condition_k", 0.0f);
+                add_conditionDecreasePerShot += READ_IF_EXISTS(pSettings, r_float, final_name, "condition_shot_dec", 0.0f);
+
+                add_iMagazineSize += READ_IF_EXISTS(pSettings, r_u32, final_name, "ammo_mag_size", 0);
             }
         }
         else
@@ -730,9 +760,34 @@ void CWeapon::ApplyUpgrades(LPCSTR flags)
 
     fTimeToFire = 60.f / (base_fTimeToFire + add_fTimeToFire);
 
-    camMaxAngleHorz = deg2rad(base_camMaxAngleHorz - add_camMaxAngleHorz);
+    camMaxAngleHorz = deg2rad(base_camMaxAngleHorz + add_camMaxAngleHorz);
 
-    camMaxAngle = deg2rad(base_camMaxAngle - add_camMaxAngle);
+    camMaxAngle = deg2rad(base_camMaxAngle + add_camMaxAngle);
+
+
+    camRelaxSpeed = deg2rad(base_camRelaxSpeed + add_camRelaxSpeed);
+
+    camDispersion = deg2rad(base_camDispersion + add_camDispersion);
+    
+    camDispersionInc = deg2rad(base_camDispersionInc + add_camDispersionInc);
+
+    camDispertionFrac = base_camDispertionFrac + add_camDispertionFrac;
+
+    fireDispersionBase = deg2rad(base_fireDispersionBase + add_fireDispersionBase);
+
+    camStepAngleHorz = deg2rad(base_camStepAngleHorz + add_camStepAngleHorz);
+
+    fireDispersionConditionFactor = base_fireDispersionConditionFactor + add_fireDispersionConditionFactor;
+
+    misfireProbability = base_misfireProbability + add_misfireProbability;
+    
+    misfireConditionK = base_misfireConditionK + add_misfireConditionK;
+
+    conditionDecreasePerShot = base_conditionDecreasePerShot + add_conditionDecreasePerShot;
+
+    iMagazineSize = base_iMagazineSize + add_iMagazineSize;
+
+    upgrades_loaded = true;
 }
 
 BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
@@ -746,6 +801,46 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
     Msg(cNameSect().c_str());*/
 
     LPCSTR item_name = cName().c_str(); //obj->name_replace();
+    LPCSTR section_name = cNameSect().c_str();
+
+    base_m_cost = pSettings->r_u32(section_name, "cost");
+    base_m_weight = pSettings->r_float(section_name, "inv_weight");
+    base_fTimeToFire = pSettings->r_float(section_name, "rpm");
+    base_camMaxAngleHorz = pSettings->r_float(section_name, "cam_max_angle_horz");
+    base_camMaxAngle = pSettings->r_float(section_name, "cam_max_angle");
+    base_camRelaxSpeed = pSettings->r_float(section_name, "cam_relax_speed");
+    base_camDispersion = pSettings->r_float(section_name, "cam_dispersion");
+    base_camDispersionInc = READ_IF_EXISTS(pSettings, r_float, section_name, "cam_dispersion_inc", 0.0f);
+    base_camDispertionFrac = READ_IF_EXISTS(pSettings, r_float, section_name, "cam_dispertion_frac", 0.7f);
+    base_fireDispersionBase = pSettings->r_float(section_name, "fire_dispersion_base");
+    base_camStepAngleHorz = pSettings->r_float(section_name, "cam_step_angle_horz");
+
+    base_fireDispersionConditionFactor = pSettings->r_float(section_name, "fire_dispersion_condition_factor");
+    base_misfireProbability = pSettings->r_float(section_name, "misfire_probability");
+    base_misfireConditionK = READ_IF_EXISTS(pSettings, r_float, section_name, "misfire_condition_k", 1.0f);
+    base_conditionDecreasePerShot = pSettings->r_float(section_name, "condition_shot_dec");
+
+    base_iMagazineSize = pSettings->r_s32(section_name, "ammo_mag_size");
+
+    add_m_cost = 0;
+    add_m_weight = 0;
+    add_fTimeToFire = 0.0f;
+    add_camMaxAngleHorz = 0.0f;
+    add_camMaxAngle = 0.0f;
+    add_camRelaxSpeed = 0.0f;
+    add_camDispersion = 0.0f;
+    add_camDispersionInc = 0.0f;
+    add_camDispertionFrac = 0.0f;
+    add_fireDispersionBase = 0.0f;
+    add_camStepAngleHorz = 0.0f;
+
+    add_fireDispersionConditionFactor = 0.0f;
+    add_misfireProbability = 0.0f;
+    add_misfireConditionK = 0.0f;
+    add_conditionDecreasePerShot = 0.0f;
+
+    add_iMagazineSize = 0;
+
     const char* marker = "_upgradefl";
     const char* p = strstr(item_name, marker);
     if (NULL != p)

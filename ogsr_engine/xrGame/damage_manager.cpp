@@ -123,15 +123,15 @@ void CDamageManager::HitScale(const int element, float& hit_scale, float& wound_
     float scale;
     if (aim_bullet)
     {
-        scale = V->LL_GetBoneInstance(u16(element)).get_param(3);
+        scale = V->LL_GetBoneInstance(u16(element)).get_param(3);  // 4 коэф из конфига (например [stalker_damage]) для супер урона
     }
     else
     {
-        scale = V->LL_GetBoneInstance(u16(element)).get_param(0);
+        scale = V->LL_GetBoneInstance(u16(element)).get_param(0);  // 1 коэф из конфига для обычного урона
     }
     hit_scale = scale;
 
     // get wound scale
-    scale = V->LL_GetBoneInstance(u16(element)).get_param(2);
+    scale = V->LL_GetBoneInstance(u16(element)).get_param(2);  // 3 коэф из конфига для кровотечения
     wound_scale = scale;
 }
