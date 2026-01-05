@@ -750,6 +750,7 @@ public:
     IC void SetDrugRadProtection(float _prot) { m_fDrugRadProtectionCoeff = _prot; };
     IC void SetDrugPsyProtection(float _prot) { m_fDrugPsyProtectionCoeff = _prot; };
     float falloff_k;
+    float falloff_denominator;
 };
 
 extern bool isActorAccelerated(u32 mstate, bool ZoomMode);

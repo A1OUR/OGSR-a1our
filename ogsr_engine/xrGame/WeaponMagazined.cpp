@@ -1165,6 +1165,7 @@ bool CWeaponMagazined::Attach(PIItem pIItem, bool b_send_event)
             pIItem->object().DestroyObject();
         };
 
+
         if (!ScopeRespawn(pIItem))
         {
             UpdateAddonsVisibility();
@@ -1182,6 +1183,7 @@ bool CWeaponMagazined::Detach(const char* item_section_name, bool b_spawn_item)
     if (m_eScopeStatus == CSE_ALifeItemWeapon::eAddonAttachable && 0 != (m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonScope) && (m_sScopeName == item_section_name))
     {
         m_flagsAddOnState &= ~CSE_ALifeItemWeapon::eWeaponAddonScope;
+
 
         if (!ScopeRespawn(nullptr))
         {
@@ -1813,6 +1815,7 @@ bool CWeaponMagazined::ScopeRespawn(PIItem pIItem)
     if (pSettings->line_exist(cNameSect(), scope_respawn.c_str()))
     {
         LPCSTR S = pSettings->r_string(cNameSect(), scope_respawn.c_str());
+        LPCSTR S_name = cName().c_str();
         if (xr_strcmp(cName().c_str(), S) != 0)
         {
             CSE_Abstract* _abstract = Level().spawn_item(S, Position(), ai_location().level_vertex_id(), H_Parent()->ID(), true);
@@ -1835,6 +1838,7 @@ bool CWeaponMagazined::ScopeRespawn(PIItem pIItem)
 
             auto io = smart_cast<CInventoryOwner*>(H_Parent());
             auto ii = smart_cast<CInventoryItem*>(this);
+
             if (io)
             {
                 if (io->inventory().InSlot(ii))
@@ -1842,6 +1846,8 @@ bool CWeaponMagazined::ScopeRespawn(PIItem pIItem)
                 else
                     io->SetNextItemSlot(0);
             }
+            _abstract->set_name_replace(S_name);
+
 
             DestroyObject();
             sobj2->Spawn_Write(P, TRUE);

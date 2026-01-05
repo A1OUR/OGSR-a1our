@@ -331,6 +331,7 @@ protected:
 public:
 
     void ApplyUpgrades(LPCSTR flags);
+    void Rename(LPCSTR new_name);
 
     IC const Fvector& get_LastFP()
     {

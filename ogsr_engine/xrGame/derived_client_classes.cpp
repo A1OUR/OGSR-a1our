@@ -414,6 +414,7 @@ void CWeaponScript::script_register(lua_State* L)
 
                   .def("is_3dss_enabled", &CWeapon::Is3dssEnabled)
                   .def("apply_upgrades", &CWeapon::ApplyUpgrades)
+                  .def("rename", &CWeapon::Rename)
 
                   .property("ammo_elapsed", &CWeapon::GetAmmoElapsed, &CWeapon::SetAmmoElapsed)
                   .property("const_deviation", &CWeaponScript::FireDeviation) // отклонение при стрельбе от целика (для непристрелляного оружия).

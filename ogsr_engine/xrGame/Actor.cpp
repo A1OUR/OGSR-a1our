@@ -425,6 +425,7 @@ void CActor::Load(LPCSTR section)
     m_news_to_show = READ_IF_EXISTS(pSettings, r_u32, section, "news_to_show", NEWS_TO_SHOW);
     m_SafeRadius = READ_IF_EXISTS(pSettings, r_float, section, "safe_radius", 0);
     falloff_k = READ_IF_EXISTS(pSettings, r_float, section, "falloff_k", 0);
+    falloff_denominator = READ_IF_EXISTS(pSettings, r_float, section, "falloff_denominator", 0.18f);
 }
 
 void CActor::PHHit(SHit& H) { m_pPhysics_support->in_Hit(H, !g_Alive()); }
@@ -1611,6 +1612,8 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
     //        }
     //    }
     //}
+
+    falloff_k = 1.0f - (4.0f / (7.0f - log2f(base_protection / falloff_denominator)));
 
     base_protection = base_protection != 0 ? (base_protection * (1-pow(falloff_k, sum_protection/base_protection))) / (1 - falloff_k) : 0;
     float res_hit_power_k = 1.0f - base_protection;

@@ -671,6 +671,11 @@ void CWeapon::LoadFireParams(LPCSTR section, LPCSTR prefix)
     CShootingObject::LoadFireParams(section, prefix);
 }
 
+void CWeapon::Rename(LPCSTR new_name)
+{
+    cName_set(new_name);
+}
+
 void CWeapon::ApplyUpgrades(LPCSTR flags)
 {
     if (!flags)
@@ -688,6 +693,11 @@ void CWeapon::ApplyUpgrades(LPCSTR flags)
     Msg("Parsing upgrade flags: [%s]", flags_copy);
 
     LPCSTR section_name = cNameSect().c_str();
+
+    if (pSettings->line_exist(cNameSect(), "scope_respawn"))
+    {
+        section_name = pSettings->r_string(cNameSect(), "scope_respawn");
+    }
 
     add_m_cost = 0;
     add_m_weight = 0;
@@ -846,16 +856,6 @@ BOOL CWeapon::net_Spawn(CSE_Abstract* DC)
     if (NULL != p)
     {
         ApplyUpgrades(p + xr_strlen(marker));
-        /*fTimeToFire = 60.f / 1200.f;
-        camDispersion = 0.0f;
-        camDispersion = deg2rad(camDispersion);
-        fireDispersionBase = 0.0f;
-        fireDispersionBase = deg2rad(fireDispersionBase);
-        camMaxAngleHorz = 0.0f;
-        camMaxAngleHorz = deg2rad(camMaxAngleHorz);
-        camMaxAngle = 0.0f;
-        camMaxAngle = deg2rad(camMaxAngle);*/
-        //m_weight
     }
 
     // iAmmoCurrent					= E->a_current;
