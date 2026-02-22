@@ -258,5 +258,5 @@ u32 CWeaponAmmo::Cost() const
     float res = (float)m_cost;
     res *= (float)m_boxCurr / (float)m_boxSize;
     // return (u32)roundf(res); // VC18 only
-    return (u32)ceil(res + 0.5);
+    return (u32)iFloor(res + 0.5);
 }
