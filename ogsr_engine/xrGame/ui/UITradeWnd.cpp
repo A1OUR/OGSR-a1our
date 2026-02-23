@@ -292,6 +292,7 @@ void CUITradeWnd::Update()
         {
             HUD().GetUI()->UIGame()->RemoveCustomStatic("not_enough_money_mine");
             HUD().GetUI()->UIGame()->RemoveCustomStatic("not_enough_money_other");
+            HUD().GetUI()->UIGame()->RemoveCustomStatic("barter_dont_agree");
             m_uidata->UIDealMsg = NULL;
         }
     }
@@ -327,6 +328,7 @@ void CUITradeWnd::Hide()
     {
         HUD().GetUI()->UIGame()->RemoveCustomStatic("not_enough_money_mine");
         HUD().GetUI()->UIGame()->RemoveCustomStatic("not_enough_money_other");
+        HUD().GetUI()->UIGame()->RemoveCustomStatic("barter_dont_agree");
     }
 
     m_uidata->UIOurBagList.ClearAll(true);
