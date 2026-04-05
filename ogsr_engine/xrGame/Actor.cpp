@@ -793,6 +793,8 @@ void CActor::UpdateCL()
     m_pPhysics_support->in_UpdateCL();
     VERIFY2(_valid(renderable.xform), *cName());
 
+    Visual()->dcast_PKinematics()->CalculateBones(TRUE);
+
     if (g_Alive())
         PickupModeUpdate();
 
@@ -1123,8 +1125,8 @@ void CActor::shedule_Update(u32 DT)
     }
 
     //если в режиме HUD, то сама модель актера не рисуется
-    if (!character_physics_support()->IsRemoved() && !m_holder)
-        setVisible(!HUDview());
+    const bool hud_view = m_holder ? m_holder->HUDView() : cam_active == eacFirstEye;
+    setVisible(!character_physics_support()->IsRemoved() && !hud_view);
 
     //что актер видит перед собой
     collide::rq_result& RQ = HUD().GetCurrentRayQuery();
@@ -1214,7 +1216,7 @@ void CActor::renderable_Render(u32 context_id, IRenderable* root)
     {
         inherited::renderable_Render(context_id, root);
 
-        if (!HUDview())
+        if (!m_holder && !character_physics_support()->IsRemoved())
         {
             CInventoryOwner::renderable_Render(context_id, root);
         }
@@ -1223,7 +1225,7 @@ void CActor::renderable_Render(u32 context_id, IRenderable* root)
 
 BOOL CActor::renderable_ShadowReceive()
 {
-    if (m_holder)
+    if (m_holder || character_physics_support()->IsRemoved())
         return FALSE;
 
     return TRUE;
