@@ -446,7 +446,21 @@ void CAI_Stalker::update_best_item_info()
         m_best_ammo = m_best_item_to_kill;
         return;
     }
-    Msg("[%s]: BLYAAAA I LOST MY GUN", *cName());
+    if (!m_best_item_to_kill)
+    {
+        Msg("! [%s] DEBUG: No valid weapon found. Checking inventory...", *cName());
+        for (auto& item : inventory().m_all)
+        {
+            CInventoryItem* kill_item = item->can_kill(&inventory());
+            if (kill_item) {
+                Msg("!  [OK] Found valid killer: %s", item->object().cNameSect().c_str());
+            }
+            else {
+                Msg("!  [XX] Item rejected: %s", item->object().cNameSect().c_str());
+            }
+        }
+        Msg("[%s]: BLYAAAA I LOST MY GUN", *cName());
+    }
     return;
     //// so we do not have such an item
     //// check if we remember we saw item which can kill
@@ -791,11 +805,12 @@ bool CAI_Stalker::fire_make_sense()
         return (false);
     }
 
-    if (_abs(Position().y - enemy->Position().y) > FLOOR_DISTANCE)
+    //мне кажется эта проверка ничего полезного не даёт
+    /*if (_abs(Position().y - enemy->Position().y) > FLOOR_DISTANCE)
     {
         Msg("[%s] fire_make_sense: vertical distance too large (different floors?)", *cName());
         return (false);
-    }
+    }*/
 
     if (pick_distance() < NEAR_DISTANCE)
     {

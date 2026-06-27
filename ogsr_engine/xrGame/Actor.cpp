@@ -520,8 +520,9 @@ void CActor::Hit(SHit* pHDS)
     HitMark(HDS.damage(), HDS.dir, HDS.who, HDS.bone(), HDS.p_in_bone_space, HDS.impulse, HDS.hit_type);
 
     float hit_power = HitArtefactsOnBelt(HDS.damage(), HDS.hit_type);
-    //Msg("damage before art:%f", HDS.damage());
-    //Msg("damage after art:%f", hit_power);
+    Msg("hit start time : %6d", Device.dwTimeGlobal);
+    Msg("damage before art:%f", HDS.damage());
+    Msg("damage after art:%f", hit_power);
     if (GodMode())
     {
         HDS.power = 0.0f;
@@ -1582,9 +1583,8 @@ void CActor::UpdateArtefactsOnBelt()
 
 float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool belt_only)
 {
-    float base_protection = 0.0f;
-    float sum_protection = 0.0f;
-    //u32 max_belt = inventory().GetMaxBelt();
+    // 1. Собираем все значения защиты в вектор
+    xr_vector<float> protections;
     for (TIItemContainer::iterator it = inventory().m_belt.begin(); inventory().m_belt.end() != it; ++it)
     {
         CArtefact* artefact = smart_cast<CArtefact*>(*it);
@@ -1592,35 +1592,45 @@ float CActor::HitArtefactsOnBelt(float hit_power, ALife::EHitType hit_type, bool
         {
             if (!Core.Features.test(xrCore::Feature::af_zero_condition) || !fis_zero(artefact->GetCondition()))
             {
-                float local_protection = 1.0f -(artefact->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type));
-                //берём наибольшую защиту из артов на поиси
-                base_protection = _max(local_protection, base_protection);
-                //складываем резисты со всех артов на поиси
-                sum_protection += local_protection;
+                float local_protection = 1.0f - artefact->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type);
+                if (local_protection > 0.01f)
+                protections.push_back(local_protection);
             }
         }
     }
-    // учет иммунитета от шлема
-    //PIItem helm = inventory().m_slots[HELMET_SLOT].m_pIItem;
-    //if (helm && !belt_only)
-    //{
-    //    CArtefact* helmet = smart_cast<CArtefact*>(helm);
-    //    if (helmet)
-    //    {
-    //        if (!Core.Features.test(xrCore::Feature::af_zero_condition) || !fis_zero(helmet->GetCondition()))
-    //        {
-    //            Msg("HELMAETS ARE DISABLED");
-    //            //res_hit_power_k += helmet->m_ArtefactHitImmunities.AffectHit(1.0f, hit_type);
-    //            //_af_count += 1.0f;
-    //        }
-    //    }
-    //}
 
-    falloff_k = 1.0f - (4.0f / (7.0f - log2f(base_protection / falloff_denominator)));
+    // Если артефактов нет — урон не меняется
+    if (protections.empty())
+        return hit_power;
 
-    base_protection = base_protection != 0 ? (base_protection * (1-pow(falloff_k, sum_protection/base_protection))) / (1 - falloff_k) : 0;
-    float res_hit_power_k = 1.0f - base_protection;
-    return res_hit_power_k > 0 ? (res_hit_power_k * hit_power) : (0.01f * hit_power); // резист больше 100 - наносим 1 процент от урона
+    // 2. calc_bonus: ищем max и считаем бонус
+    float max_belt = protections.front();
+    for (u32 i = 1; i < protections.size(); ++i)
+        max_belt = _max(max_belt, protections[i]);
+
+    float bonus = 0.0f;
+    for (u32 i = 0; i < protections.size(); ++i)
+        bonus += powf(1.0f / 3.0f, (max_belt - protections[i]) / 0.15f);
+    bonus -= 1.0f;
+
+    // 3. calc_part: кусочная функция
+    float part = 0.0f;
+    if (bonus >= 3.0f)
+        part = 15.0f;
+    else if (bonus >= 2.0f)
+        part = 13.0f + 2.0f * (bonus - 2.0f);
+    else if (bonus >= 1.0f)
+        part = 8.0f + 5.0f * (bonus - 1.0f);
+    else if (bonus >= 0.0f)
+        part = 8.0f * bonus;
+    // else bonus < 0 → part = 0 (по умолчанию)
+
+    // 4. Финальная защита: base + 0.01 * part
+    float final_protection = max_belt + 0.01f * part;
+
+    // 5. Возвращаем урон с учётом защиты
+    float res_hit_power_k = 1.0f - final_protection;
+    return res_hit_power_k > 0.01f ? (res_hit_power_k * hit_power) : (0.01f * hit_power);
 }
 
 Fvector CActor::GetMissileOffset() const { return m_vMissileOffset; }

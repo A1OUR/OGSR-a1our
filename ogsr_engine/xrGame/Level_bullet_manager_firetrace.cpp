@@ -408,7 +408,8 @@ std::pair<float, float> CBulletManager::ObjectHit(SBullet* bullet, const Fvector
     //коэффициент уменьшение силы с падением скорости
     float speed_factor = bullet->speed / bullet->max_speed;
     //получить силу хита выстрела с учетом патрона
-    float power = bullet->hit_power * speed_factor;
+    //float power = bullet->hit_power * speed_factor;
+    float power = bullet->hit_power;
 
     SGameMtl* mtl = GMLib.GetMaterialByIdx(target_material);
 
